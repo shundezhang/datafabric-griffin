@@ -56,10 +56,12 @@ public class FtpCmdEnc extends AbstractFtpCmd {
         	String token = getParser().findCommandToken(msg);
         	if (token==null){
         		msgOut(MSG500_CMD, new String[]{msg});
+        		return;
         	}
         	FtpCmd cmd = getParser().createCommandByToken(token);
         	if (cmd==null){
         		msgOut(MSG500_CMD, new String[]{msg});
+        		return;
         	}
             String args = msg.substring(token.length()).trim();
             cmd.setArguments(args);
