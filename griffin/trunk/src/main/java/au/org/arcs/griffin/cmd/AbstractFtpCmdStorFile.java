@@ -94,7 +94,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
      */
     protected void doStoreFileData(InputStream is, FileObject file, long offset) throws IOException {
         OutputStream os = new RafOutputStream(file, offset);
-        int bufferSize = getCtx().getOptions().getBufferSize();
+        int bufferSize = getCtx().getBufferSize();
         byte[] buffer = new byte[bufferSize];
         int count;
         try {

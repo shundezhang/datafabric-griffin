@@ -127,6 +127,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     private int parallelMax;
     
     private boolean confirmEOFs;
+    private int bufferSize;
     /**
      * Constructor.
      * 
@@ -652,6 +653,14 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 
 	public void setConfirmEOFs(boolean confirmEOFs) {
 		this.confirmEOFs = confirmEOFs;
+	}
+
+	public int getBufferSize() {
+		return bufferSize;
+	}
+
+	public void setBufferSize(int bufferSize) {
+		this.bufferSize = bufferSize;
 	}
 
 

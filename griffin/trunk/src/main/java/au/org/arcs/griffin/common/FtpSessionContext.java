@@ -367,5 +367,9 @@ public interface FtpSessionContext {
 	void setConfirmEOFs(boolean confirmEOFs);
 
 	void disconnectFileSystem();
+	
+	public int getBufferSize();
+	public void setBufferSize(int bufferSize);
+
 
 }

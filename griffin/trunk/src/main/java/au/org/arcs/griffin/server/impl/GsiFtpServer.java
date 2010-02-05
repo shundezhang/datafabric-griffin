@@ -28,7 +28,7 @@ public class GsiFtpServer extends DefaultFtpServer {
     protected FtpSessionContext createFtpContext() {
         FtpSessionContext ctx = new FtpSessionContextImpl(getOptions(), getFileSystem(), ResourceBundle
             .getBundle(getResources()), this);
-        ctx.setAttribute(ATTR_SSL, Boolean.FALSE);
+        ctx.setBufferSize(ctx.getOptions().getBufferSize());
         return ctx;
     }
 
