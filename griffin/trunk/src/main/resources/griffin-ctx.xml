@@ -41,6 +41,7 @@
 	<bean id="cmdSbuf" class="au.org.arcs.griffin.cmd.impl.FtpCmdSbuf" singleton="false" />
 	<bean id="cmdSite" class="au.org.arcs.griffin.cmd.impl.FtpCmdSite" singleton="false" />
 	<bean id="cmdSize" class="au.org.arcs.griffin.cmd.impl.FtpCmdSize" singleton="false" />
+	<bean id="cmdSpas" class="au.org.arcs.griffin.cmd.impl.FtpCmdSpas" singleton="false" />
 	<bean id="cmdSpor" class="au.org.arcs.griffin.cmd.impl.FtpCmdSpor" singleton="false" />
 	<bean id="cmdStat" class="au.org.arcs.griffin.cmd.impl.FtpCmdStat" singleton="false" />
 	<bean id="cmdStor" class="au.org.arcs.griffin.cmd.impl.FtpCmdStor" singleton="false" />
@@ -104,6 +105,7 @@
 				<entry key="SITE" value="cmdSite" />
 				<entry key="SIZE" value="cmdSize" />
 				<entry key="SMNT" value="cmdNotImpl" />
+				<entry key="SPAS" value="cmdSpas" />
 				<entry key="SPOR" value="cmdSpor" />
 				<entry key="STAT" value="cmdStat" />
 				<entry key="STOR" value="cmdStor" />
@@ -123,22 +125,14 @@
 	<bean id="options" class="au.org.arcs.griffin.server.impl.FtpServerOptionsImpl" singleton="true">
 		<property name="properties">
 			<props>
-				<prop key="ftp.root.dir"></prop>
 				<prop key="max.connections">20</prop>
 				<prop key="max.idle.seconds">600</prop>
 				<prop key="buffer.size">2048000</prop>
 				<prop key="allowed.passive.ports">40000-41000</prop>
 				<prop key="ftp.port">2811</prop>
-				<prop key="ssl.force">false</prop>
-				<prop key="ssl.allow.explicit">true</prop>
-				<prop key="ssl.allow.implicit">true</prop>
-				<prop key="ssl.port.implicit">9900</prop>
-				<prop key="ssl.keystore.file">keystore</prop>
-				<prop key="ssl.keystore.password">secret</prop>
-				<prop key="ssl.cipher.suites"></prop>
 				<prop key="charset.ebcdic">CP1047</prop>
 				<prop key="charset.ascii">ISO-8859-1</prop>
-				<prop key="console.enabled">true</prop>
+<!-- 				<prop key="console.enabled">true</prop> -->
 				<prop key="service.key">/etc/grid-security/hostkey.pem</prop>
 				<prop key="service.cert">/etc/grid-security/hostcert.pem</prop>
 				<prop key="service.trusted.certs">/etc/grid-security/certificates</prop>
