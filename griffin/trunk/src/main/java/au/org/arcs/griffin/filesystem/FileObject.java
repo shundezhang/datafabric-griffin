@@ -17,4 +17,5 @@ public interface FileObject {
 	public boolean delete();
 	public FileObject getParent();
 	public boolean mkdir();
+	public boolean renameTo(FileObject file);
 }

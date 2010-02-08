@@ -28,6 +28,7 @@ import java.io.File;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
+import au.org.arcs.griffin.filesystem.FileObject;
 
 
 /**
@@ -47,7 +48,8 @@ public class FtpCmdRnfr extends AbstractFtpCmd {
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-        if ((getPermission() & PRIV_WRITE) == 0) {
+    	FileObject dir=getCtx().getFileSystemConnection().getFileObject(getCtx().getRemoteDir());
+        if ((dir.getPermission() & PRIV_WRITE) == 0) {
             msgOut(MSG550_PERM);
             return;
         }

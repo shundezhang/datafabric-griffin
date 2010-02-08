@@ -98,5 +98,11 @@ public class JargonFileObject implements FileObject {
 		return remoteFile.mkdir();
 		
 	}
+	public boolean renameTo(FileObject file) {
+		if (file instanceof IRODSFile) 
+			return remoteFile.renameTo(new IRODSFile((IRODSFileSystem)remoteFile.getFileSystem(),file.getName()));
+		else 
+			return false;
+	}
 
 }

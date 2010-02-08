@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
+import au.org.arcs.griffin.filesystem.FileObject;
 
 /**
  * <b>RENAME TO (RNTO)</b>
@@ -52,7 +53,7 @@ public class FtpCmdRnto extends AbstractFtpCmd {
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-        File originalPath = (File) getCtx().getAttribute(ATTR_RENAME_FILE);
+    	FileObject originalPath = (FileObject) getCtx().getAttribute(ATTR_RENAME_FILE);
         if (originalPath == null) {
             msgOut(MSG503);
             return;
@@ -63,7 +64,7 @@ public class FtpCmdRnto extends AbstractFtpCmd {
             return;
         }
         String newPathName = getPathArg();
-        File newPath = new File(newPathName);
+        FileObject newPath = getCtx().getFileSystemConnection().getFileObject(newPathName);
         if (newPath.exists()) {
             log.debug(newPath + " already exists");
             msgOut(MSG550_EXISTS);
