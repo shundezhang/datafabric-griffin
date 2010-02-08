@@ -1,15 +1,18 @@
 package au.org.arcs.griffin.cmd.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
 import au.org.arcs.griffin.filesystem.FileObject;
 
 public class FtpCmdMlst extends AbstractFtpCmd {
-
+	private static Log log = LogFactory.getLog(FtpCmdMlst.class);
 	public void execute() throws FtpCmdException {
 		String arg=getArguments();
         String path = getAbsPath(arg);
-        FileObject file=getCtx().getFileSystemConnection().getFileObject(path);; 
+        FileObject file=getCtx().getFileSystemConnection().getFileObject(path);
 
         if (!file.exists()) {
             msgOut(MSG550);
@@ -17,7 +20,7 @@ public class FtpCmdMlst extends AbstractFtpCmd {
         }
         StringBuffer sb=new StringBuffer("250- Listing " + arg + "\r\n");
         sb.append(" ");
-        sb.append(printFact(file));
+        sb.append(printFact(file)).append("\r\n");
         sb.append("250 End");
         out(sb.toString());
 
@@ -33,15 +36,24 @@ public class FtpCmdMlst extends AbstractFtpCmd {
         }
         buffer.append("Modify=").append(file.lastModified()).append(";");
         buffer.append("Perm=");
+        int perm=file.getPermission();
+        log.debug("file perm:"+perm);
         if (file.isDirectory()){
-        	if ((file.getPermission()&PRIV_WRITE)==1) buffer.append("cdm");
+        	if ((perm&PRIV_WRITE)==PRIV_WRITE) buffer.append("cdm");
         	buffer.append('e');
-        	if ((file.getPermission()&PRIV_READ)==1) buffer.append("l");
+        	if ((perm&PRIV_READ)==PRIV_READ) buffer.append("l");
         }else{
-        	if ((file.getPermission()&PRIV_READ)==1) buffer.append("r");
-        	if ((file.getPermission()&PRIV_WRITE)==1) buffer.append("d");
+        	if ((perm&PRIV_READ)==PRIV_READ) buffer.append("r");
+        	if ((perm&PRIV_WRITE)==PRIV_WRITE) buffer.append("d");
         }
         buffer.append(";");
+        if (file.isDirectory()){
+        	buffer.append("UNIX.mode=0755;");
+        }else{
+        	buffer.append("UNIX.mode=0644;");
+        }
+        buffer.append(" ");
+        buffer.append(file.getCanonicalPath());
 		return buffer.toString();
 	}
 
