@@ -36,6 +36,13 @@ public class FtpCmdSite extends AbstractFtpCmd {
             getCtx().setBufferSize(bufsize);
             out("200 bufsize set to " + bufsize);
 
+        } else if (args[0].equalsIgnoreCase("CHMOD")) {
+            if (args.length != 3) {
+                out("500 command must be in the form 'SITE CHMOD <octal perms> <file/dir>'");
+                return;
+            }
+            //TODO do something
+            out("200 ok");
         }else{
     		StringBuffer msg=new StringBuffer();
     		msg.append("214-The following commands are recognized:\r\n");
