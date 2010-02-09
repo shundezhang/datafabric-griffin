@@ -31,6 +31,7 @@ import java.util.Date;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
+import au.org.arcs.griffin.filesystem.FileObject;
 
 
 /**
@@ -71,10 +72,10 @@ public class FtpCmdMdtm extends AbstractFtpCmd {
 
         /* Proceed with valid arguments */
         pathName = getAbsPath(pathName);
-        File path = new File(pathName);
+        FileObject path = getCtx().getFileSystemConnection().getFileObject(pathName);
         if (path.exists()) {
             if (date != null) {
-                if ((getCtx().getPermission(pathName) & PRIV_WRITE) == 0) {
+                if ((path.getPermission() & PRIV_WRITE) == 0) {
                     msgOut(MSG550_PERM);
                     return;
                 } else {
@@ -82,7 +83,7 @@ public class FtpCmdMdtm extends AbstractFtpCmd {
                 }
 
             }
-            if ((getCtx().getPermission(pathName) & PRIV_READ) == 0) {
+            if ((path.getPermission() & PRIV_READ) == 0) {
                 msgOut(MSG550_PERM);
             } else {
                 date = new Date(path.lastModified());

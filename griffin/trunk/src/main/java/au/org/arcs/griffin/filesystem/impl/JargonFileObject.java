@@ -75,15 +75,12 @@ public class JargonFileObject implements FileObject {
 		return list;
 	}
 	public long lastModified() {
-		// TODO Auto-generated method stub
 		return remoteFile.lastModified();
 	}
 	public long length() {
-		// TODO Auto-generated method stub
 		return remoteFile.length();
 	}
 	public RandomAccessFileObject getRandomAccessFileObject(String type) throws IOException {
-		// TODO Auto-generated method stub
 		return new JargonRandomAccessFileObjectImpl(remoteFile,type);
 	}
 	public boolean delete() {
@@ -91,7 +88,6 @@ public class JargonFileObject implements FileObject {
 		
 	}
 	public FileObject getParent() {
-		// TODO Auto-generated method stub
 		return new JargonFileObject((RemoteFile) remoteFile.getParentFile());
 	}
 	public boolean mkdir() {
@@ -103,6 +99,9 @@ public class JargonFileObject implements FileObject {
 			return remoteFile.renameTo(new IRODSFile((IRODSFileSystem)remoteFile.getFileSystem(),file.getName()));
 		else 
 			return false;
+	}
+	public boolean setLastModified(long t) {
+		return remoteFile.setLastModified(t);
 	}
 
 }
