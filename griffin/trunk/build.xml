@@ -54,8 +54,8 @@
         </jar>
     </target>
 	
-	<target name="merge" depends="jar">
-		<jar jarfile="${dist}/${application}_full.jar">  
+	<target name="merge-for-jargon" depends="jar">
+		<jar jarfile="${dist}/${application}_jargon.jar">  
 <!--		  <fileset dir="classes" includes="**/*.class" />    manifest="src/MANIFEST.MF"-->
 			<zipfileset src="${dist}/${application}.jar" />  
 			<zipfileset src="${lib}/bcprov-jdk15-140.jar" includes="**/*.class"/>  
@@ -81,32 +81,34 @@
 		</jar> 
 	</target>
 	
-	<target name="package" depends="merge">
-		<mkdir dir="${package}/${application}-${app.version}"/>
-		<copy file="${bin}/install.sh" todir="${package}/${application}-${app.version}"/>
-		<copy file="${bin}/${application}" todir="${package}/${application}-${app.version}"/>
-		<copy file="${dist}/${application}_full.jar" todir="${package}/${application}-${app.version}"/>
-		<copy file="${resources}/log4j.properties" todir="${package}/${application}-${app.version}"/>
-		<copy file="${resources}/griffin-ctx.xml" todir="${package}/${application}-${app.version}"/>
+	<target name="package-jargon" depends="merge-for-jargon">
+		<!--		<mkdir dir="${package}/${application}-${app.version}-jargon"/>
+		<copy file="${bin}/install.sh" todir="${package}/${application}-${app.version}-jargon"/>
+		<copy file="${bin}/${application}" todir="${package}/${application}-${app.version}-jargon"/>
+		<copy file="${dist}/${application}_jargon.jar" todir="${package}/${application}-${app.version}-jargon"/>
+		<copy file="${resources}/log4j.properties" todir="${package}/${application}-${app.version}-jargon"/>
+		<copy file="${resources}/griffin-ctx.xml" todir="${package}/${application}-${app.version}-jargon"/>
 		<chmod file="${bin}/install.sh" perm="+x"/>
-		<chmod file="${bin}/${application}" perm="+x"/>
-		<tar destfile="${dist}/${application}-${app.version}.tar.gz" compression="gzip">
-			<tarfileset dir="${package}/${application}-${app.version}" prefix="${application}-${app.version}/">
-			    <include name="${application}_full.jar"/>
+		<chmod file="${bin}/${application}" perm="+x"/> -->
+		<tar destfile="${dist}/${application}-${app.version}-jargon.tar.gz" compression="gzip">
+			<tarfileset dir="${dist}" prefix="${application}-${app.version}-jargon/">
+			    <include name="${application}_jargon.jar"/>
+			</tarfileset>
+			<tarfileset dir="${resources}" prefix="${application}-${app.version}-jargon/">
 			    <include name="log4j.properties"/>
 			    <include name="griffin-ctx.xml"/>
 			</tarfileset>
-			<tarfileset dir="${package}/${application}-${app.version}" filemode="755" prefix="${application}-${app.version}/">
+			<tarfileset dir="${bin}" filemode="755" prefix="${application}-${app.version}-jargon/">
 			    <include name="${application}"/>
 			    <include name="install.sh"/>
 			</tarfileset>
 		</tar>
 <!--		<gzip zipfile="${dist}/${application}-${app.version}.tar.gz" src="${dist}/${application}-${app.version}.tar"/>
-		<delete file="${dist}/${application}-${app.version}.tar"/> -->
-		<delete dir="${package}"/>
+		<delete file="${dist}/${application}-${app.version}.tar"/>
+		<delete dir="${package}"/> -->
 	</target>
 	
-    <target name="sign-merge" depends="merge">
+    <target name="sign-merge" depends="merge-for-jargon">
     	<echo level="info">Signing ONE MERGED JAR...</echo>
 		<signjar jar="${dist}/${application}_full.jar" keystore="${keystore}" alias="myalias" storepass="myalias"/>   
 <!--	<copy file="${dist}/${application}_obf.jar" tofile="jws/${application}.jar"/> -->
@@ -142,6 +144,6 @@
   
   <target name="all" depends="clean, sign-merge" description="Clean build of core targets" />
 
-  <target name="dist" depends="clean, merge" description="Clean build of all dist targets"/>
+  <target name="dist" depends="clean, merge-for-jargon" description="Clean build of all dist targets"/>
     
 </project>
