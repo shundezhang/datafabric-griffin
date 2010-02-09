@@ -37,6 +37,7 @@ import au.org.arcs.griffin.filesystem.FileObject;
  * <b>SIZE</b> Returns the size of the passed path in bytes.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdSize extends AbstractFtpCmd {
 

@@ -1,8 +1,14 @@
 package au.org.arcs.griffin.streams;
 
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+/**
+ * E data block wrapper
+ * @author Shunde Zhang
+ *
+ */
 
 public class    EDataBlock implements BlockModeConstants{
     private byte[] header;

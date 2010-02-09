@@ -10,6 +10,20 @@ import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.cmd.FtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
 
+/**
+ * <b> Privacy Protected Command </b>
+ * 
+ * The argument field of ENC is a Telnet string
+ * consisting of a base 64 encoded "private" message produced by a
+ * security mechanism specific message integrity and confidentiality
+ * procedure.
+ * 
+ * The server will decode and/or verify the encoded message.
+ * 
+ * @author Shunde Zhang
+ *
+ */
+
 public class FtpCmdEnc extends AbstractFtpCmd {
 	private static Log log = LogFactory.getLog(FtpCmdEnc.class);
 

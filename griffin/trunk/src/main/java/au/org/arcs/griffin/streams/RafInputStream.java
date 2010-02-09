@@ -37,6 +37,7 @@ import au.org.arcs.griffin.filesystem.RandomAccessFileObject;
  * Wrapper class for reading a RandomAccessFile through the InputStream abstraction.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class RafInputStream extends InputStream implements RecordReadSupport {
 

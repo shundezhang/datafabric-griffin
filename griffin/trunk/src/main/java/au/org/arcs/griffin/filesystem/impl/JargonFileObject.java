@@ -15,7 +15,11 @@ import edu.sdsc.grid.io.RemoteFileSystem;
 import edu.sdsc.grid.io.irods.IRODSFile;
 import edu.sdsc.grid.io.irods.IRODSFileSystem;
 
-
+/**
+ * an implementation for jargon
+ * @author Shunde Zhang
+ *
+ */
 public class JargonFileObject implements FileObject {
 	private static Log log = LogFactory.getLog(JargonFileObject.class);
 	private RemoteFile remoteFile;

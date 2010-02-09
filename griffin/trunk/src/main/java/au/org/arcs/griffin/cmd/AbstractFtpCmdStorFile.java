@@ -47,6 +47,7 @@ import au.org.arcs.griffin.utils.IOUtils;
  * Abstract STOR command implementation that saves files to the local disk.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
 

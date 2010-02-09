@@ -53,6 +53,7 @@ import au.org.arcs.griffin.utils.TransferRateLimiter;
  * Ancestor command class that is extended by commands that store data on the remote file system.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
 

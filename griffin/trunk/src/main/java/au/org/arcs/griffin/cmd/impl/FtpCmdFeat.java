@@ -133,6 +133,7 @@ import au.org.arcs.griffin.exception.FtpCmdException;
  * </p>
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdFeat extends AbstractFtpCmd {
 

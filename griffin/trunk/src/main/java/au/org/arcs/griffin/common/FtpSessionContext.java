@@ -52,6 +52,7 @@ import au.org.arcs.griffin.usermanager.model.UserData;
  * be stored in the context.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public interface FtpSessionContext {
 

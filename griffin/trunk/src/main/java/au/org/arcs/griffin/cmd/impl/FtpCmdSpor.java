@@ -1,27 +1,3 @@
-/*
- * ------------------------------------------------------------------------------
- * Hermes FTP Server
- * Copyright (c) 2005-2007 Lars Behnke
- * ------------------------------------------------------------------------------
- * 
- * This file is part of Hermes FTP Server.
- * 
- * Hermes FTP Server is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- * 
- * Hermes FTP Server is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Hermes FTP Server; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * ------------------------------------------------------------------------------
- */
-
 package au.org.arcs.griffin.cmd.impl;
 
 import java.io.IOException;
@@ -30,27 +6,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
-import au.org.arcs.griffin.cmd.AbstractFtpCmdPort;
 import au.org.arcs.griffin.cmd.ActiveModeSocketProvider;
 import au.org.arcs.griffin.cmd.DataChannelInfo;
 import au.org.arcs.griffin.cmd.SocketProvider;
 import au.org.arcs.griffin.exception.FtpCmdException;
 
 /**
- * <b>DATA PORT (PORT)</b>
+ * <b>Striped Data Port (SPOR)</b>
  * <p>
- * The argument is a HOST-PORT specification for the data port to be used in data connection. There
- * are defaults for both the user and server data ports, and under normal circumstances this command
- * and its reply are not needed. If this command is used, the argument is the concatenation of a
- * 32-bit internet host address and a 16-bit TCP port address. This address information is broken
- * into 8-bit fields and the value of each field is transmitted as a decimal number (in character
- * string representation). The fields are separated by commas. A port command would be: PORT
- * h1,h2,h3,h4,p1,p2 where h1 is the high order 8 bits of the internet host address.
- * <p>
- * <i>[Excerpt from RFC-959, Postel and Reynolds]</i>
- * </p>
+ * This extension is to be used as a complement to the SPAS command to 
+ * implement striped third-party transfers. To simplify interaction with 
+ * the parallel data transfer extensions, the SPOR MUST only be done on 
+ * a control connection when the data is to be retrieved from the file 
+ * space served by that control connection for a third-party transfer.  
+ * This command MUST always be used in conjunction with the extended block mode.  
  * 
- * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdSpor extends AbstractFtpCmd {
 	private static Log log = LogFactory.getLog(FtpCmdSpor.class);

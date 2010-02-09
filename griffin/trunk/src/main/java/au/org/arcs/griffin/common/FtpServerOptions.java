@@ -39,6 +39,7 @@ import au.org.arcs.griffin.exception.FtpConfigException;
  * configuration file.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public interface FtpServerOptions {
 

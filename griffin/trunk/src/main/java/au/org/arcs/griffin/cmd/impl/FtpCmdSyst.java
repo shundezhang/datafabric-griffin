@@ -45,7 +45,7 @@ public class FtpCmdSyst extends AbstractFtpCmd {
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-        out("215 UNIX Type: L8 (emulated by Hermes FTP)");
+        out("215 UNIX Type: L8 (emulated by Griffin FTP)");
     }
 
     /**

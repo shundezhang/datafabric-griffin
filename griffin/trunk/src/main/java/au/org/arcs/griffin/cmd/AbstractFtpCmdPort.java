@@ -36,6 +36,7 @@ import au.org.arcs.griffin.exception.FtpCmdException;
  * Abstract super class of commands setting up the data channel in passive mode (PASV, EPSV).
  * 
  * @author Behnke
+ * @author Shunde Zhang
  */
 public abstract class AbstractFtpCmdPort extends AbstractFtpCmd {
 

@@ -2,6 +2,12 @@ package au.org.arcs.griffin.filesystem;
 
 import java.io.IOException;
 
+/**
+ * File object interface
+ * @author Shunde Zhang
+ *
+ */
+
 public interface FileObject {
 	public String getName();
 	public String getPath();

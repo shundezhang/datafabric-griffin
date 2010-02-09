@@ -13,6 +13,11 @@ import edu.sdsc.grid.io.RemoteFileSystem;
 import edu.sdsc.grid.io.irods.IRODSAccount;
 import edu.sdsc.grid.io.irods.IRODSFileSystem;
 
+/**
+ * an implementation for jargon
+ * @author Shunde Zhang
+ *
+ */
 
 public class JargonFileSystemConnectionImpl implements FileSystemConnection {
 	private static Log log = LogFactory.getLog(JargonFileSystemConnectionImpl.class);

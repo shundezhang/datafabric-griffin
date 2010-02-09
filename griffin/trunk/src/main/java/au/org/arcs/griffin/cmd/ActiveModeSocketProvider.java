@@ -43,6 +43,7 @@ import au.org.arcs.griffin.utils.IOUtils;
  * is needed.
  * 
  * @author Behnke
+ * @author Shunde Zhang
  */
 public class ActiveModeSocketProvider implements SocketProvider {
 	private static Log          log               = LogFactory.getLog(ActiveModeSocketProvider.class);

@@ -34,6 +34,7 @@ import au.org.arcs.griffin.filesystem.RandomAccessFileObject;
  * Wrapper class for writing to a RandomAccessFile through the OutputStream abstraction.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class RafOutputStream extends OutputStream implements RecordWriteSupport {
 

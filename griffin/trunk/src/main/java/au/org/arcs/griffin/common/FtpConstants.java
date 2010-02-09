@@ -28,6 +28,7 @@ package au.org.arcs.griffin.common;
  * General constants of the application.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public interface FtpConstants {
 
@@ -138,10 +139,10 @@ public interface FtpConstants {
     /* Various constants */
 
     /** Konfiguration of the Spring application context. */
-    public static final String   DEFAULT_BEAN_RES          = "hermesftp-ctx.xml";
+    public static final String   DEFAULT_BEAN_RES          = "griffin-ctx.xml";
 
     /** Environment property key that points to the application's home directory. * */
-    public static final String   HERMES_HOME               = "HERMES_HOME";
+    public static final String   GRIFFIN_HOME               = "GRIFFIN_HOME";
 
     /** Default key store password. */
     public static final String   DEFAULT_KEYSTORE_PASS     = "secret";

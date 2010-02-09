@@ -48,9 +48,10 @@ import au.org.arcs.griffin.utils.NetUtils;
 import au.org.arcs.griffin.utils.SecurityUtil;
 
 /**
- * Hermes FTP application.
+ * Griffin FTP application.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public final class FtpServerStarter {
 
@@ -77,9 +78,9 @@ public final class FtpServerStarter {
         if (args.length > 0 && args[0].trim().equalsIgnoreCase("-password")) {
             generatePassword(args);
         } else {
-            log.info("Starting Hermes FTP Server...");
+            log.info("Starting Griffin FTP Server...");
             PluginManager.startApplication(FtpServerStarter.class.getName(), "startServer", args);
-            log.info("Hermes FTP Server ready.");
+            log.info("Griffin FTP Server ready.");
         }
     }
     
@@ -132,6 +133,8 @@ public final class FtpServerStarter {
         File file = new File(beanRes);
 
         logPaths(file);
+        if (System.getProperty(FtpConstants.GRIFFIN_HOME)==null)
+        	System.setProperty(FtpConstants.GRIFFIN_HOME,file.getPath());
 
         /* Prepare three main threads */
         ApplicationContext appContext = getApplicationContext(beanRes, file);
@@ -199,7 +202,7 @@ public final class FtpServerStarter {
 
         log.info("Application context: " + file);
         if (file != null && file.getParent() != null) {
-            System.setProperty("hermes.ctx.dir", file.getParent());
+            System.setProperty("griffin.ctx.dir", file.getParent());
             log.info("Application context path: " + file.getParent());
         }
     }
@@ -209,7 +212,7 @@ public final class FtpServerStarter {
         if (file.exists()) {
             appContext = new FileSystemXmlApplicationContext("file:"+beanRes);
         } else {
-            log.error("Hermes FTP application context not found: " + file
+            log.error("Griffin FTP application context not found: " + file
                     + ". Trying to read context from classpath...");
             appContext = new ClassPathXmlApplicationContext(
                 new String[] {"/" + FtpConstants.DEFAULT_BEAN_RES});

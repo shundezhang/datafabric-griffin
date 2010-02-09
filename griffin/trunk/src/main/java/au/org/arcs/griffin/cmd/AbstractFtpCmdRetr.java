@@ -50,6 +50,7 @@ import au.org.arcs.griffin.utils.TransferRateLimiter;
  * Abstract base class for RETR command implementations.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpConstants {
 

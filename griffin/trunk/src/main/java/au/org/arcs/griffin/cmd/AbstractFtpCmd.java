@@ -46,6 +46,7 @@ import au.org.arcs.griffin.parser.FtpCmdParser;
  * command classes.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
 

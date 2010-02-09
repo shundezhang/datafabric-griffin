@@ -30,17 +30,11 @@ import au.org.arcs.griffin.exception.FtpCmdException;
 /**
  * <b>PASSWORD (PASS)</b>
  * <p>
- * The argument field is a Telnet string specifying the user's password. This command must be
- * immediately preceded by the user name command, and, for some sites, completes the user's
- * identification for access control. Since password information is quite sensitive, it is desirable
- * in general to "mask" it or suppress typeout. It appears that the server has no foolproof way to
- * achieve this. It is therefore the responsibility of the user-FTP process to hide the sensitive
- * password information.
- * <p>
- * <i>[Excerpt from RFC-959, Postel and Reynolds]</i>
+ * Pass for GSI, it does nothing.
  * </p>
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdPassGSI extends AbstractFtpCmd {
 
