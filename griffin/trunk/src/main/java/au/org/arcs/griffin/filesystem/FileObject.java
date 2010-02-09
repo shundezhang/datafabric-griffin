@@ -18,4 +18,5 @@ public interface FileObject {
 	public FileObject getParent();
 	public boolean mkdir();
 	public boolean renameTo(FileObject file);
+	public boolean setLastModified(long t);
 }
