@@ -40,6 +40,7 @@ import au.org.arcs.griffin.utils.IOUtils;
  * Abstract precursor for commands that handle LIST or NLST.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
 

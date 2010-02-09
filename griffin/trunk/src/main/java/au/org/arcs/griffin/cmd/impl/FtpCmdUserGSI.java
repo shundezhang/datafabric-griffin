@@ -34,20 +34,10 @@ import au.org.arcs.griffin.exception.FtpCmdException;
 /**
  * <b>USER NAME (USER)</b>
  * <p>
- * The argument field is a Telnet string identifying the user. The user identification is that which
- * is required by the server for access to its file system. This command will normally be the first
- * command transmitted by the user after the control connections are made (some servers may require
- * this). Additional identification information in the form of a password and/or an account command
- * may also be required by some servers. Servers may allow a new USER command to be entered at any
- * point in order to change the access control and/or accounting information. This has the effect of
- * flushing any user, password, and account information already supplied and beginning the login
- * sequence again. All transfer parameters are unchanged and any file transfer in progress is
- * completed under the old access control parameters.
- * <p>
- * <i>[Excerpt from RFC-959, Postel and Reynolds]</i>
+ * This is only for GSI, it'll find out the user according to the certificate.
  * </p>
  * 
- * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdUserGSI extends AbstractFtpCmd {
 	private static Log log = LogFactory.getLog(FtpCmdUserGSI.class);
@@ -86,19 +76,6 @@ public class FtpCmdUserGSI extends AbstractFtpCmd {
             getCtx().getEventListener().loginPerformed(clientHost, getCtx().isAuthenticated());
         	
         }
-        
-        
-//        boolean forceSsl = getCtx().getOptions().getBoolean(OPT_SSL_FORCE, false);
-//        Boolean ssl = (Boolean) getCtx().getAttribute(ATTR_SSL);
-//
-//        if ((ssl == null || !ssl.booleanValue()) && forceSsl) {
-//            msgOut(MSG530_AUTH);
-//        } else if (getArguments().length() == 0) {
-//            msgOut(MSG501);
-//        } else {
-//            getCtx().setUser(getArguments());
-//            msgOut(MSG331);
-//        }
     }
 
     /**

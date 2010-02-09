@@ -27,16 +27,23 @@ package au.org.arcs.griffin.cmd.impl;
 import au.org.arcs.griffin.cmd.AbstractFtpCmdPasv;
 
 /**
- * <b>PASSIVE (PASV)</b>
+ * <b>Striped Passive (SPAS)</b>
  * <p>
- * This command requests the server-DTP to "listen" on a data port (which is not its default data
- * port) and to wait for a connection rather than initiate one upon receipt of a transfer command.
- * The response to this command includes the host and port address this server is listening on.
- * <p>
- * <i>[Excerpt from RFC-959, Postel and Reynolds]</i>
+ * This extension is used to establish a vector of data socket listeners 
+ * for each stripe of the data. To simplify interaction with the 
+ * parallel data transfer extensions, the SPAS MUST only be done on a 
+ * control connection when the data is to be stored onto the file space 
+ * served by that control connection. The SPAS command requests the FTP 
+ * server to "listen" on a data port (which is not the default data 
+ * port) and to wait for one or more data connections, rather than 
+ * initiating a connection upon receipt of a transfer command. The 
+ * response to this command includes a list of host and port addresses 
+ * the server is listening on.  This command MUST always be used in 
+ * conjunction with the extended block mode.  
+ * 
  * </p>
  * 
- * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdSpas extends AbstractFtpCmdPasv {
 

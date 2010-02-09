@@ -47,6 +47,7 @@ import au.org.arcs.griffin.filesystem.FileObject;
  * </p>
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdCwd extends AbstractFtpCmd {
 	private static Log log = LogFactory.getLog(FtpCmdCwd.class);

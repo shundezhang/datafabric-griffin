@@ -3,6 +3,16 @@ package au.org.arcs.griffin.cmd.impl;
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
 
+/**
+ * <b> Set Buffer Size (SBUF) </b>
+ * 
+ * This extension adds the capability of a client to set the TCP buffer 
+ * size for subsequent data connections to a value. This replaces the 
+ * server-specific commands SITE RBUFSIZE, SITE RETRBUFSIZRBUFSZ, SITE SBUFSIZE, SITE SBUFSZ, and SITE BUFSIZE  
+ * 
+ * @author Shunde Zhang
+ *
+ */
 public class FtpCmdSbuf extends AbstractFtpCmd {
 
 	public void execute() throws FtpCmdException {

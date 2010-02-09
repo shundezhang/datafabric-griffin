@@ -47,6 +47,7 @@ import au.org.arcs.griffin.session.FtpSession;
  * Default FTP session implementation.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpSessionImpl extends Thread implements FtpSession, FtpConstants {
 

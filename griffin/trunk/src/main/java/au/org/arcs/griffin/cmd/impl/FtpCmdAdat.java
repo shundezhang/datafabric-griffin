@@ -42,28 +42,15 @@ import au.org.arcs.griffin.exception.FtpCmdException;
 
 
 /**
- * <b>ABORT (ABOR)</b>
+ * <b> AUTHENTICATION/SECURITY DATA </b>
  * <p>
- * This command tells the server to abort the previous FTP service command and any associated
- * transfer of data. The abort command may require "special action", as discussed in the Section on
- * FTP Commands, to force recognition by the server. No action is to be taken if the previous
- * command has been completed (including data transfer). The control connection is not to be closed
- * by the server, but the data connection must be closed.
- * <p>
- * There are two cases for the server upon receipt of this command: (1) the FTP service command was
- * already completed, or (2) the FTP service command is still in progress.
- * <p>
- * In the first case, the server closes the data connection (if it is open) and responds with a 226
- * reply, indicating that the abort command was successfully processed.
- * <p>
- * In the second case, the server aborts the FTP service in progress and closes the data connection,
- * returning a 426 reply to indicate that the service request terminated abnormally. The server then
- * sends a 226 reply, indicating that the abort command was successfully processed.
- * <p>
- * <i>[Excerpt from RFC-959, Postel and Reynolds]</i>
+ *      The argument field is a Telnet string representing base 64 encoded
+ *      security data (see Section 9, "Base 64 Encoding").  If a reply
+ *      code indicating success is returned, the server may also use a
+ *      string of the form "ADAT=base64data" as the text part of the reply
+ *      if it wishes to convey security data back to the client.
  * </p>
- * 
- * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdAdat extends AbstractFtpCmd {
 	private static Log log = LogFactory.getLog(FtpCmdAdat.class);

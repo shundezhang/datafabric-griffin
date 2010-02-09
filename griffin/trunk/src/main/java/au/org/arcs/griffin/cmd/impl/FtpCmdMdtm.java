@@ -40,6 +40,7 @@ import au.org.arcs.griffin.filesystem.FileObject;
  * Modifies the timestamp of a file or path.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdMdtm extends AbstractFtpCmd {
 

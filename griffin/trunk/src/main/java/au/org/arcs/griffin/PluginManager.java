@@ -49,6 +49,7 @@ import au.org.arcs.griffin.common.FtpConstants;
  * Utility class that manages the plug-in classpath and class loading.
  * 
  * @author Lars Behnke.
+ * @author Shunde Zhang
  */
 public final class PluginManager {
 
@@ -134,7 +135,7 @@ public final class PluginManager {
      * @return the directory where plugins are installed.
      */
     public static File getPluginDir() {
-        String dir = System.getProperty(FtpConstants.HERMES_HOME);
+        String dir = System.getProperty(FtpConstants.GRIFFIN_HOME);
         if (StringUtils.isEmpty(dir)) {
             dir = System.getProperty("user.dir");
         }

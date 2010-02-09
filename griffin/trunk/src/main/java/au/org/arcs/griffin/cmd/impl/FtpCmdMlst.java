@@ -7,6 +7,20 @@ import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
 import au.org.arcs.griffin.filesystem.FileObject;
 
+/**
+ * <b> Listings for Machine Processing </b>
+ * <p>
+ * The MLST and MLSD commands are intended to standardize the file and
+ * directory information returned by the server-FTP process.  These
+ * commands differ from the LIST command in that the format of the
+ * replies is strictly defined although extensible.
+ * 
+ * Two commands are defined, MLST and MLSD.  MLST provides data about
+ * exactly the object named on its command line, and no others.
+ * 
+ * @author Shunde Zhang
+ *
+ */
 public class FtpCmdMlst extends AbstractFtpCmd {
 	private static Log log = LogFactory.getLog(FtpCmdMlst.class);
 	public void execute() throws FtpCmdException {

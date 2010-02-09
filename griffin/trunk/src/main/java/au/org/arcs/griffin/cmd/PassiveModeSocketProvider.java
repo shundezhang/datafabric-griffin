@@ -48,6 +48,7 @@ import au.org.arcs.griffin.utils.IOUtils;
  * Provides the data transfer socket for transfer passive mode.
  * 
  * @author Behnke
+ * @author Shunde Zhang
  */
 public class PassiveModeSocketProvider implements SocketProvider {
 

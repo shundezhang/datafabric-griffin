@@ -13,6 +13,11 @@ import au.org.arcs.griffin.filesystem.FileSystemConnection;
 
 import edu.sdsc.grid.io.irods.IRODSFile;
 
+/**
+ * an implementation for jargon
+ * @author Shunde Zhang
+ *
+ */
 
 public class JargonFileSystemImpl implements FileSystem {
 	
@@ -64,6 +69,11 @@ public class JargonFileSystemImpl implements FileSystem {
 	public String getPathSeparator() {
 		// TODO Auto-generated method stub
 		return String.valueOf(IRODSFile.PATH_SEPARATOR_CHAR);
+	}
+
+	public long getFreeSpace(String path) {
+		// TODO Auto-generated method stub
+		return -1;
 	}
 
 

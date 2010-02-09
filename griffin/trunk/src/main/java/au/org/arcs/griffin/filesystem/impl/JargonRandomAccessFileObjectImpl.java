@@ -12,6 +12,11 @@ import edu.sdsc.grid.io.RemoteRandomAccessFile;
 import edu.sdsc.grid.io.irods.IRODSFile;
 import edu.sdsc.grid.io.irods.IRODSRandomAccessFile;
 
+/**
+ * an implementation for jargon
+ * @author Shunde Zhang
+ *
+ */
 
 public class JargonRandomAccessFileObjectImpl implements RandomAccessFileObject {
 	private static Log log = LogFactory.getLog(JargonRandomAccessFileObjectImpl.class);

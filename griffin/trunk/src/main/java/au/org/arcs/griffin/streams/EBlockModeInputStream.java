@@ -35,9 +35,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Reads a stream formatted in block mode, extracts the data contents and registers restart markers.
+ * Reads a stream formatted in E block mode, extracts the data contents and registers restart markers.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class EBlockModeInputStream extends InputStream implements RecordReadSupport, BlockModeConstants {
 	private static Log          log                 = LogFactory.getLog(EBlockModeInputStream.class);

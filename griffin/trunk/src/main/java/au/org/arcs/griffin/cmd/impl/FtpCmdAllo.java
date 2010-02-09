@@ -52,6 +52,7 @@ import au.org.arcs.griffin.exception.FtpCmdException;
  * </p>
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdAllo extends AbstractFtpCmd {
 
@@ -64,7 +65,8 @@ public class FtpCmdAllo extends AbstractFtpCmd {
         String response;
         try {
             long requiredSize = Long.parseLong(getArguments().trim());
-            long availSize = requiredSize; //FileSystemUtils.freeSpaceKb(getCtx().getRemoteDir()) * 1024;
+            long availSize = getCtx().getFileSystem().getFreeSpace(getCtx().getRemoteDir()); //requiredSize; //FileSystemUtils.freeSpaceKb(getCtx().getRemoteDir()) * 1024;
+            if (availSize == -1) availSize=requiredSize;
             if (requiredSize <= availSize) {
                 response = msg(MSG200_SIZE, new Object[] {new Long(availSize)});
             } else {

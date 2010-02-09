@@ -50,6 +50,7 @@ import au.org.arcs.griffin.utils.IOUtils;
  * </p>
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdList extends AbstractFtpCmdList {
 

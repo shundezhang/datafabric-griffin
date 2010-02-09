@@ -29,6 +29,7 @@ import au.org.arcs.griffin.exception.FtpCmdException;
 
 /**
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpCmdClnt extends AbstractFtpCmd {
 

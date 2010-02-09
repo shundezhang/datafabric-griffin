@@ -3,6 +3,19 @@ package au.org.arcs.griffin.cmd.impl;
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
 
+/**
+ * <b> SITE PARAMETERS (SITE) </b>
+ * <p>
+ * This command is used by the server to provide services
+ * specific to his system that are essential to file transfer
+ * but not sufficiently universal to be included as commands in
+ * the protocol.  The nature of these services and the
+ * specification of their syntax can be stated in a reply to
+ * the HELP SITE command.
+ * 
+ * @author Shunde Zhang
+ *
+ */
 public class FtpCmdSite extends AbstractFtpCmd {
 
 	public void execute() throws FtpCmdException {

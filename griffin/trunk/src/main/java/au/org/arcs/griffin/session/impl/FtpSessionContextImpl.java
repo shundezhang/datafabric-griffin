@@ -71,6 +71,7 @@ import au.org.arcs.griffin.utils.VarMerger;
  * be stored in the context.
  * 
  * @author Lars Behnke
+ * @author Shunde Zhang
  */
 public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 
