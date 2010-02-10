@@ -55,7 +55,7 @@
     </target>
 	
 	<target name="merge-for-jargon" depends="jar">
-		<jar jarfile="${dist}/${application}_jargon.jar">  
+		<jar jarfile="${dist}/${application}_full.jar">  
 <!--		  <fileset dir="classes" includes="**/*.class" />    manifest="src/MANIFEST.MF"-->
 			<zipfileset src="${dist}/${application}.jar" />  
 			<zipfileset src="${lib}/bcprov-jdk15-140.jar" includes="**/*.class"/>  
@@ -92,7 +92,7 @@
 		<chmod file="${bin}/${application}" perm="+x"/> -->
 		<tar destfile="${dist}/${application}-${app.version}-jargon.tar.gz" compression="gzip">
 			<tarfileset dir="${dist}" prefix="${application}-${app.version}-jargon/">
-			    <include name="${application}_jargon.jar"/>
+			    <include name="${application}_full.jar"/>
 			</tarfileset>
 			<tarfileset dir="${resources}" prefix="${application}-${app.version}-jargon/">
 			    <include name="log4j.properties"/>
