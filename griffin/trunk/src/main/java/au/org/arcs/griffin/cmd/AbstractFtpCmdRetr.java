@@ -184,7 +184,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
             msgOut(MSG550);
             log.error(e.toString());
         } finally {
-//            getCtx().closeSockets();
+            if (mode==MODE_STREAM) getCtx().closeSockets();
         }
     }
 
