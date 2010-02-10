@@ -144,6 +144,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
             while ((count = is.read(buffer)) != -1) {
                 os.write(buffer, 0, count);
                 os.flush();
+                log.debug("written "+count);
                 incCompleted(count);
                 if (isAbortRequested()) {
                     msgOut(MSG426);
@@ -152,6 +153,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                 }
                 getTransferRateLimiter().execute(count);
             }
+            os.flush();
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
                 (int) getTransferRateLimiter().getCurrentTransferRate());
             msgOut(MSG226);
