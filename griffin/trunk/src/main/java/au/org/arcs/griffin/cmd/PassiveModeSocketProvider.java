@@ -93,7 +93,7 @@ public class PassiveModeSocketProvider implements SocketProvider {
         /* Get the next available port */
         int retries = MAX_BIND_RETRIES;
         while (retries > 0) {
-            Integer port = ctx.getNextPassivePort();
+            Integer port = ctx.getNextPassiveTCPPort();
             port = port == null ? new Integer(0) : port;
             try {
                 log.debug("Trying to bind server socket to port " + port);

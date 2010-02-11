@@ -56,7 +56,8 @@ public interface FtpConstants {
     public static final String   OPT_REMOTE_DIR            = "ftp.root.dir";
 
     /** The key for the allowed passive ports. */
-    public static final String   OPT_ALLOWED_PASSIVE_PORTS = "allowed.passive.ports";
+    public static final String   OPT_ALLOWED_TCP_PORTS = "allowed.passive.tcp.ports";
+    public static final String   OPT_ALLOWED_UDP_PORTS = "allowed.passive.udp.ports";
 
     /** The key for the black list of ip v4 addresses. */
     public static final String   OPT_IPV4_BLACK_LIST         = "ipv4.black.list";
@@ -153,6 +154,10 @@ public interface FtpConstants {
     /** All supported data types. */
     public static final String[] TYPE_NAMES                = new String[] {"ASCII", "EBCDIC", "BINARY"};
 
+    /* network stacks */
+    public static final int		NETWORK_STACK_TCP	=	0;
+    public static final int		NETWORK_STACK_UDP	=	1;
+    
     /* Data types */
 
     /** ASCII data type. */

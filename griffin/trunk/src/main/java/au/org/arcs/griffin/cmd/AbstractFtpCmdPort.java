@@ -79,11 +79,17 @@ public abstract class AbstractFtpCmdPort extends AbstractFtpCmd {
      * @throws IOException Setting up data channel failed.
      */
     protected void setupDataChannel(int protocolIdx, String ipAddr, int port) throws IOException {
-        getCtx().closeSockets();
-        DataChannelInfo info = new DataChannelInfo(ipAddr, port);
-        SocketProvider provider = new ActiveModeSocketProvider(getCtx(), info);
-        provider.init();
-        getCtx().setDataSocketProvider(provider);
+    	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+    		DataChannel dc=new UDTDataChannel(getCtx(), ipAddr, port);
+    		DataChannelInfo info=dc.init();
+    		getCtx().setDataChannel(dc);
+    	}else{
+            getCtx().closeSockets();
+            DataChannelInfo info = new DataChannelInfo(ipAddr, port);
+            SocketProvider provider = new ActiveModeSocketProvider(getCtx(), info);
+            provider.init();
+            getCtx().setDataSocketProvider(provider);
+    	}
     }
 
     /**

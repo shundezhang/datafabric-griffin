@@ -47,14 +47,21 @@ public abstract class AbstractFtpCmdPasv extends AbstractFtpCmd {
     public void execute() throws FtpCmdException {
         try {
 
-            /* Set up socket provider */
-            getCtx().closeSockets();
             DataChannelInfo info = null;
-            SocketProvider socketProvider = new PassiveModeSocketProvider(getCtx(), getPreferredProtocol());
-            info = socketProvider.init();
-            getCtx().setDataSocketProvider(socketProvider);
+            log.debug("network stack:"+getCtx().getNetworkStack());
+        	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+        		DataChannel dc=new UDTDataChannel(getCtx());
+        		info=dc.init();
+        		getCtx().setDataChannel(dc);
+        	}else{
+                /* Set up socket provider */
+                getCtx().closeSockets();
+                SocketProvider socketProvider = new PassiveModeSocketProvider(getCtx(), getPreferredProtocol());
+                info = socketProvider.init();
+                getCtx().setDataSocketProvider(socketProvider);
+        	}
 
-            /* Send connection parameters */
+        	/* Send connection parameters */
             out(createResponseMessage(info.getProtocolIdx(), info.getAddress(), info.getPort()));
 
             /*

@@ -74,7 +74,10 @@
 			<zipfileset src="${lib}/puretls.jar" includes="**/*.class"/>  
 			<zipfileset src="${lib}/spring-beans-2.0.6.jar" excludes="META-INF/*"/>  
 			<zipfileset src="${lib}/spring-context-2.0.6.jar" excludes="META-INF/*"/>  
-			<zipfileset src="${lib}/spring-core-2.0.6.jar" excludes="META-INF/*"/>  
+			<zipfileset src="${lib}/spring-core-2.0.6.jar" excludes="META-INF/*"/>
+			<zipfileset src="${lib}/barchart-udt4-1.0.0-SNAPSHOT.jar" excludes="META-INF/*"/>
+			<zipfileset src="${lib}/slf4j-api-1.5.8.jar" includes="**/*.class"/>  
+			<zipfileset src="${lib}/slf4j-log4j12-1.5.8.jar" includes="**/*.class"/>  
 			<manifest>
 			  <attribute name="Main-Class" value="${mainclass}"/>
 			</manifest>

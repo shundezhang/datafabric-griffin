@@ -101,6 +101,8 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
      */
     protected abstract void doRetrieveFileData(OutputStream out, FileObject file, long fileOffset)
             throws IOException;
+    protected abstract void doRetrieveFileData(DataChannel dc, FileObject file, long fileOffset)
+    		throws IOException;
 
     /**
      * {@inheritDoc}
@@ -144,26 +146,35 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
 
             msgOut(MSG150);
 
-            /* Wrap outbound data stream and call handler method */
-            Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
-            OutputStream dataOut = dataSocket.getOutputStream();
-            if (struct == STRUCT_RECORD) {
-                RecordWriteSupport recordOut = createRecOutputStream(dataOut, mode, charset);
-                doRetrieveRecordData(recordOut, file, fileOffset);
-            } else if (struct == STRUCT_FILE) {
+            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+            	DataChannel dc=getCtx().getDataChannel();
+            	dc.start();
             	if (mode==MODE_EBLOCK){
-            		doRetrieveFileDataInEBlockMode(dataOut, file);
+            		doRetrieveFileDataInEBlockMode(dc, file);
             	}else{
-	                OutputStream fileOut = createOutputStream(dataOut, mode, charset);
-	                doRetrieveFileData(fileOut, file, fileOffset);
+            		doRetrieveFileData(dc, file, fileOffset);
             	}
-            } else {
-                log.error("Unknown data type");
-                msgOut(MSG550, "Unsupported data type");
-                return;
+            }else{
+	            /* Wrap outbound data stream and call handler method */
+	            Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
+	            OutputStream dataOut = dataSocket.getOutputStream();
+	            if (struct == STRUCT_RECORD) {
+	                RecordWriteSupport recordOut = createRecOutputStream(dataOut, mode, charset);
+	                doRetrieveRecordData(recordOut, file, fileOffset);
+	            } else if (struct == STRUCT_FILE) {
+	            	if (mode==MODE_EBLOCK){
+	            		doRetrieveFileDataInEBlockMode(dataOut, file);
+	            	}else{
+		                OutputStream fileOut = createOutputStream(dataOut, mode, charset);
+		                doRetrieveFileData(fileOut, file, fileOffset);
+	            	}
+	            } else {
+	                log.error("Unknown data type");
+	                msgOut(MSG550, "Unsupported data type");
+	                return;
+	            }
+	            // TODO delegate event to FtpEventListener
             }
-            // TODO delegate event to FtpEventListener
-
         } catch (FtpQuotaException e) {
         	e.printStackTrace();
             msgOut(MSG550, e.getMessage());
@@ -184,11 +195,17 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
             msgOut(MSG550);
             log.error(e.toString());
         } finally {
-            if (mode==MODE_STREAM) getCtx().closeSockets();
+        	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+        		if (mode==MODE_STREAM) getCtx().closeDataChannels();
+        	}else{
+        		if (mode==MODE_STREAM) getCtx().closeSockets();
+        	}
         }
     }
 
-    abstract protected void doRetrieveFileDataInEBlockMode(OutputStream dataOut, FileObject file) throws IOException;
+    abstract protected void doRetrieveFileDataInEBlockMode(DataChannel dc, FileObject file) throws IOException;
+
+	abstract protected void doRetrieveFileDataInEBlockMode(OutputStream dataOut, FileObject file) throws IOException;
 
 	private OutputStream createOutputStream(OutputStream dataOut, int mode, String charset)
             throws UnsupportedEncodingException {

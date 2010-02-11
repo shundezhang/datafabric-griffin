@@ -146,7 +146,8 @@ public interface FtpServerOptions {
      * 
      * @return The set.
      */
-    Integer[] getAllowedPorts();
+    Integer[] getAllowedTCPPorts();
+    Integer[] getAllowedUDPPorts();
 
     /**
      * Returns the SSL context to be used for creating SSL sockets.

@@ -35,6 +35,7 @@ import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 
+import au.org.arcs.griffin.cmd.DataChannel;
 import au.org.arcs.griffin.cmd.SocketProvider;
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.exception.FtpQuotaException;
@@ -272,7 +273,8 @@ public interface FtpSessionContext {
      * 
      * @return The port for passive data transfer.
      */
-    Integer getNextPassivePort();
+    Integer getNextPassiveTCPPort();
+    Integer getNextPassiveUDPPort();
 
     /**
      * @return True, if successful.
@@ -369,8 +371,14 @@ public interface FtpSessionContext {
 
 	void disconnectFileSystem();
 	
-	public int getBufferSize();
-	public void setBufferSize(int bufferSize);
+	int getBufferSize();
+	void setBufferSize(int bufferSize);
 
-
+	void setNetworkStack(int networkStack);
+	int getNetworkStack();
+	
+	void setDataChannel(DataChannel dataChannel);
+	DataChannel getDataChannel();
+	
+	void closeDataChannels();
 }

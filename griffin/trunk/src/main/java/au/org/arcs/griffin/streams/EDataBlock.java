@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import au.org.arcs.griffin.cmd.DataChannel;
+
 /**
  * E data block wrapper
  * @author Shunde Zhang
@@ -180,6 +182,10 @@ public class    EDataBlock implements BlockModeConstants{
     		descSB.append(header[0]&(1<<i)).append(" ");
     	}
         return "EDataBlock("+_myName+"), descriptor="+descSB+", size="+getSize()+", offset="+getOffset();
-    };
+    }
+
+	public void writeHeader(DataChannel dc) throws IOException {
+		dc.write(header);
+	};
 }
 
