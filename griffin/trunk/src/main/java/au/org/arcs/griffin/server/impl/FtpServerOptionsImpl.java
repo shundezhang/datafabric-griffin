@@ -206,9 +206,16 @@ public class FtpServerOptionsImpl implements FtpServerOptions, FtpConstants {
     /**
      * {@inheritDoc}
      */
-    public Integer[] getAllowedPorts() {
+    public Integer[] getAllowedTCPPorts() {
         if (allowedPassivePorts == null) {
-            String allowedPorts = getString(OPT_ALLOWED_PASSIVE_PORTS, null);
+            String allowedPorts = getString(OPT_ALLOWED_TCP_PORTS, null);
+            allowedPassivePorts = StringUtils.parseIntegerList(allowedPorts);
+        }
+        return allowedPassivePorts;
+    }
+    public Integer[] getAllowedUDPPorts() {
+        if (allowedPassivePorts == null) {
+            String allowedPorts = getString(OPT_ALLOWED_UDP_PORTS, null);
             allowedPassivePorts = StringUtils.parseIntegerList(allowedPorts);
         }
         return allowedPassivePorts;

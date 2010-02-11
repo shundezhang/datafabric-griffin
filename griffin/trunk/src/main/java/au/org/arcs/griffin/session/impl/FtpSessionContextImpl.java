@@ -47,6 +47,7 @@ import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 
+import au.org.arcs.griffin.cmd.DataChannel;
 import au.org.arcs.griffin.cmd.SocketProvider;
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpEventListener;
@@ -129,6 +130,9 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     
     private boolean confirmEOFs;
     private int bufferSize;
+    
+    private int networkStack;
+    private DataChannel dataChannel;
     /**
      * Constructor.
      * 
@@ -470,9 +474,27 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     /**
      * {@inheritDoc}
      */
-    public Integer getNextPassivePort() {
+    public Integer getNextPassiveTCPPort() {
         Integer port;
-        Integer[] allowedPorts = getOptions().getAllowedPorts();
+        Integer[] allowedPorts = getOptions().getAllowedTCPPorts();
+        if (allowedPorts == null || allowedPorts.length == 0) {
+
+            /* Let the system decide which port to use. */
+            port = new Integer(0);
+        } else {
+
+            /* Get the port from the user defined list. */
+            port = allowedPorts[portIdx++];
+            if (portIdx >= allowedPorts.length) {
+                portIdx = 0;
+            }
+        }
+        return port;
+
+    }
+    public Integer getNextPassiveUDPPort() {
+        Integer port;
+        Integer[] allowedPorts = getOptions().getAllowedUDPPorts();
         if (allowedPorts == null || allowedPorts.length == 0) {
 
             /* Let the system decide which port to use. */
@@ -662,6 +684,30 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 
 	public void setBufferSize(int bufferSize) {
 		this.bufferSize = bufferSize;
+	}
+
+	public int getNetworkStack() {
+		return networkStack;
+	}
+
+	public void setNetworkStack(int networkStack) {
+		this.networkStack=networkStack;
+		
+	}
+
+	public DataChannel getDataChannel() {
+		return this.dataChannel;
+	}
+
+	public void setDataChannel(DataChannel dataChannel) {
+		this.dataChannel=dataChannel;
+		
+	}
+	
+	public void closeDataChannels(){
+		if (getDataChannel()!=null){
+			getDataChannel().closeChannel();
+		}
 	}
 
 

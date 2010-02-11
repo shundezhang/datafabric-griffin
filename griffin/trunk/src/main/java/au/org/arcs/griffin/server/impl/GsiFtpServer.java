@@ -21,6 +21,7 @@ public class GsiFtpServer extends DefaultFtpServer {
         FtpSessionContext ctx = new FtpSessionContextImpl(getOptions(), getFileSystem(), ResourceBundle
             .getBundle(getResources()), this);
         ctx.setBufferSize(ctx.getOptions().getBufferSize());
+        ctx.setNetworkStack(NETWORK_STACK_TCP);
         return ctx;
     }
 

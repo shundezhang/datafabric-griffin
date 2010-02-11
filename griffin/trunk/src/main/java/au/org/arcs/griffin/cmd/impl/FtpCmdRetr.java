@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmdRetr;
+import au.org.arcs.griffin.cmd.DataChannel;
 import au.org.arcs.griffin.exception.FtpCmdException;
 import au.org.arcs.griffin.exception.FtpPermissionException;
 import au.org.arcs.griffin.filesystem.FileObject;
@@ -222,6 +223,77 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
 			a = a>>8;
 		}
 		return returnByteArray;
+	}
+
+	@Override
+	protected void doRetrieveFileData(DataChannel dc, FileObject file,
+			long fileOffset) throws IOException {
+        InputStream is = new RafInputStream(file, fileOffset);
+        int bufferSize = getCtx().getBufferSize();
+        byte[] buffer = new byte[bufferSize];
+        int count;
+        try {
+            while ((count = is.read(buffer)) != -1) {
+                dc.write(buffer, 0, count);
+//                os.flush();
+                log.debug("written "+count);
+                incCompleted(count);
+                if (isAbortRequested()) {
+                    msgOut(MSG426);
+                    log.debug("File transfer aborted");
+                    return;
+                }
+                getTransferRateLimiter().execute(count);
+            }
+//            os.flush();
+            getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
+                (int) getTransferRateLimiter().getCurrentTransferRate());
+            msgOut(MSG226);
+        } finally {
+            IOUtils.closeGracefully(is);
+//            IOUtils.closeGracefully(os);
+        }
+	}
+
+	@Override
+	protected void doRetrieveFileDataInEBlockMode(DataChannel dc,
+			FileObject file) throws IOException {
+		InputStream is = new RafInputStream(file, 0);
+		int bufferSize=getCtx().getBufferSize(); //1048576;
+		byte[] buffer = new byte[bufferSize];
+		EDataBlock eDataBlock=new EDataBlock(getCtx().getUser());
+		int count;
+		long offset=0;
+        try {
+            while ((count = is.read(buffer)) != -1) {
+            	eDataBlock.clearHeader();
+            	eDataBlock.setSize(count);
+            	eDataBlock.setOffset(offset);
+            	log.debug(eDataBlock);
+            	eDataBlock.writeHeader(dc);
+                dc.write(buffer, 0, count);
+                offset+=count;
+                incCompleted(count);
+                if (isAbortRequested()) {
+                    msgOut(MSG426);
+                    log.debug("File transfer aborted");
+                    return;
+                }
+                getTransferRateLimiter().execute(count);
+            }
+        	eDataBlock.clearHeader();
+        	eDataBlock.setDescriptor(64);
+        	eDataBlock.setDescriptor(8);
+        	eDataBlock.setSize(0);
+        	eDataBlock.setOffset(1);
+        	eDataBlock.writeHeader(dc);
+            getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
+                (int) getTransferRateLimiter().getCurrentTransferRate());
+            msgOut(MSG226);
+        } finally {
+            IOUtils.closeGracefully(is);
+//            IOUtils.closeGracefully(os);
+        }
 	}
 
 }
