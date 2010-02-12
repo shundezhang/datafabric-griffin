@@ -63,7 +63,7 @@ public abstract class AbstractFtpCmdPort extends AbstractFtpCmd {
             msgOut(MSG200);
         } catch (IOException e) {
             log.error(e.toString());
-            msgOut(MSG500);
+            out("500 Error: "+e.toString());
         } catch (IllegalArgumentException e) {
             log.error(e.toString());
             msgOut(MSG501);

@@ -32,7 +32,7 @@ public class UDTDataChannel implements DataChannel {
 	}
 	public UDTDataChannel(FtpSessionContext ctx, String ipAddr, int port) throws IOException {
 		this.ctx=ctx;
-		socketUDT = new SocketUDT(TypeUDT.DATAGRAM);
+		socketUDT = new SocketUDT(TypeUDT.STREAM);
 
 		// bytes/sec
 //		socketUDT.setOption(OptionUDT.UDT_MAXBW, maxBandwidth);
@@ -87,15 +87,18 @@ public class UDTDataChannel implements DataChannel {
             port = port == null ? new Integer(0) : port;
             try {
                 log.debug("Trying to bind server socket to port " + port);
-                socketUDT = new SocketUDT(TypeUDT.DATAGRAM);
+                socketUDT = new SocketUDT(TypeUDT.STREAM);
     			log.debug("init; acceptor={}"+socketUDT.socketID);
 
     			InetSocketAddress localSocketAddress = new InetSocketAddress(
-    					localIp, port);
+    					"0.0.0.0", port);
 
     			socketUDT.bind(localSocketAddress);
     			localSocketAddress = socketUDT.getLocalSocketAddress();
     			log.info("bind; localSocketAddress={}"+localSocketAddress);
+    			socketUDT.setSoTimeout(DATA_CHANNEL_TIMEOUT);
+    			socketUDT.listen(1);
+    			log.debug("listen;");
 
                 break;
             } catch (Exception e) {
@@ -113,20 +116,23 @@ public class UDTDataChannel implements DataChannel {
 	}
 
 	public void start() throws IOException {
-		socketUDT.listen(0);
-		log.debug("listen;");
-		clientUDT = socketUDT.accept();
+		if (clientUDT==null){
+			if (socketUDT==null) {
+                throw new IOException("UDT Server socket not initialized.");
+            }
+			clientUDT = socketUDT.accept();
 
-		log.debug("accept; receiver={}"+clientUDT.socketID);
-		InetSocketAddress remoteSocketAddress = clientUDT.getRemoteSocketAddress();
+			log.debug("accept; receiver={}"+clientUDT.socketID);
+			InetSocketAddress remoteSocketAddress = clientUDT.getRemoteSocketAddress();
 
-		log.debug("receiver; remoteSocketAddress={}"+remoteSocketAddress);
-		StringBuilder text = new StringBuilder(1024);
-		OptionUDT.appendSnapshot(clientUDT, text);
-		text.append("\t\n");
-		log.info("receiver options; {}"+text);
+			log.debug("receiver; remoteSocketAddress={}"+remoteSocketAddress);
+			StringBuilder text = new StringBuilder(1024);
+			OptionUDT.appendSnapshot(clientUDT, text);
+			text.append("\t\n");
+			log.info("receiver options; {}"+text);
 
-//		MonitorUDT monitor = receiver.monitor;
+//			MonitorUDT monitor = receiver.monitor;
+		}
 
 	}
 	public static void checkLibrary() throws ExceptionUDT {
