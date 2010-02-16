@@ -211,20 +211,6 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
         }
 	}
 	
- 	/***
-	* Convert a long value to a 4-byte array.
-	* @param a long integer
-	* @return byte[4] array
-	*/
-	private byte[] longToIntBytes(long a) {
-		byte[] returnByteArray = new byte[8]; //long is 8 bytes
-		for (int i=0;i<8;i++){
-			returnByteArray[i]=(byte) (a & 0xFF);
-			a = a>>8;
-		}
-		return returnByteArray;
-	}
-
 	@Override
 	protected void doRetrieveFileData(DataChannel dc, FileObject file,
 			long fileOffset) throws IOException {

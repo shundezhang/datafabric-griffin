@@ -99,13 +99,16 @@ public class JargonFileObject implements FileObject {
 		
 	}
 	public boolean renameTo(FileObject file) {
-		if (file instanceof IRODSFile) 
-			return remoteFile.renameTo(new IRODSFile((IRODSFileSystem)remoteFile.getFileSystem(),file.getName()));
+		if (file instanceof JargonFileObject) 
+			return remoteFile.renameTo(((JargonFileObject)file).getRemoteFile());
 		else 
 			return false;
 	}
 	public boolean setLastModified(long t) {
 		return remoteFile.setLastModified(t);
+	}
+	public RemoteFile getRemoteFile(){
+		return remoteFile;
 	}
 
 }

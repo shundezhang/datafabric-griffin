@@ -24,51 +24,60 @@
 
 package au.org.arcs.griffin.cmd.impl;
 
-import java.io.File;
-
-import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
-import au.org.arcs.griffin.filesystem.FileObject;
 
 
 /**
- * <b>RENAME FROM (RNFR)</b>
+ * <b>Extended STORE (ESTO)</b>
  * <p>
- * This command specifies the old pathname of the file which is to be renamed. This command must be
- * immediately followed by a "rename to" command specifying the new file pathname.
- * <p>
- * <i>[Excerpt from RFC-959, Postel and Reynolds]</i>
+ * This is analogous to the STOR command, but it allows the data to be 
+ * manipulated (typically reduced in size) before being stored.
  * </p>
  * 
  * @author Lars Behnke
- * @author Shunde Zhang
  */
-public class FtpCmdRnfr extends AbstractFtpCmd {
+public class FtpCmdEsto extends FtpCmdStor {
 
     /**
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-    	FileObject dir=getCtx().getFileSystemConnection().getFileObject(getCtx().getRemoteDir());
-        if ((dir.getPermission() & PRIV_WRITE) == 0) {
-            msgOut(MSG550_PERM);
+    	String arg=getArguments();
+        String[] st = arg.split("\\s+");
+        if (st.length != 3) {
+        	out("500 Syntax error, ESTO should have more arguments. Syntax: ESTO <SP> A <SP> <offset> <filename> <CRLF>");
             return;
         }
-        String fileName = getPathArg();
-        FileObject file = getCtx().getFileSystemConnection().getFileObject(fileName);
-        if (!file.exists()) {
-            msgOut(MSG550);
-        } else {
-            getCtx().setAttribute(ATTR_RENAME_FILE, file);
-            msgOut(MSG350);
+        String extended_store_mode = st[0];
+        if (!extended_store_mode.equalsIgnoreCase("a")) {
+            out("504 ESTO is not implemented for store mode: "
+                  + extended_store_mode);
+            return;
         }
+        String offset = st[1];
+        String filename = st[2];
+        long asm_offset;
+        try {
+            asm_offset = Long.parseLong(offset);
+        } catch (NumberFormatException e) {
+            String err = "501 ESTO Adjusted Store Mode: invalid offset " + offset;
+            out(err);
+            return;
+        }
+        getCtx().setAttribute(ATTR_FILE_OFFSET, asm_offset);
+//        if (asm_offset != 0) {
+//            out("504 ESTO Adjusted Store Mode does not work with nonzero offset: " + offset);
+//            return;
+//        }
+        this.setArguments(filename);
+        super.execute(false);
     }
 
     /**
      * {@inheritDoc}
      */
     public String getHelp() {
-        return "Sets the file path to be renamed.";
+        return "Store file on server";
     }
 
     /**
@@ -80,7 +89,8 @@ public class FtpCmdRnfr extends AbstractFtpCmd {
 
 	public boolean isExtension() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
+
 
 }

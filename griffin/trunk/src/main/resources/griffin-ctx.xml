@@ -13,9 +13,11 @@
 	<bean id="cmdCcc" class="au.org.arcs.griffin.cmd.impl.FtpCmdCcc" singleton="false" />
 	<bean id="cmdDcau" class="au.org.arcs.griffin.cmd.impl.FtpCmdDcau" singleton="false" />
 	<bean id="cmdDele" class="au.org.arcs.griffin.cmd.impl.FtpCmdDele" singleton="false" />
+	<bean id="cmdEnc" class="au.org.arcs.griffin.cmd.impl.FtpCmdEnc" singleton="false" />
 	<bean id="cmdEprt" class="au.org.arcs.griffin.cmd.impl.FtpCmdEprt" singleton="false" />
 	<bean id="cmdEpsv" class="au.org.arcs.griffin.cmd.impl.FtpCmdEpsv" singleton="false" />
-	<bean id="cmdEnc" class="au.org.arcs.griffin.cmd.impl.FtpCmdEnc" singleton="false" />
+	<bean id="cmdEret" class="au.org.arcs.griffin.cmd.impl.FtpCmdEret" singleton="false" />
+	<bean id="cmdEsto" class="au.org.arcs.griffin.cmd.impl.FtpCmdEsto" singleton="false" />
 	<bean id="cmdFeat" class="au.org.arcs.griffin.cmd.impl.FtpCmdFeat" singleton="false" />
 	<bean id="cmdHelp" class="au.org.arcs.griffin.cmd.impl.FtpCmdHelp" singleton="false" />
 	<bean id="cmdList" class="au.org.arcs.griffin.cmd.impl.FtpCmdList" singleton="false" />
@@ -78,6 +80,8 @@
 				<entry key="ENC" value="cmdEnc" />
 				<entry key="EPSV" value="cmdEpsv" />
 				<entry key="EPRT" value="cmdEprt" />
+				<entry key="ERET" value="cmdEret" />
+				<entry key="ESTO" value="cmdEsto" />
 			    <entry key="FEAT" value="cmdFeat" />
 				<entry key="HELP" value="cmdHelp" />
 				<entry key="LIST" value="cmdList" />

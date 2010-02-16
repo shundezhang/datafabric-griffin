@@ -66,13 +66,13 @@ public class FtpCmdMlsd extends AbstractFtpCmdList {
         	buffer.append("UNIX.mode=0644;");
         }
         buffer.append(" ");
-        buffer.append(file.getCanonicalPath());
+        buffer.append(file.getName());
 		return buffer.toString();
 	}
 
 	public String getHelp() {
 		// TODO Auto-generated method stub
-		return "MLST";
+		return "MLSD";
 	}
 
 	public boolean isAuthenticationRequired() {
