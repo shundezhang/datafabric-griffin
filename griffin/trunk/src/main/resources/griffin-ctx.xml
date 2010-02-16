@@ -21,6 +21,7 @@
 	<bean id="cmdList" class="au.org.arcs.griffin.cmd.impl.FtpCmdList" singleton="false" />
 	<bean id="cmdMkd" class="au.org.arcs.griffin.cmd.impl.FtpCmdMkd" singleton="false" />
 	<bean id="cmdMdtm" class="au.org.arcs.griffin.cmd.impl.FtpCmdMdtm" singleton="false" />
+	<bean id="cmdMlsd" class="au.org.arcs.griffin.cmd.impl.FtpCmdMlsd" singleton="false" />
 	<bean id="cmdMlst" class="au.org.arcs.griffin.cmd.impl.FtpCmdMlst" singleton="false" />
 	<bean id="cmdMode" class="au.org.arcs.griffin.cmd.impl.FtpCmdMode" singleton="false" />
 	<bean id="cmdNlst" class="au.org.arcs.griffin.cmd.impl.FtpCmdNlst" singleton="false" />
@@ -82,6 +83,7 @@
 				<entry key="LIST" value="cmdList" />
 				<entry key="MKD" value="cmdMkd" />
 				<entry key="MDTM" value="cmdMdtm" />
+				<entry key="MLSD" value="cmdMlsd" />
 				<entry key="MLST" value="cmdMlst" />
 				<entry key="MODE" value="cmdMode" />
 				<entry key="NLST" value="cmdNlst" />

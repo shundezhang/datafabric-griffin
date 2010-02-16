@@ -51,7 +51,7 @@ public abstract class AbstractFtpCmdPasv extends AbstractFtpCmd {
             log.debug("network stack:"+getCtx().getNetworkStack());
         	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
         		DataChannel dc=new UDTDataChannel(getCtx());
-        		info=dc.init();
+//        		info=dc.init();
         		getCtx().setDataChannel(dc);
         	}else{
                 /* Set up socket provider */
