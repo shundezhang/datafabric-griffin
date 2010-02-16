@@ -81,7 +81,7 @@ public abstract class AbstractFtpCmdPort extends AbstractFtpCmd {
     protected void setupDataChannel(int protocolIdx, String ipAddr, int port) throws IOException {
     	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
     		DataChannel dc=new UDTDataChannel(getCtx(), ipAddr, port);
-    		DataChannelInfo info=dc.init();
+//    		DataChannelInfo info=dc.init();
     		getCtx().setDataChannel(dc);
     	}else{
             getCtx().closeSockets();

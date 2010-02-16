@@ -26,33 +26,30 @@ public class UDTDataChannel implements DataChannel {
     
     private SocketUDT socketUDT;
     private SocketUDT clientUDT;
+    
+    private DataChannelInfo dci;
 
-	public UDTDataChannel(FtpSessionContext ctx){
+	public UDTDataChannel(FtpSessionContext ctx) throws IOException{
 		this.ctx=ctx;
+		dci=init();
 	}
-	public UDTDataChannel(FtpSessionContext ctx, String ipAddr, int port) throws IOException {
+	public UDTDataChannel(FtpSessionContext ctx, String remoteAddr, int remotePort) throws IOException {
 		this.ctx=ctx;
-		socketUDT = new SocketUDT(TypeUDT.STREAM);
-
-		// bytes/sec
-//		socketUDT.setOption(OptionUDT.UDT_MAXBW, maxBandwidth);
-
-		InetSocketAddress localSocketAddress = new InetSocketAddress( //
-				"0.0.0.0", port);
-
-		socketUDT.bind(localSocketAddress);
-		localSocketAddress = socketUDT.getLocalSocketAddress();
-		log.debug("bind; localSocketAddress={}"+localSocketAddress);
-
+		//init local "socket"
+//		dci=init();
+		
+		clientUDT = new SocketUDT(TypeUDT.STREAM);
+		log.debug("init; acceptor={}"+clientUDT.socketID);
+		//connect remote "socket"
 		InetSocketAddress remoteSocketAddress = new InetSocketAddress(//
-				ipAddr, port);
+				remoteAddr, remotePort);
 
-		socketUDT.connect(remoteSocketAddress);
-		remoteSocketAddress = socketUDT.getRemoteSocketAddress();
+		clientUDT.connect(remoteSocketAddress);
+		remoteSocketAddress = clientUDT.getRemoteSocketAddress();
 		log.debug("connect; remoteSocketAddress={}"+remoteSocketAddress);
 
 		StringBuilder text = new StringBuilder(1024);
-		OptionUDT.appendSnapshot(socketUDT, text);
+		OptionUDT.appendSnapshot(clientUDT, text);
 		text.append("\t\n");
 		log.debug("sender options; {}"+text);
 
@@ -67,7 +64,7 @@ public class UDTDataChannel implements DataChannel {
 			e.printStackTrace();
 		}
 		try {
-			socketUDT.close();
+			if (socketUDT!=null) socketUDT.close();
 		} catch (ExceptionUDT e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -83,7 +80,7 @@ public class UDTDataChannel implements DataChannel {
         int retries = MAX_BIND_RETRIES;
         Integer port=new Integer(0);
         while (retries > 0) {
-            port = ctx.getNextPassiveTCPPort();
+            port = ctx.getNextPassiveUDPPort();
             port = port == null ? new Integer(0) : port;
             try {
                 log.debug("Trying to bind server socket to port " + port);
@@ -97,8 +94,6 @@ public class UDTDataChannel implements DataChannel {
     			localSocketAddress = socketUDT.getLocalSocketAddress();
     			log.info("bind; localSocketAddress={}"+localSocketAddress);
     			socketUDT.setSoTimeout(DATA_CHANNEL_TIMEOUT);
-    			socketUDT.listen(1);
-    			log.debug("listen;");
 
                 break;
             } catch (Exception e) {
@@ -120,6 +115,8 @@ public class UDTDataChannel implements DataChannel {
 			if (socketUDT==null) {
                 throw new IOException("UDT Server socket not initialized.");
             }
+			socketUDT.listen(10);
+			log.debug("listen;");
 			clientUDT = socketUDT.accept();
 
 			log.debug("accept; receiver={}"+clientUDT.socketID);
