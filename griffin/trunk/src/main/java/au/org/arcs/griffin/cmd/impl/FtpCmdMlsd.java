@@ -57,7 +57,7 @@ public class FtpCmdMlsd extends AbstractFtpCmdList {
         	if ((perm&PRIV_READ)==PRIV_READ) buffer.append("l");
         }else{
         	if ((perm&PRIV_READ)==PRIV_READ) buffer.append("r");
-        	if ((perm&PRIV_WRITE)==PRIV_WRITE) buffer.append("d");
+        	if ((perm&PRIV_WRITE)==PRIV_WRITE) buffer.append("dw");
         }
         buffer.append(";");
         if (file.isDirectory()){
