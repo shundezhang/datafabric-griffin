@@ -61,7 +61,7 @@ public class FtpCmdSite extends AbstractFtpCmd {
             //TODO do something
             out("200 ok");
         } else if (args[0].equalsIgnoreCase("CLIENTINFO")) {
-            out("200 ok");
+            out("250 ok");
         } else if (args[0].equalsIgnoreCase("SETNETSTACK")) {
             if (args.length != 2) {
                 out("500 command must be in the form 'SITE SETNETSTACK stack1[,stack2]'");
@@ -79,7 +79,7 @@ public class FtpCmdSite extends AbstractFtpCmd {
             	}
             	getCtx().setNetworkStack(NETWORK_STACK_UDP);
             }
-            out("200 ok");
+            out("250 ok");
         }else{
     		StringBuffer msg=new StringBuffer();
     		msg.append("214-The following commands are recognized:\r\n");
