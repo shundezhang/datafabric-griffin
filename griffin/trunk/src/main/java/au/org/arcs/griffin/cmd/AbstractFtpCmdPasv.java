@@ -49,17 +49,28 @@ public abstract class AbstractFtpCmdPasv extends AbstractFtpCmd {
 
             DataChannelInfo info = null;
             log.debug("network stack:"+getCtx().getNetworkStack());
-        	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
-        		DataChannel dc=new UDTDataChannel(getCtx());
+            
+            getCtx().closeDataChannels();
+            DataChannelProvider dataChannelProvider = null;
+            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+            	
+            }else{  //create TCP provider
+            	dataChannelProvider = new PassiveModeTCPDataChannelProvider(getCtx(), getPreferredProtocol());
+            }
+        	info = dataChannelProvider.init();
+        	getCtx().setDataChannelProvider(dataChannelProvider);
+            
+//        	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+//        		DataChannel dc=new UDTDataChannel(getCtx());
 //        		info=dc.init();
-        		getCtx().setDataChannel(dc);
-        	}else{
-                /* Set up socket provider */
-                getCtx().closeSockets();
-                SocketProvider socketProvider = new PassiveModeSocketProvider(getCtx(), getPreferredProtocol());
-                info = socketProvider.init();
-                getCtx().setDataSocketProvider(socketProvider);
-        	}
+//        		getCtx().setDataChannel(dc);
+//        	}else{
+//                /* Set up socket provider */
+//                getCtx().closeSockets();
+//                SocketProvider socketProvider = new PassiveModeSocketProvider(getCtx(), getPreferredProtocol());
+//                info = socketProvider.init();
+//                getCtx().setDataSocketProvider(socketProvider);
+//        	}
 
         	/* Send connection parameters */
             out(createResponseMessage(info.getProtocolIdx(), info.getAddress(), info.getPort()));
@@ -70,13 +81,16 @@ public abstract class AbstractFtpCmdPasv extends AbstractFtpCmd {
              */
 
         } catch (FtpIllegalProtocolVersion e) {
-            log.error(e.toString());
+        	e.printStackTrace();
+//            log.error(e.toString());
             msgOut(MSG522);
         } catch (IOException e) {
-            log.error(e.toString());
+        	e.printStackTrace();
+//            log.error(e.toString());
             msgOut(MSG425);
         } catch (RuntimeException e) {
-            log.error(e.toString());
+        	e.printStackTrace();
+//            log.error(e.toString());
             msgOut(MSG501);
         }
     }

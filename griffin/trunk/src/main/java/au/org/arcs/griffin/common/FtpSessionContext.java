@@ -36,6 +36,7 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 
 import au.org.arcs.griffin.cmd.DataChannel;
+import au.org.arcs.griffin.cmd.DataChannelProvider;
 import au.org.arcs.griffin.cmd.SocketProvider;
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.exception.FtpQuotaException;
@@ -377,8 +378,8 @@ public interface FtpSessionContext {
 	void setNetworkStack(int networkStack);
 	int getNetworkStack();
 	
-	void setDataChannel(DataChannel dataChannel);
-	DataChannel getDataChannel();
+	void setDataChannelProvider(DataChannelProvider dataChannelProvider);
+	DataChannelProvider getDataChannelProvider();
 	
 	void closeDataChannels();
 }

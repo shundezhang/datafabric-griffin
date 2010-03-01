@@ -1,0 +1,234 @@
+/*
+ * ------------------------------------------------------------------------------
+ * Hermes FTP Server
+ * Copyright (c) 2005-2007 Lars Behnke
+ * ------------------------------------------------------------------------------
+ * 
+ * This file is part of Hermes FTP Server.
+ * 
+ * Hermes FTP Server is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Hermes FTP Server is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Hermes FTP Server; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * ------------------------------------------------------------------------------
+ */
+
+
+package au.org.arcs.griffin.cmd;
+
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import au.org.arcs.griffin.common.FtpConstants;
+import au.org.arcs.griffin.common.FtpSessionContext;
+import au.org.arcs.griffin.filesystem.FileObject;
+import au.org.arcs.griffin.utils.IOUtils;
+
+/**
+ * Provides the data transfer socket for transfer passive mode.
+ * 
+ * @author Behnke
+ * @author Shunde Zhang
+ */
+public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
+
+    private static final int  MAX_BIND_RETRIES     = 3;
+
+    private static final int  DATA_CHANNEL_TIMEOUT = 10000;
+
+    private static Log        log                  = LogFactory.getLog(PassiveModeTCPDataChannelProvider.class);
+
+    private FtpSessionContext ctx;
+
+    private ServerSocket      serverSocket;
+
+    private List<DataChannel>            channels;
+
+    private int               preferredProtocol;
+    
+    private int maxThread;
+    
+    private boolean running;
+    
+    private FileObject fileObject;
+    private int direction;
+
+    /**
+     * Constructor.
+     * 
+     * @param ctx Session context.
+     * @param preferredProtocol Preferred protocol (IPv4 or IPv6)
+     */
+    public PassiveModeTCPDataChannelProvider(FtpSessionContext ctx, int preferredProtocol) {
+        this.ctx = ctx;
+        this.preferredProtocol = preferredProtocol;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public DataChannelInfo init() throws IOException {
+
+        /* Get local machine address and check protocol version. */
+        InetAddress localIp = ctx.getClientSocket().getLocalAddress();
+        int currentProtocol = getProtocolIdxByAddr(localIp);
+        boolean ok = (preferredProtocol == currentProtocol) || (preferredProtocol == 0);
+        if (!ok) {
+            throw new IOException("Invalid IP version");
+        }
+
+        /* Get the next available port */
+        int retries = MAX_BIND_RETRIES;
+        while (retries > 0) {
+            Integer port = ctx.getNextPassiveTCPPort();
+            port = port == null ? new Integer(0) : port;
+            try {
+                log.debug("Trying to bind server socket to port " + port);
+                serverSocket = createServerSocket(localIp, port.intValue());
+                break;
+            } catch (Exception e) {
+                retries--;
+                log.debug("Binding server socket to port " + port + " failed.");
+            }
+        }
+        if (serverSocket == null) {
+            throw new IOException("Initializing server socket failed.");
+        }
+
+        /* Wrap up connection parameter */
+        log.debug("Server socket successfully bound to port " + serverSocket.getLocalPort() + ".");
+        return new DataChannelInfo(localIp.getHostAddress(), serverSocket.getLocalPort());
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void closeProvider() {
+        IOUtils.closeGracefully(serverSocket);
+        if (channels != null) {
+            for (DataChannel channel:channels) channel.closeChannel();
+            channels = null;
+        }
+        serverSocket = null;
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public DataChannel provideDataChannel() throws IOException {
+        if (serverSocket == null) {
+            throw new IOException("Server socket not initialized.");
+        }
+        if (channels == null) {
+        	channels=new ArrayList<DataChannel>();
+        }
+        Socket dataSocket = serverSocket.accept();
+        TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, 0);
+        channels.add(dc);
+        return dc;
+    }
+
+    private int getProtocolIdxByAddr(InetAddress addr) {
+        if (addr instanceof Inet4Address) {
+            return 1;
+        } else if (addr instanceof Inet6Address) {
+            return 2;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Creates the server socket that accepts the data connection.
+     * 
+     * @param localIp The local IP address.
+     * @param port The port.
+     * @return The server socket.
+     * @throws IOException Error on creating server socket.
+     */
+    private ServerSocket createServerSocket(InetAddress localIp, int port) throws IOException {
+        ServerSocket sock;
+        Boolean dataProtection = (Boolean) ctx.getAttribute(FtpConstants.ATTR_DATA_PROT);
+            sock = ServerSocketFactory.getDefault().createServerSocket(port, 1, localIp);
+        sock.setSoTimeout(DATA_CHANNEL_TIMEOUT);
+        return sock;
+    }
+
+	public void setMaxThread(int maxThread) {
+		this.maxThread=maxThread;
+		
+	}
+
+	public void run() {
+		running=true;
+		channels=new ArrayList<DataChannel>();
+		while (running){
+			try {
+				Socket dataSocket = serverSocket.accept();
+				log.debug("accepted a new connection from client:"+dataSocket);
+				TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, 0);
+				dc.setDirection(direction);
+				dc.setFileObject(fileObject);
+				dc.setDataChannelProvider(this);
+				channels.add(dc);
+				Thread t=new Thread(dc);
+				t.start();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	public void channelClosed(DataChannel dc){
+		channels.remove(dc);
+		log.debug("1 channel is closed. "+channels.size()+" left.");
+		if (channels.size()==0) {
+			running=false;
+			IOUtils.closeGracefully(serverSocket);
+		}
+	}
+
+	public void setDirection(int direction) {
+		this.direction=direction;
+		
+	}
+
+	public void setFileObject(FileObject file) {
+		this.fileObject=file;
+		
+	}
+	
+	public int getChannelNumber(){
+		return channels.size();
+	}
+	public int getMaxThread(){
+		return this.maxThread;
+	}
+
+}

@@ -79,17 +79,27 @@ public abstract class AbstractFtpCmdPort extends AbstractFtpCmd {
      * @throws IOException Setting up data channel failed.
      */
     protected void setupDataChannel(int protocolIdx, String ipAddr, int port) throws IOException {
-    	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
-    		DataChannel dc=new UDTDataChannel(getCtx(), ipAddr, port);
-//    		DataChannelInfo info=dc.init();
-    		getCtx().setDataChannel(dc);
-    	}else{
-            getCtx().closeSockets();
-            DataChannelInfo info = new DataChannelInfo(ipAddr, port);
-            SocketProvider provider = new ActiveModeSocketProvider(getCtx(), info);
-            provider.init();
-            getCtx().setDataSocketProvider(provider);
-    	}
+    	getCtx().closeDataChannels();
+        DataChannelInfo info = new DataChannelInfo(ipAddr, port);
+        DataChannelProvider provider = null;
+        if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+        }else{ //create TCP provider
+        	provider=new ActiveModeTCPDataChannelProvider(getCtx(), info);
+        }
+        provider.init();
+        getCtx().setDataChannelProvider(provider);
+    	
+//    	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+//    		DataChannel dc=new UDTDataChannel(getCtx(), ipAddr, port);
+////    		DataChannelInfo info=dc.init();
+//    		getCtx().setDataChannel(dc);
+//    	}else{
+//            getCtx().closeSockets();
+//            DataChannelInfo info = new DataChannelInfo(ipAddr, port);
+//            SocketProvider provider = new ActiveModeSocketProvider(getCtx(), info);
+//            provider.init();
+//            getCtx().setDataSocketProvider(provider);
+//    	}
     }
 
     /**

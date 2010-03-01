@@ -48,6 +48,7 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 
 import au.org.arcs.griffin.cmd.DataChannel;
+import au.org.arcs.griffin.cmd.DataChannelProvider;
 import au.org.arcs.griffin.cmd.SocketProvider;
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpEventListener;
@@ -132,7 +133,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     private int bufferSize;
     
     private int networkStack;
-    private DataChannel dataChannel;
+    private DataChannelProvider dataChannelProvider;
     /**
      * Constructor.
      * 
@@ -695,18 +696,18 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 		
 	}
 
-	public DataChannel getDataChannel() {
-		return this.dataChannel;
+	public DataChannelProvider getDataChannelProvider() {
+		return this.dataChannelProvider;
 	}
 
-	public void setDataChannel(DataChannel dataChannel) {
-		this.dataChannel=dataChannel;
+	public void setDataChannelProvider(DataChannelProvider dataChannelProvider) {
+		this.dataChannelProvider=dataChannelProvider;
 		
 	}
 	
 	public void closeDataChannels(){
-		if (getDataChannel()!=null){
-			getDataChannel().closeChannel();
+		if (getDataChannelProvider()!=null){
+			getDataChannelProvider().closeProvider();
 		}
 	}
 

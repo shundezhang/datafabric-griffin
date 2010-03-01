@@ -105,6 +105,7 @@ public class FtpSessionImpl extends Thread implements FtpSession, FtpConstants {
             terminated = true;
             getCmdReader().abort();
             getFtpContext().closeSockets();
+            getFtpContext().closeDataChannels();
             getFtpContext().disconnectFileSystem();
             getFtpContext().getEventListener().sessionClosed(this);
         }

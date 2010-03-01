@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.org.arcs.griffin.cmd.DataChannel;
 
 /**
@@ -13,18 +16,31 @@ import au.org.arcs.griffin.cmd.DataChannel;
  */
 
 public class    EDataBlock implements BlockModeConstants{
+	private static Log          log                 = LogFactory.getLog(EDataBlock.class);
     private byte[] header;
     private byte[]  data;
     private String _myName="unknown";
+    private long preferredBufferSize=1048576;
     
-    public EDataBlock(String name)
-    {   _myName = name; }
+    public long getPreferredBufferSize() {
+		return preferredBufferSize;
+	}
+	public EDataBlock(String name){
+    	_myName = name;
+    }
+    public EDataBlock(String name, long preferredBufferSize){
+    	_myName = name;
+    	this.preferredBufferSize=preferredBufferSize;
+    }
 
     public EDataBlock()
     {   }
 
     public byte[] getHeader() {
         return header;
+    }
+    public void setData(byte[] b){
+    	this.data=b;
     }
 
     public byte getDescriptors() 
@@ -174,7 +190,68 @@ public class    EDataBlock implements BlockModeConstants{
     //System.out.println("EDataBlock(" + _myName + ").read(): returning " + n);
         return n;
     }
-    
+
+    public long read(DataChannel dc) {
+        header = new byte[EBLOCK_HEADER_LENGTH];
+        int     len = 0;
+
+        while( len < EBLOCK_HEADER_LENGTH ) 
+        {
+            int n;
+            try 
+            {
+                n = dc.read(header, len, EBLOCK_HEADER_LENGTH - len);
+            } 
+            catch( Exception e ) 
+            {
+                break;
+            }
+            if ( n <= 0 )
+            {
+                break;
+            }
+            len += n;
+        }
+
+        if( len < EBLOCK_HEADER_LENGTH )
+            return -1;
+
+        long size = 0;
+        for ( int i = 1; i < 9; i++ )
+            size = (size << 8) | ((int)header[i] & 0xFF);
+
+        
+        try
+        {   
+            data = new byte[(int)size]; 
+        }
+        catch( OutOfMemoryError e )
+        {   
+            //System.out.println("EDataBlock(" + _myName + ").read(): exception: " + e);
+            throw e;
+        }
+
+        
+        int n = 0;
+        while( n < size ) {
+            int nr;
+            try {
+                nr = dc.read(data, n, (int)(size) - n);
+            } 
+            catch( Exception e ) 
+            {
+                break;
+            }
+            if( nr <= 0 )
+                break;
+            n += nr;
+        }
+        if( n < getSize() )
+            n = -1;
+    //System.out.println("EDataBlock(" + _myName + ").read(): returning " + n);
+        return n;
+    }
+
     public String toString()
     {
     	StringBuffer descSB=new StringBuffer();
@@ -186,6 +263,10 @@ public class    EDataBlock implements BlockModeConstants{
 
 	public void writeHeader(DataChannel dc) throws IOException {
 		dc.write(header);
-	};
+	}
+	public void write(DataChannel dc) throws IOException {
+		dc.write(header);
+		dc.write(data,0,(int) getSize());
+	}
 }
 

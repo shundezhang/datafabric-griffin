@@ -121,6 +121,34 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
         }
     }
     
+    protected void doStoreFileData(DataChannel dc, FileObject file, long offset) throws IOException {
+        OutputStream os = new RafOutputStream(file, offset);
+        int bufferSize = getCtx().getBufferSize();
+        byte[] buffer = new byte[bufferSize];
+        int count;
+        try {
+            while ((count = dc.read(buffer)) != -1) {
+                os.write(buffer, 0, count);
+                os.flush();
+                getCtx().updateIncrementalStat(STAT_BYTES_UPLOADED, count);
+                incCompleted(count);
+                if (isAbortRequested()) {
+                    log.debug("File transfer aborted");
+                    msgOut(MSG426);
+                    return;
+                }
+                getTransferRateLimiter().execute(count);
+
+            }
+            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
+                (int) getTransferRateLimiter().getCurrentTransferRate());
+            msgOut(MSG226);
+        } finally {
+//            IOUtils.closeGracefully(is);
+            IOUtils.closeGracefully(os);
+        }
+    }
+    
 	@Override
 	protected void doStoreFileDataInEBlockMode(InputStream dataIn,
 			FileObject file) throws IOException {
@@ -217,6 +245,101 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
 		
 	}
 
+	@Override
+	protected void doStoreFileDataInEBlockMode(DataChannel dc,
+			FileObject file) throws IOException {
+		EDataBlock eDataBlock = new EDataBlock(getCtx().getUser());
+		OutputStream os=null;
+        try {
+
+            boolean eod = false;
+            long count;
+            while (!eod && (count = eDataBlock.read(dc)) > -1) {
+            	log.debug(eDataBlock+" count="+count);
+                //If we're running a modeE demux then check for end of channel
+                //allow the block to be forwarded as it may have data
+                if (eDataBlock.isDescriptorSet(EDataBlock.DESC_CODE_EOF)) {
+                    int dataChannelCount = (int) eDataBlock.getDataChannelCount();
+                    log.debug("dataChannelCount:"+dataChannelCount);
+//                    say(" Setting data channel count to " +dataChannelCount);
+//                    synchronized (_parent) {
+//                        _parent.setDataChannelCount(dataChannelCount);
+//                    }
+                    //Change the dc count to 1 for the pool
+//                    eDataBlock.setDCCountTo1();
+                }
+
+                if (eDataBlock.isDescriptorSet(EDataBlock.DESC_CODE_EOD)) {
+                    eod = true;
+                    break;
+                    //Turn off the eod flag
+//                    say("EOD received");
+//                    eDataBlock.unsetDescriptor(EDataBlock.DESC_CODE_EOD);
+//                    synchronized (_parent) {
+//                        _parent.addEODSeen();
+//                    }
+                }
+                if (os==null){
+                    long offset=eDataBlock.getOffset();
+                    os=new RafOutputStream(file, offset);
+                }
+                os.write(eDataBlock.getData(), 0, (int)count);
+                os.flush();
+                getCtx().updateIncrementalStat(STAT_BYTES_UPLOADED, count);
+                incCompleted(count);
+                if (isAbortRequested()) {
+                    log.debug("File transfer aborted");
+                    msgOut(MSG426);
+                    return;
+                }
+                getTransferRateLimiter().execute(count);
+
+//                synchronized (_parent) {
+//                    ostr.write(eDataBlock.getHeader());
+//                    ostr.write(eDataBlock.getData());
+//                    ostr.flush();
+//                }
+                //say("Done writing");
+            }
+            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
+                    (int) getTransferRateLimiter().getCurrentTransferRate());
+                msgOut(MSG226);
+//            say("Adapter: done, EOD received ? = " + eod);
+        } catch (IOException e) {
+        	e.printStackTrace();
+//            esay(e);
+            // what can we do here ??
+
+            // TIMUR: I think it does not make sence to continue,
+            // better to end this thread
+//            esay("we failed: calling _parent.SubtractDataChannel()");
+//            _parent.subtractDataChannel();
+            return;
+        } finally {
+//            IOUtils.closeGracefully(dataIn);
+            if (os!=null) IOUtils.closeGracefully(os);
+        }
+
+//        synchronized (_parent) {
+//            _parent.subtractDataChannel();
+//
+//            if (_parent.getDataChannelsClosed() == _parent.getDataChannelCount()) {
+//                if (_parent.getEODSeen() == _parent.getDataChannelsClosed()) {
+//                    //Send the real eod
+//                    byte[] eodPacket = new byte[17];
+//                    eodPacket[0] = 8;
+//                    synchronized (_parent) {
+//                        ostr.write(eodPacket, 0, 17);
+//                    }
+//                } else {
+//                    esay("The last socket is closing, but we didn't see enough EOD's.  Not going to send EOD to pool.  Transfer failed");
+//                    throw new IOException();
+//                }
+//            }
+//        }
+
+		
+	}
 
     /**
      * {@inheritDoc}

@@ -181,14 +181,14 @@ public class EBlockModeInputStream extends InputStream implements RecordReadSupp
             if (eor) {
                 buffer = ArrayUtils.addAll(buffer, eorMarkerBytes);
             }
-            result=n;
+//            result=n;
         }
-//        int result = buffer[idx];
-//        idx++;
-//        if (idx >= buffer.length) {
-//            buffer = null;
-//            idx = 0;
-//        }
+        result = buffer[idx];
+        idx++;
+        if (idx >= buffer.length) {
+            buffer = null;
+            idx = 0;
+        }
         return result;
     }
 
