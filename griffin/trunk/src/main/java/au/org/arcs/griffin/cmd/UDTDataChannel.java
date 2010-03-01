@@ -16,6 +16,7 @@ import com.barchart.udt.TypeUDT;
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.filesystem.FileObject;
 import au.org.arcs.griffin.streams.SynchronizedInputStream;
+import au.org.arcs.griffin.streams.SynchronizedOutputStream;
 
 public class UDTDataChannel implements DataChannel {
     private static final int  MAX_BIND_RETRIES     = 3;
@@ -194,6 +195,10 @@ public class UDTDataChannel implements DataChannel {
 		
 	}
 	public void setSynchronizedInputStream(SynchronizedInputStream sis) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void setSynchronizedOutputStream(SynchronizedOutputStream sos) {
 		// TODO Auto-generated method stub
 		
 	}

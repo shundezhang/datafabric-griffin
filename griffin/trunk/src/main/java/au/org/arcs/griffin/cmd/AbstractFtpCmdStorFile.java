@@ -112,9 +112,9 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                 getTransferRateLimiter().execute(count);
 
             }
-            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
-            msgOut(MSG226);
+//            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
+//                (int) getTransferRateLimiter().getCurrentTransferRate());
+//            msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(is);
             IOUtils.closeGracefully(os);
@@ -140,9 +140,9 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                 getTransferRateLimiter().execute(count);
 
             }
-            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
-            msgOut(MSG226);
+//            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
+//                (int) getTransferRateLimiter().getCurrentTransferRate());
+//            msgOut(MSG226);
         } finally {
 //            IOUtils.closeGracefully(is);
             IOUtils.closeGracefully(os);

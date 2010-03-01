@@ -153,6 +153,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
             	provider.setMaxThread(maxThread);
             	provider.setDirection(DataChannel.DIRECTION_GET);
             	provider.setFileObject(file);
+            	provider.prepare();
             	Thread thread=new Thread(provider);
             	thread.start();
             	try {

@@ -44,6 +44,11 @@ public class RafOutputStream extends OutputStream implements RecordWriteSupport 
 
     private long             offset;
 
+    public RafOutputStream(RandomAccessFileObject raf, long offset) {
+    	this.raf=raf;
+    	this.offset=offset;
+    }
+    
     /**
      * Constructor.
      * 

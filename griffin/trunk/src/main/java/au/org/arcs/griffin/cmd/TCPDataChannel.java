@@ -19,6 +19,7 @@ import au.org.arcs.griffin.streams.EDataBlock;
 import au.org.arcs.griffin.streams.RafInputStream;
 import au.org.arcs.griffin.streams.RafOutputStream;
 import au.org.arcs.griffin.streams.SynchronizedInputStream;
+import au.org.arcs.griffin.streams.SynchronizedOutputStream;
 import au.org.arcs.griffin.utils.IOUtils;
 
 public class TCPDataChannel implements DataChannel {
@@ -36,6 +37,7 @@ public class TCPDataChannel implements DataChannel {
 	private DataChannelProvider provider;
 	private FileObject fileObject;
 	private SynchronizedInputStream sis;
+	private SynchronizedOutputStream sos;
 	private int threadNum;
 	public TCPDataChannel(Socket dataSocket, FtpSessionContext ctx, int threadNum) throws IOException {
 		this.clientSocket=dataSocket;
@@ -147,18 +149,19 @@ public class TCPDataChannel implements DataChannel {
 		log.debug(clientSocket+" entering loop; direction="+direction);
 		if (direction==DIRECTION_PUT){
 			EDataBlock eDataBlock = new EDataBlock(ctx.getUser()+threadNum);
-			OutputStream os=null;
+//			OutputStream os=null;
 	        try {
 
 	            boolean eod = false;
 	            long count;
 	            while (!eod && (count = eDataBlock.read(this)) > -1) {
-	            	log.debug(eDataBlock+" count="+count);
+	            	log.debug("thread "+threadNum+" got "+eDataBlock+" count="+count);
 	                //If we're running a modeE demux then check for end of channel
 	                //allow the block to be forwarded as it may have data
 	                if (eDataBlock.isDescriptorSet(EDataBlock.DESC_CODE_EOF)) {
 	                    int dataChannelCount = (int) eDataBlock.getDataChannelCount();
-	                    log.debug("dataChannelCount:"+dataChannelCount);
+	                    log.debug("thread "+ threadNum +" got eof. all done. dataChannelCount:"+dataChannelCount);
+	                    provider.setDataChannelCount(dataChannelCount);
 //	                    say(" Setting data channel count to " +dataChannelCount);
 //	                    synchronized (_parent) {
 //	                        _parent.setDataChannelCount(dataChannelCount);
@@ -168,6 +171,8 @@ public class TCPDataChannel implements DataChannel {
 	                }
 
 	                if (eDataBlock.isDescriptorSet(EDataBlock.DESC_CODE_EOD)) {
+	                	log.debug("thread "+ threadNum +" got eod.");
+	                	provider.seenEOD();
 	                    eod = true;
 	                    break;
 	                    //Turn off the eod flag
@@ -183,6 +188,7 @@ public class TCPDataChannel implements DataChannel {
 //	                }
 //	                os.write(eDataBlock.getData(), 0, (int)count);
 //	                os.flush();
+	                sos.write(eDataBlock);
 	                ctx.updateIncrementalStat(FtpConstants.STAT_BYTES_UPLOADED, count);
 //	                incCompleted(count);
 //	                if (isAbortRequested()) {
@@ -210,9 +216,9 @@ public class TCPDataChannel implements DataChannel {
 //	            esay("we failed: calling _parent.SubtractDataChannel()");
 //	            _parent.subtractDataChannel();
 //	            return;
-	        } finally {
+//	        } finally {
 //	            IOUtils.closeGracefully(dataIn);
-	            if (os!=null) IOUtils.closeGracefully(os);
+//	            if (os!=null) IOUtils.closeGracefully(os);
 	        }
 
 		}else if (direction==DIRECTION_GET){
@@ -267,8 +273,8 @@ public class TCPDataChannel implements DataChannel {
 	        } catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} finally {
-	            IOUtils.closeGracefully(is);
+//			} finally {
+//	            IOUtils.closeGracefully(is);
 //	            IOUtils.closeGracefully(os);
 	        }
 
@@ -303,6 +309,11 @@ public class TCPDataChannel implements DataChannel {
 
 	public void setFileObject(FileObject file) {
 		this.fileObject=file;
+		
+	}
+
+	public void setSynchronizedOutputStream(SynchronizedOutputStream sos) {
+		this.sos=sos;
 		
 	}
 

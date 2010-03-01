@@ -45,6 +45,7 @@ import org.apache.commons.logging.LogFactory;
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.filesystem.FileObject;
+import au.org.arcs.griffin.streams.SynchronizedOutputStream;
 import au.org.arcs.griffin.utils.IOUtils;
 
 /**
@@ -75,6 +76,10 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
     
     private FileObject fileObject;
     private int direction;
+    private SynchronizedOutputStream sos;
+    
+    private int eodNum;
+    private int dataChannelCount;
 
     /**
      * Constructor.
@@ -85,6 +90,7 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
     public PassiveModeTCPDataChannelProvider(FtpSessionContext ctx, int preferredProtocol) {
         this.ctx = ctx;
         this.preferredProtocol = preferredProtocol;
+        this.dataChannelCount=-1;
     }
 
     /**
@@ -128,7 +134,16 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
      * {@inheritDoc}
      */
     public void closeProvider() {
+    	running=false;
         IOUtils.closeGracefully(serverSocket);
+        if (sos!=null)
+			try {
+				sos.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		sos=null;
         if (channels != null) {
             for (DataChannel channel:channels) channel.closeChannel();
             channels = null;
@@ -149,6 +164,10 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
         }
         Socket dataSocket = serverSocket.accept();
         TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, 0);
+		dc.setDirection(direction);
+		dc.setFileObject(fileObject);
+		dc.setDataChannelProvider(this);
+		if (direction==DataChannel.DIRECTION_PUT) dc.setSynchronizedOutputStream(sos);
         channels.add(dc);
         return dc;
     }
@@ -183,21 +202,29 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 		this.maxThread=maxThread;
 		
 	}
+	
+	public void prepare() throws IOException {
+		if (direction==DataChannel.DIRECTION_PUT)
+			sos=new SynchronizedOutputStream(fileObject.getRandomAccessFileObject("rw"));
+	}
 
 	public void run() {
 		running=true;
 		channels=new ArrayList<DataChannel>();
+		int num=0;
 		while (running){
 			try {
 				Socket dataSocket = serverSocket.accept();
 				log.debug("accepted a new connection from client:"+dataSocket);
-				TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, 0);
+				TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, num);
 				dc.setDirection(direction);
 				dc.setFileObject(fileObject);
 				dc.setDataChannelProvider(this);
+				if (direction==DataChannel.DIRECTION_PUT) dc.setSynchronizedOutputStream(sos);
 				channels.add(dc);
 				Thread t=new Thread(dc);
 				t.start();
+				num++;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -206,12 +233,12 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 		
 	}
 	public void channelClosed(DataChannel dc){
-		channels.remove(dc);
-		log.debug("1 channel is closed. "+channels.size()+" left.");
-		if (channels.size()==0) {
-			running=false;
-			IOUtils.closeGracefully(serverSocket);
-		}
+//		channels.remove(dc);
+//		log.debug("1 channel is closed. "+channels.size()+" left.");
+//		if (channels.size()==0) {
+//			running=false;
+//			IOUtils.closeGracefully(serverSocket);
+//		}
 	}
 
 	public void setDirection(int direction) {
@@ -229,6 +256,19 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 	}
 	public int getMaxThread(){
 		return this.maxThread;
+	}
+
+	public void seenEOD() {
+		this.eodNum++;
+		if (dataChannelCount>0&&dataChannelCount==eodNum) {
+			log.debug("got all "+dataChannelCount+" eod(s).");
+			this.closeProvider();
+		}
+	}
+
+	public void setDataChannelCount(int dataChannelCount) {
+		this.dataChannelCount=dataChannelCount;
+		
 	}
 
 }

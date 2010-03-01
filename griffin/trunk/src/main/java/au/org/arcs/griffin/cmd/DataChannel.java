@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import au.org.arcs.griffin.filesystem.FileObject;
 import au.org.arcs.griffin.streams.SynchronizedInputStream;
+import au.org.arcs.griffin.streams.SynchronizedOutputStream;
 
 public interface DataChannel extends Runnable{
 	public static int DIRECTION_GET=0;
@@ -36,4 +37,5 @@ public interface DataChannel extends Runnable{
     void setFileObject(FileObject file);
     void setDirection(int direction);
     void setSynchronizedInputStream(SynchronizedInputStream sis);
+    void setSynchronizedOutputStream(SynchronizedOutputStream sos);
 }
