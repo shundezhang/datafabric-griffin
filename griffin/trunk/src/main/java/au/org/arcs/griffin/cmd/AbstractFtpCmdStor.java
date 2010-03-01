@@ -104,6 +104,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             	provider.setMaxThread(maxThread);
             	provider.setDirection(DataChannel.DIRECTION_PUT);
             	provider.setFileObject(file);
+            	provider.prepare();
             	Thread thread=new Thread(provider);
             	thread.start();
             	try {

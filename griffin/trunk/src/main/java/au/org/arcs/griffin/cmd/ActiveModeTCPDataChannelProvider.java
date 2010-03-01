@@ -119,24 +119,6 @@ public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
 	}
 
 	public void run() {
-		channels=new ArrayList<DataChannel>();
-		if (direction==DataChannel.DIRECTION_GET) sis=new SynchronizedInputStream(new RafInputStream(fileObject, 0));
-		for (int i=0;i<maxThread;i++){
-			try {
-				Socket s=createClientSocket();
-				TCPDataChannel dc=new TCPDataChannel(s,ctx,i);
-				dc.setDirection(direction);
-				dc.setFileObject(fileObject);
-				dc.setDataChannelProvider(this);
-				if (direction==DataChannel.DIRECTION_GET) {
-					dc.setSynchronizedInputStream(sis);
-				}
-				channels.add(dc);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		Thread[] transferThreads=new Thread[channels.size()];
 		for (int i=0;i<channels.size();i++){
 			transferThreads[i]=new Thread(channels.get(i));
@@ -188,6 +170,32 @@ public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
 	
 	public int getMaxThread(){
 		return this.maxThread;
+	}
+
+	public void prepare() throws IOException {
+		channels=new ArrayList<DataChannel>();
+		if (direction==DataChannel.DIRECTION_GET) sis=new SynchronizedInputStream(new RafInputStream(fileObject, 0));
+		for (int i=0;i<maxThread;i++){
+			Socket s=createClientSocket();
+			TCPDataChannel dc=new TCPDataChannel(s,ctx,i);
+			dc.setDirection(direction);
+			dc.setFileObject(fileObject);
+			dc.setDataChannelProvider(this);
+			if (direction==DataChannel.DIRECTION_GET) {
+				dc.setSynchronizedInputStream(sis);
+			}
+			channels.add(dc);
+		}
+	}
+
+	public void seenEOD() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setDataChannelCount(int dataChannelCount) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

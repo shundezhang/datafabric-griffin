@@ -66,5 +66,9 @@ public interface DataChannelProvider extends Runnable{
     void setFileObject(FileObject file);
     void setDirection(int direction);
 	int getChannelNumber();
+	void setDataChannelCount(int dataChannelCount);
+	void seenEOD();
+	
+	void prepare() throws IOException;
 
 }
