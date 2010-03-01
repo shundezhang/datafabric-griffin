@@ -14,6 +14,8 @@ import com.barchart.udt.SocketUDT;
 import com.barchart.udt.TypeUDT;
 
 import au.org.arcs.griffin.common.FtpSessionContext;
+import au.org.arcs.griffin.filesystem.FileObject;
+import au.org.arcs.griffin.streams.SynchronizedInputStream;
 
 public class UDTDataChannel implements DataChannel {
     private static final int  MAX_BIND_RETRIES     = 3;
@@ -31,7 +33,7 @@ public class UDTDataChannel implements DataChannel {
 
 	public UDTDataChannel(FtpSessionContext ctx) throws IOException{
 		this.ctx=ctx;
-		dci=init();
+//		dci=init();
 	}
 	public UDTDataChannel(FtpSessionContext ctx, String remoteAddr, int remotePort) throws IOException {
 		this.ctx=ctx;
@@ -45,20 +47,21 @@ public class UDTDataChannel implements DataChannel {
 				remoteAddr, remotePort);
 
 		clientUDT.connect(remoteSocketAddress);
+		clientUDT.configureBlocking(true);
 		remoteSocketAddress = clientUDT.getRemoteSocketAddress();
 		log.debug("connect; remoteSocketAddress={}"+remoteSocketAddress);
 
 		StringBuilder text = new StringBuilder(1024);
 		OptionUDT.appendSnapshot(clientUDT, text);
 		text.append("\t\n");
-		log.debug("sender options; {}"+text);
+		log.debug("sender options; "+text);
 
 //		MonitorUDT monitor = socketUDT.monitor;
 
 	}
 	public void closeChannel() {
 		try {
-			clientUDT.close();
+			if (clientUDT!=null) clientUDT.close();
 		} catch (ExceptionUDT e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,7 +78,8 @@ public class UDTDataChannel implements DataChannel {
 	public DataChannelInfo init() throws IOException {
         /* Get local machine address and check protocol version. */
         InetAddress localIp = ctx.getClientSocket().getLocalAddress();
-
+        log.debug("localIp:"+localIp);
+        
         /* Get the next available port */
         int retries = MAX_BIND_RETRIES;
         Integer port=new Integer(0);
@@ -85,14 +89,15 @@ public class UDTDataChannel implements DataChannel {
             try {
                 log.debug("Trying to bind server socket to port " + port);
                 socketUDT = new SocketUDT(TypeUDT.STREAM);
-    			log.debug("init; acceptor={}"+socketUDT.socketID);
+    			log.debug("init; acceptor="+socketUDT.socketID);
 
     			InetSocketAddress localSocketAddress = new InetSocketAddress(
-    					"0.0.0.0", port);
+    					localIp, port);
 
     			socketUDT.bind(localSocketAddress);
+    			socketUDT.configureBlocking(true);
     			localSocketAddress = socketUDT.getLocalSocketAddress();
-    			log.info("bind; localSocketAddress={}"+localSocketAddress);
+    			log.info("bind; localSocketAddress="+localSocketAddress);
     			socketUDT.setSoTimeout(DATA_CHANNEL_TIMEOUT);
 
                 break;
@@ -118,15 +123,16 @@ public class UDTDataChannel implements DataChannel {
 			socketUDT.listen(10);
 			log.debug("listen;");
 			clientUDT = socketUDT.accept();
+			clientUDT.configureBlocking(true);
 
-			log.debug("accept; receiver={}"+clientUDT.socketID);
+			log.debug("accept; receiver="+clientUDT.socketID);
 			InetSocketAddress remoteSocketAddress = clientUDT.getRemoteSocketAddress();
 
-			log.debug("receiver; remoteSocketAddress={}"+remoteSocketAddress);
+			log.debug("receiver; remoteSocketAddress="+remoteSocketAddress);
 			StringBuilder text = new StringBuilder(1024);
 			OptionUDT.appendSnapshot(clientUDT, text);
 			text.append("\t\n");
-			log.info("receiver options; {}"+text);
+			log.info("receiver options; "+text);
 
 //			MonitorUDT monitor = receiver.monitor;
 		}
@@ -135,25 +141,60 @@ public class UDTDataChannel implements DataChannel {
 	public static void checkLibrary() throws ExceptionUDT {
 		String libraryPath = System.getProperty("java.library.path");
 
-		log.info("libraryPath={}"+libraryPath);
+		log.info("libraryPath="+libraryPath);
 		TypeUDT type = TypeUDT.STREAM;
 
 		SocketUDT socket = new SocketUDT(type);
 
 		boolean isOpen = socket.isOpen();
 
-		log.info("isOpen={}"+isOpen);
+		log.info("isOpen="+isOpen);
 		// TODO Auto-generated method stub
 		
 	}
 	public void write(byte[] b) throws IOException {
 		if (clientUDT==null) throw new IOException("Data channel has not been initiated.");
-		clientUDT.send(b);
+		int n= clientUDT.send(b);
+		if (n!=b.length) throw new IOException("Data channel only sent "+n+" bytes out of "+b.length+" bytes.");
 		
 	}
 	public void write(byte[] b, int start, int len) throws IOException {
 		if (clientUDT==null) throw new IOException("Data channel has not been initiated.");
-		clientUDT.send(b, start, len);
+		int n = clientUDT.send(b, start, len);
+		if (n!=len) throw new IOException("Data channel only sent "+n+" bytes out of "+len+" bytes.");
+	}
+	public int read(byte[] b) throws IOException {
+		if (clientUDT==null) throw new IOException("Data channel has not been initiated.");
+		return clientUDT.receive(b);
+		
+	}
+	public int read(byte[] b, int start, int len) throws IOException {
+		if (clientUDT==null) throw new IOException("Data channel has not been initiated.");
+		return clientUDT.receive(b, start, len);
+		
+	}
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+	public int getMode() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	public void setMode(int mode) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void setDirection(int direction) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void setFileObject(FileObject file) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void setSynchronizedInputStream(SynchronizedInputStream sis) {
+		// TODO Auto-generated method stub
 		
 	}
 

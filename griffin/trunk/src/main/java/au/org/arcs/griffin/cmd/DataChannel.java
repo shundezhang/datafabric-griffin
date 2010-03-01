@@ -1,11 +1,15 @@
 package au.org.arcs.griffin.cmd;
 
 import java.io.IOException;
-import java.net.Socket;
 
-public interface DataChannel {
+import au.org.arcs.griffin.filesystem.FileObject;
+import au.org.arcs.griffin.streams.SynchronizedInputStream;
+
+public interface DataChannel extends Runnable{
+	public static int DIRECTION_GET=0;
+	public static int DIRECTION_PUT=1;
     /**
-     * Initializes the provider.
+     * Initializes the passive channel.
      * 
      * @throws IOException Error on initializing the data channel.
      * @return Information about the data channel is provided.
@@ -27,5 +31,9 @@ public interface DataChannel {
     void closeChannel();
     void write(byte[] b) throws IOException;
     void write(byte[] b, int start, int len) throws IOException;
-
+    int read(byte[] b) throws IOException;
+    int read(byte[] b, int start, int len) throws IOException;
+    void setFileObject(FileObject file);
+    void setDirection(int direction);
+    void setSynchronizedInputStream(SynchronizedInputStream sis);
 }

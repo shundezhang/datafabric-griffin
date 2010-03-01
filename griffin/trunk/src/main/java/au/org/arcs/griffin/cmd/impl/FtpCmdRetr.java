@@ -171,7 +171,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
 
 	@Override
 	protected void doRetrieveFileDataInEBlockMode(OutputStream os,
-			FileObject file) throws IOException {
+			FileObject file, int maxThread) throws IOException {
 		InputStream is = new RafInputStream(file, 0);
 		int bufferSize=getCtx().getBufferSize(); //1048576;
 		byte[] buffer = new byte[bufferSize];
@@ -243,7 +243,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
 
 	@Override
 	protected void doRetrieveFileDataInEBlockMode(DataChannel dc,
-			FileObject file) throws IOException {
+			FileObject file, int maxThread) throws IOException {
 		InputStream is = new RafInputStream(file, 0);
 		int bufferSize=getCtx().getBufferSize(); //1048576;
 		byte[] buffer = new byte[bufferSize];
@@ -258,6 +258,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
             	log.debug(eDataBlock);
             	eDataBlock.writeHeader(dc);
                 dc.write(buffer, 0, count);
+                log.debug("written data:"+count);
                 offset+=count;
                 incCompleted(count);
                 if (isAbortRequested()) {

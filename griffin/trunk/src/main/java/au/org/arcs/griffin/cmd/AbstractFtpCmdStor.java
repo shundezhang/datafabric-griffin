@@ -84,6 +84,9 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
         int type = getCtx().getDataType();
         String charset = type == DT_ASCII || type == DT_EBCDIC ? getCtx().getCharset() : null;
         long fileOffset = getAndResetFileOffset();
+        int maxThread=getCtx().getParallelMax();
+        if (maxThread<1) maxThread=1;
+        log.debug("retriving file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
         getTransferRateLimiter().init(-1); //getCtx().getMaxUploadRate());
 
         try {
@@ -96,23 +99,55 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
 
             /* Wrap inbound data stream and call handler method */
             msgOut(MSG150);
-
-            Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
-            InputStream dataIn = dataSocket.getInputStream();
-            if (struct == STRUCT_RECORD) {
-                RecordReadSupport recordIn = createRecInputStream(dataIn, mode, charset, restartMarkers);
-                doStoreRecordData(recordIn, file, fileOffset);
-            } else if (struct == STRUCT_FILE) {
-            	if (mode==MODE_EBLOCK){
-            		doStoreFileDataInEBlockMode(dataIn, file);
-            	}else{
-	                InputStream fileIn = createInputStream(dataIn, mode, restartMarkers, charset);
-	               	doStoreFileData(fileIn, file, fileOffset);
-            	}
-            } else {
-                log.error("Unknown data type");
-                msgOut(MSG550, "Unsupported data type");
+            if (mode==MODE_EBLOCK){
+            	DataChannelProvider provider=getCtx().getDataChannelProvider();
+            	provider.setMaxThread(maxThread);
+            	provider.setDirection(DataChannel.DIRECTION_PUT);
+            	provider.setFileObject(file);
+            	Thread thread=new Thread(provider);
+            	thread.start();
+            	try {
+            		if (thread.isAlive()) thread.join();
+            	} catch (InterruptedException e) {
+					log.warn("interrupted exception, this is logged and ignored");
+					e.printStackTrace();
+				}
+            	provider.closeProvider();
+				log.info("transfer is complete");
+            }else{  // Stream mode
+            	DataChannel dataChannel=getCtx().getDataChannelProvider().provideDataChannel();
+            	doStoreFileData(dataChannel, file, fileOffset);
             }
+            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
+                    (int) getTransferRateLimiter().getCurrentTransferRate());
+            msgOut(MSG226);
+
+//            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+//            	DataChannel dc=getCtx().getDataChannel();
+//            	dc.start();
+//            	if (mode==MODE_EBLOCK){
+//            		doStoreFileDataInEBlockMode(dc, file);
+//            	}else{
+//            		doStoreFileData(dc, file, fileOffset);
+//            	}
+//            }else{
+//	            Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
+//	            InputStream dataIn = dataSocket.getInputStream();
+//	            if (struct == STRUCT_RECORD) {
+//	                RecordReadSupport recordIn = createRecInputStream(dataIn, mode, charset, restartMarkers);
+//	                doStoreRecordData(recordIn, file, fileOffset);
+//	            } else if (struct == STRUCT_FILE) {
+//	            	if (mode==MODE_EBLOCK){
+//	            		doStoreFileDataInEBlockMode(dataIn, file);
+//	            	}else{
+//		                InputStream fileIn = createInputStream(dataIn, mode, restartMarkers, charset);
+//		               	doStoreFileData(fileIn, file, fileOffset);
+//	            	}
+//	            } else {
+//	                log.error("Unknown data type");
+//	                msgOut(MSG550, "Unsupported data type");
+//	            }
+//            }
             // TODO delegate event to FtpEventListener
             // getCtx().getEventListener().
 
@@ -134,11 +169,13 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             msgOut(MSG550);
             log.error(e.toString());
         } finally {
-            getCtx().closeSockets();
+        	getCtx().closeDataChannels();
+//            getCtx().closeSockets();
         }
     }
 
     abstract protected void doStoreFileDataInEBlockMode(InputStream dataIn, FileObject file) throws IOException;
+    abstract protected void doStoreFileDataInEBlockMode(DataChannel dc, FileObject file) throws IOException;
 
 	/**
      * Creates an input stream that supports unstructured file data.
@@ -281,6 +318,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
      * @throws IOException Thrown if IO fails or if at least one resource limit was reached
      */
     protected abstract void doStoreFileData(InputStream is, FileObject file, long offset) throws IOException;
+    protected abstract void doStoreFileData(DataChannel dc, FileObject file, long offset) throws IOException;
 
     /**
      * Getter method for the java bean <code>completed</code>.

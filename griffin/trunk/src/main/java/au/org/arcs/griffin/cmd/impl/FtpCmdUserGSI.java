@@ -70,11 +70,13 @@ public class FtpCmdUserGSI extends AbstractFtpCmd {
             }catch (Exception e){
             	e.printStackTrace();
             	out("530 User Authorization failed: " + e.getMessage());
-
+            	return;
             }
             String clientHost = getCtx().getClientSocket().getInetAddress().getHostAddress();
             getCtx().getEventListener().loginPerformed(clientHost, getCtx().isAuthenticated());
         	
+        }else{
+        	out("530 Permission denied");
         }
     }
 
