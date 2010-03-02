@@ -708,6 +708,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 	public void closeDataChannels(){
 		if (getDataChannelProvider()!=null){
 			getDataChannelProvider().closeProvider();
+			this.dataChannelProvider=null;
 		}
 	}
 

@@ -86,7 +86,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
         long fileOffset = getAndResetFileOffset();
         int maxThread=getCtx().getParallelMax();
         if (maxThread<1) maxThread=1;
-        log.debug("retriving file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
+        log.debug("storing file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
         getTransferRateLimiter().init(-1); //getCtx().getMaxUploadRate());
 
         try {
@@ -113,7 +113,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
 					log.warn("interrupted exception, this is logged and ignored");
 					e.printStackTrace();
 				}
-            	provider.closeProvider();
+//            	provider.closeProvider();
 				log.info("transfer is complete");
             }else{  // Stream mode
             	DataChannel dataChannel=getCtx().getDataChannelProvider().provideDataChannel();
@@ -163,14 +163,15 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             msgOut(MSG550_MSG, "Unsupported Encoding: " + charset);
             log.error(e.toString());
         } catch (IOException e) {
-            msgOut(MSG550);
+            msgOut(MSG550_MSG, e.getMessage());
             log.error(e.toString());
         } catch (RuntimeException e) {
         	e.printStackTrace();
             msgOut(MSG550);
             log.error(e.toString());
         } finally {
-        	getCtx().closeDataChannels();
+        	log.debug("in finally");
+        	if (mode==MODE_STREAM) getCtx().closeDataChannels();
 //            getCtx().closeSockets();
         }
     }

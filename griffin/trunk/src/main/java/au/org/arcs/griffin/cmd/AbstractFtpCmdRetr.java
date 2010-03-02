@@ -162,7 +162,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
 					log.warn("interrupted exception, this is logged and ignored");
 					e.printStackTrace();
 				}
-            	provider.closeProvider();
+//            	provider.closeProvider();
 				log.info("transfer is complete");
             }else{  // Stream mode
             	DataChannel dataChannel=getCtx().getDataChannelProvider().provideDataChannel();
@@ -222,7 +222,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
             log.error(e.toString());
         } finally {
         	log.debug("in finally");
-        	getCtx().closeDataChannels();
+        	if (mode==MODE_STREAM) getCtx().closeDataChannels();
 //        	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
 //        		getCtx().closeDataChannels();
 //        	}else{

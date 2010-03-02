@@ -134,6 +134,7 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
      * {@inheritDoc}
      */
     public void closeProvider() {
+    	log.debug("closing provider.");
     	running=false;
         IOUtils.closeGracefully(serverSocket);
         if (sos!=null)
@@ -164,10 +165,10 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
         }
         Socket dataSocket = serverSocket.accept();
         TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, 0);
-		dc.setDirection(direction);
-		dc.setFileObject(fileObject);
-		dc.setDataChannelProvider(this);
-		if (direction==DataChannel.DIRECTION_PUT) dc.setSynchronizedOutputStream(sos);
+//		dc.setDirection(direction);
+//		dc.setFileObject(fileObject);
+//		dc.setDataChannelProvider(this);
+//		if (direction==DataChannel.DIRECTION_PUT) dc.setSynchronizedOutputStream(sos);
         channels.add(dc);
         return dc;
     }
@@ -206,31 +207,68 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 	public void prepare() throws IOException {
 		if (direction==DataChannel.DIRECTION_PUT)
 			sos=new SynchronizedOutputStream(fileObject.getRandomAccessFileObject("rw"));
-	}
-
-	public void run() {
-		running=true;
-		channels=new ArrayList<DataChannel>();
-		int num=0;
-		while (running){
-			try {
-				Socket dataSocket = serverSocket.accept();
-				log.debug("accepted a new connection from client:"+dataSocket);
-				TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, num);
+		if (channels!=null){
+			for (DataChannel dc:channels){
 				dc.setDirection(direction);
 				dc.setFileObject(fileObject);
 				dc.setDataChannelProvider(this);
 				if (direction==DataChannel.DIRECTION_PUT) dc.setSynchronizedOutputStream(sos);
-				channels.add(dc);
-				Thread t=new Thread(dc);
-				t.start();
-				num++;
+			}
+		}
+	}
+
+	public void run() {
+		if (channels==null){  //no existing channels
+			running=true;
+			channels=new ArrayList<DataChannel>();
+			int num=0;
+			while (running){
+				try {
+					Socket dataSocket = serverSocket.accept();
+					log.debug("accepted a new connection from client:"+dataSocket);
+					TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, num);
+					dc.setDirection(direction);
+					dc.setFileObject(fileObject);
+					dc.setDataChannelProvider(this);
+					if (direction==DataChannel.DIRECTION_PUT) dc.setSynchronizedOutputStream(sos);
+					channels.add(dc);
+					Thread t=new Thread(dc);
+					t.start();
+					num++;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}else{  //there are existing channels, reuse them
+			Thread[] transferThreads=new Thread[channels.size()];
+			for (int i=0;i<channels.size();i++){
+				transferThreads[i]=new Thread(channels.get(i));
+			}
+			for (int i=0;i<channels.size();i++){
+				transferThreads[i].start();
+			}
+			for (int i=0;i<channels.size();i++){
+				if (transferThreads[i].isAlive())
+					try {
+						log.debug("thread "+i+" joined.");
+						transferThreads[i].join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			}
+		}
+		log.debug("all threads finished(?) channels.size()="+channels.size()+" closing sos");
+		if (sos!=null){
+			try {
+				sos.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			sos=null;
 		}
-		
 	}
 	public void channelClosed(DataChannel dc){
 //		channels.remove(dc);
@@ -261,8 +299,9 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 	public void seenEOD() {
 		this.eodNum++;
 		if (dataChannelCount>0&&dataChannelCount==eodNum) {
-			log.debug("got all "+dataChannelCount+" eod(s).");
-			this.closeProvider();
+			log.debug("got all "+dataChannelCount+" eod(s). closing serverSocket:"+serverSocket);
+	    	running=false;
+	        IOUtils.closeGracefully(serverSocket);
 		}
 	}
 

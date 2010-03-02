@@ -101,6 +101,10 @@ public class FtpCmdReaderThread extends Thread implements FtpCmdReader {
             log.error(e.getMessage());
         } finally {
             terminated = true;
+            ctx.closeSockets();
+            ctx.closeDataChannels();
+            ctx.disconnectFileSystem();
+            ctx.getEventListener().sessionClosed(this);
         }
     }
 

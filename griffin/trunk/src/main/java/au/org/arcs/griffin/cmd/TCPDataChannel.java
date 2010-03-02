@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.filesystem.FileObject;
+import au.org.arcs.griffin.streams.DataChannelOutputStream;
 import au.org.arcs.griffin.streams.EDataBlock;
 import au.org.arcs.griffin.streams.RafInputStream;
 import au.org.arcs.griffin.streams.RafOutputStream;
@@ -138,11 +139,13 @@ public class TCPDataChannel implements DataChannel {
 	public void write(byte[] b) throws IOException {
 		// TODO Auto-generated method stub
 		os.write(b);
+		os.flush();
 	}
 
 	public void write(byte[] b, int start, int len) throws IOException {
 		// TODO Auto-generated method stub
 		os.write(b, start, len);
+		os.flush();
 	}
 
 	public void run() {
@@ -315,6 +318,11 @@ public class TCPDataChannel implements DataChannel {
 	public void setSynchronizedOutputStream(SynchronizedOutputStream sos) {
 		this.sos=sos;
 		
+	}
+
+	public OutputStream getOutputStream() {
+		// TODO Auto-generated method stub
+		return new DataChannelOutputStream(this);
 	}
 
 }
