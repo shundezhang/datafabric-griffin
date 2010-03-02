@@ -1,6 +1,7 @@
 package au.org.arcs.griffin.cmd;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import au.org.arcs.griffin.filesystem.FileObject;
 import au.org.arcs.griffin.streams.SynchronizedInputStream;
@@ -36,6 +37,9 @@ public interface DataChannel extends Runnable{
     int read(byte[] b, int start, int len) throws IOException;
     void setFileObject(FileObject file);
     void setDirection(int direction);
+    void setDataChannelProvider(DataChannelProvider provider);
     void setSynchronizedInputStream(SynchronizedInputStream sis);
     void setSynchronizedOutputStream(SynchronizedOutputStream sos);
+
+	OutputStream getOutputStream();
 }

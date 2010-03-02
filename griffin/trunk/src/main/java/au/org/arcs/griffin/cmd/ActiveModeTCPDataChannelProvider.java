@@ -98,6 +98,15 @@ public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
      * {@inheritDoc}
      */
     public void closeProvider() {
+    	log.debug("closing provider.");
+        if (sis!=null)
+			try {
+				sis.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		sis=null;
         if (channels != null) {
             for (DataChannel channel:channels) channel.closeChannel();
             channels = null;
@@ -137,15 +146,14 @@ public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
 				}
 		}
 		log.debug("all threads finished(?) channels.size()="+channels.size());
-		if (channels.size()==0) {
-//			running=false;
-			if (sis!=null)
-				try {
-					sis.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		if (sis!=null){
+			try {
+				sis.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			sis=null;
 		}
 	}
 

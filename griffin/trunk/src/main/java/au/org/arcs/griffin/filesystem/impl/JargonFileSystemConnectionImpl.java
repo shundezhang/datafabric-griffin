@@ -48,7 +48,11 @@ public class JargonFileSystemConnectionImpl implements FileSystemConnection {
 	}
 	public void close() throws IOException {
 		if (remoteFileSystem!=null) {
-			if (remoteFileSystem instanceof IRODSFileSystem) ((IRODSFileSystem)remoteFileSystem).close();
+			if (remoteFileSystem instanceof IRODSFileSystem) {
+				log.debug("closing irods connecton:"+remoteFileSystem);
+				((IRODSFileSystem)remoteFileSystem).close();
+				remoteFileSystem=null;
+			}
 		}
 		
 	}

@@ -30,6 +30,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.exception.FtpCmdException;
 import au.org.arcs.griffin.filesystem.FileObject;
@@ -44,8 +47,7 @@ import au.org.arcs.griffin.utils.IOUtils;
  */
 public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
 
-    // private static Log log = LogFactory.getLog(AbstractFtpCmdList.class);
-
+	private static Log          log                 = LogFactory.getLog(AbstractFtpCmdList.class);
     /**
      * {@inheritDoc}
      */
@@ -54,8 +56,8 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
         String charset = getCtx().getCharset();
         PrintWriter dataOut = null;
         try {
-            Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
-            dataOut = new PrintWriter(new OutputStreamWriter(dataSocket.getOutputStream(), charset));
+            DataChannel dataChannel = getCtx().getDataChannelProvider().provideDataChannel();
+            dataOut = new PrintWriter(new OutputStreamWriter(dataChannel.getOutputStream(), charset));
 
             String args = getArguments();
             String[] argParts = args.split(" ");
@@ -68,7 +70,8 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
             	dirName = args;
             }
             dirName=getAbsPath(dirName);
-            FileObject dir=getCtx().getFileSystemConnection().getFileObject(dirName);; 
+            FileObject dir=getCtx().getFileSystemConnection().getFileObject(dirName);
+            log.debug("listing dir "+dir);
 
             // TODO Allow filtering with wildcards *, ?
 
@@ -90,8 +93,10 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
 
             msgOut(MSG226);
         } catch (IOException e) {
+        	e.printStackTrace();
             msgOut(MSG550);
         } catch (Exception e) {
+        	e.printStackTrace();
             msgOut(MSG550);
         } finally {
             IOUtils.closeGracefully(dataOut);

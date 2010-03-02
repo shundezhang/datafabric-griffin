@@ -1,6 +1,7 @@
 package au.org.arcs.griffin.cmd;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -201,6 +202,14 @@ public class UDTDataChannel implements DataChannel {
 	public void setSynchronizedOutputStream(SynchronizedOutputStream sos) {
 		// TODO Auto-generated method stub
 		
+	}
+	public void setDataChannelProvider(DataChannelProvider provider) {
+		// TODO Auto-generated method stub
+		
+	}
+	public OutputStream getOutputStream() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
