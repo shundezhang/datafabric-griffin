@@ -24,7 +24,13 @@
 
 package au.org.arcs.griffin.cmd.impl;
 
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.org.arcs.griffin.cmd.AbstractFtpCmdPort;
+import au.org.arcs.griffin.exception.FtpCmdException;
 
 /**
  * <b>DATA PORT (PORT)</b>
@@ -43,14 +49,34 @@ import au.org.arcs.griffin.cmd.AbstractFtpCmdPort;
  * @author Lars Behnke
  */
 public class FtpCmdPort extends AbstractFtpCmdPort {
+	private static Log log = LogFactory.getLog(FtpCmdPort.class);
+    /**
+     * {@inheritDoc}
+     */
+    public void execute() throws FtpCmdException {
+        try {
+            String args = getArguments();
+            if (args.length() == 0) {
+                msgOut(MSG501);
+                return;
+            }
 
-    private static final String DOT = ".";
+            int protocolIdx = doReadProtocolIdx(args);
+            String addr = doReadIPAddr(args);
+            int port = doReadPort(args);
+            log.debug("Data Channel Protocol: " + protocolIdx + ", IPAddr: " + addr + ", port: " + port);
 
-    private int                 port;
+            setupDataChannel(protocolIdx, addr, port);
 
-    private String              addr;
-
-    private String              lastArgs;
+            msgOut(MSG200);
+        } catch (IOException e) {
+            log.error(e.toString());
+            out("500 Error: "+e.toString());
+        } catch (IllegalArgumentException e) {
+            log.error(e.toString());
+            msgOut(MSG501);
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -59,51 +85,6 @@ public class FtpCmdPort extends AbstractFtpCmdPort {
         return "Sets port for active transfer.";
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected String doReadIPAddr(String args) {
-        if (!paramsParsed(args)) {
-            parseParams(args);
-        }
-        return addr;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected int doReadPort(String args) {
-        if (!paramsParsed(args)) {
-            parseParams(args);
-        }
-        return port;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected int doReadProtocolIdx(String args) {
-        return 1;
-    }
-
-    private boolean paramsParsed(String args) {
-        return lastArgs != null && lastArgs.equals(args);
-    }
-
-    private void parseParams(String args) {
-        try {
-            lastArgs = args;
-            String[] argParts = getArguments().split(",");
-            int idx = 0;
-            addr = argParts[idx++].trim() + DOT + argParts[idx++].trim() + DOT + argParts[idx++].trim() + DOT
-                    + argParts[idx++].trim();
-            int p1 = Integer.parseInt(argParts[idx++].trim()) & BYTE_MASK;
-            int p2 = Integer.parseInt(argParts[idx++].trim()) & BYTE_MASK;
-            port = (p1 << BYTE_LENGTH) + p2;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid arguments: " + args);
-        }
-    }
 
 	public boolean isExtension() {
 		// TODO Auto-generated method stub

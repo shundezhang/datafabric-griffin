@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
+import au.org.arcs.griffin.cmd.AbstractFtpCmdPort;
 import au.org.arcs.griffin.cmd.ActiveModeSocketProvider;
 import au.org.arcs.griffin.cmd.DataChannelInfo;
 import au.org.arcs.griffin.cmd.SocketProvider;
@@ -23,15 +24,8 @@ import au.org.arcs.griffin.exception.FtpCmdException;
  * 
  * @author Shunde Zhang
  */
-public class FtpCmdSpor extends AbstractFtpCmd {
+public class FtpCmdSpor extends AbstractFtpCmdPort {
 	private static Log log = LogFactory.getLog(FtpCmdSpor.class);
-    private static final String DOT = ".";
-
-    private int                 port;
-
-    private String              addr;
-
-    private String              lastArgs;
 
     public void execute() throws FtpCmdException {
         try {
@@ -63,73 +57,12 @@ public class FtpCmdSpor extends AbstractFtpCmd {
         }
     }
 
-    /**
-     * Sets up the data channel in active transfer mode. IPv4 and IPv6 are supported.
-     * 
-     * @param protocolIdx Protocol index (IPv4 or IPv6)
-     * @param ipAddr IPv4 or IPv6 compliant address.
-     * @param port The port.
-     * @throws IOException Setting up data channel failed.
-     */
-    protected void setupDataChannel(int protocolIdx, String ipAddr, int port) throws IOException {
-        getCtx().closeSockets();
-        DataChannelInfo info = new DataChannelInfo(ipAddr, port);
-        SocketProvider provider = new ActiveModeSocketProvider(getCtx(), info);
-        provider.init();
-        getCtx().setDataSocketProvider(provider);
-    }
 
     /**
      * {@inheritDoc}
      */
     public String getHelp() {
         return "Sets port for active transfer.";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected String doReadIPAddr(String args) {
-        if (!paramsParsed(args)) {
-            parseParams(args);
-        }
-        return addr;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected int doReadPort(String args) {
-        if (!paramsParsed(args)) {
-            parseParams(args);
-        }
-        return port;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected int doReadProtocolIdx(String args) {
-        return 1;
-    }
-
-    private boolean paramsParsed(String args) {
-        return lastArgs != null && lastArgs.equals(args);
-    }
-
-    private void parseParams(String args) {
-        try {
-            lastArgs = args;
-            String[] argParts = getArguments().split(",");
-            int idx = 0;
-            addr = argParts[idx++].trim() + DOT + argParts[idx++].trim() + DOT + argParts[idx++].trim() + DOT
-                    + argParts[idx++].trim();
-            int p1 = Integer.parseInt(argParts[idx++].trim()) & BYTE_MASK;
-            int p2 = Integer.parseInt(argParts[idx++].trim()) & BYTE_MASK;
-            port = (p1 << BYTE_LENGTH) + p2;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid arguments: " + args);
-        }
     }
 
 	public boolean isExtension() {

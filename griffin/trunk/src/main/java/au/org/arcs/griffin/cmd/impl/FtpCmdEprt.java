@@ -144,7 +144,7 @@ import au.org.arcs.griffin.cmd.AbstractFtpCmdPort;
  * 
  * @author Lars Behnke
  */
-public class FtpCmdEprt extends AbstractFtpCmdPort {
+public class FtpCmdEprt extends FtpCmdPort {
 
     private static final String EPRT_ARG_PATTERN = "^(.)([12])\\1([A-Fa-f0-9\\.\\:]+)\\1([0-9]*)\\1$";
 

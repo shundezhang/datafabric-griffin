@@ -41,34 +41,14 @@ import au.org.arcs.griffin.exception.FtpCmdException;
 public abstract class AbstractFtpCmdPort extends AbstractFtpCmd {
 
     private static Log log = LogFactory.getLog(AbstractFtpCmdPort.class);
+    private static final String DOT = ".";
 
-    /**
-     * {@inheritDoc}
-     */
-    public void execute() throws FtpCmdException {
-        try {
-            String args = getArguments();
-            if (args.length() == 0) {
-                msgOut(MSG501);
-                return;
-            }
+    private int                 port;
 
-            int protocolIdx = doReadProtocolIdx(args);
-            String addr = doReadIPAddr(args);
-            int port = doReadPort(args);
-            log.debug("Data Channel Protocol: " + protocolIdx + ", IPAddr: " + addr + ", port: " + port);
+    private String              addr;
 
-            setupDataChannel(protocolIdx, addr, port);
+    private String              lastArgs;
 
-            msgOut(MSG200);
-        } catch (IOException e) {
-            log.error(e.toString());
-            out("500 Error: "+e.toString());
-        } catch (IllegalArgumentException e) {
-            log.error(e.toString());
-            msgOut(MSG501);
-        }
-    }
 
     /**
      * Sets up the data channel in active transfer mode. IPv4 and IPv6 are supported.
@@ -110,27 +90,49 @@ public abstract class AbstractFtpCmdPort extends AbstractFtpCmd {
     }
 
     /**
-     * Reads port from passed arguments.
-     * 
-     * @param args The arguments.
-     * @return The port.
+     * {@inheritDoc}
      */
-    protected abstract int doReadPort(String args);
+    protected String doReadIPAddr(String args) {
+        if (!paramsParsed(args)) {
+            parseParams(args);
+        }
+        return addr;
+    }
 
     /**
-     * Reads the IPv4 or IPv6 compliant address from the passed arguments.
-     * 
-     * @param args The arguments.
-     * @return The IP address.
+     * {@inheritDoc}
      */
-    protected abstract String doReadIPAddr(String args);
+    protected int doReadPort(String args) {
+        if (!paramsParsed(args)) {
+            parseParams(args);
+        }
+        return port;
+    }
 
     /**
-     * Reads the protocol index (1=IPv4, 2=IPv6) from the passed arguments.
-     * 
-     * @param args The arguments.
-     * @return The protocol index.
+     * {@inheritDoc}
      */
-    protected abstract int doReadProtocolIdx(String args);
+    protected int doReadProtocolIdx(String args) {
+        return 1;
+    }
+
+    private boolean paramsParsed(String args) {
+        return lastArgs != null && lastArgs.equals(args);
+    }
+
+    private void parseParams(String args) {
+        try {
+            lastArgs = args;
+            String[] argParts = getArguments().split(",");
+            int idx = 0;
+            addr = argParts[idx++].trim() + DOT + argParts[idx++].trim() + DOT + argParts[idx++].trim() + DOT
+                    + argParts[idx++].trim();
+            int p1 = Integer.parseInt(argParts[idx++].trim()) & BYTE_MASK;
+            int p2 = Integer.parseInt(argParts[idx++].trim()) & BYTE_MASK;
+            port = (p1 << BYTE_LENGTH) + p2;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid arguments: " + args);
+        }
+    }
 
 }
