@@ -112,11 +112,11 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                     log.debug("Record transfer aborted");
                     return;
                 }
-                getTransferRateLimiter().execute(recordBuffer.length);
+                getCtx().getTransferMonitor().execute(recordBuffer.length);
             }
             writeRecord(rws, lastRecordBuffer, true);
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
+                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
             msgOut(MSG226);
 
         } finally {
@@ -152,11 +152,11 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                     log.debug("File transfer aborted");
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
             }
             os.flush();
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
+                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
             msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(is);
@@ -194,7 +194,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                     log.debug("File transfer aborted");
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
             }
         	eDataBlock.clearHeader();
         	eDataBlock.setDescriptor(64);
@@ -203,7 +203,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
         	eDataBlock.setOffset(1);
         	eDataBlock.writeHeader(os);
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
+                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
             msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(is);
@@ -229,11 +229,11 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                     log.debug("File transfer aborted");
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
             }
 //            os.flush();
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
+                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
             msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(is);
@@ -266,7 +266,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                     log.debug("File transfer aborted");
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
             }
         	eDataBlock.clearHeader();
         	eDataBlock.setDescriptor(64);
@@ -275,7 +275,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
         	eDataBlock.setOffset(1);
         	eDataBlock.writeHeader(dc);
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
+                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
             msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(is);

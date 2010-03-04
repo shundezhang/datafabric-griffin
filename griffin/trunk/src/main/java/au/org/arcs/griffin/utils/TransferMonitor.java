@@ -24,12 +24,14 @@
 
 package au.org.arcs.griffin.utils;
 
+import au.org.arcs.griffin.cmd.AbstractFtpCmd;
+
 /**
  * Controls the upload/download bandwidth.
  * 
  * @author Behnke
  */
-public class TransferRateLimiter {
+public class TransferMonitor {
 
     private static final int SLEEP_INTERVAL = 100;
 
@@ -38,11 +40,17 @@ public class TransferRateLimiter {
     private long             startTime;
 
     private long             transferredBytes;
+    
+    private AbstractFtpCmd cmd;
+    
+    private static final int PERF_MARKER_INTERVAL = 5000;
+    
+    private long lastPerfMarkerTime;
 
     /**
      * Constructor.
      */
-    public TransferRateLimiter() {
+    public TransferMonitor() {
         this(-1);
     }
 
@@ -51,8 +59,8 @@ public class TransferRateLimiter {
      * 
      * @param maxRate KB per second.
      */
-    public TransferRateLimiter(double maxRate) {
-        init(maxRate);
+    public TransferMonitor(double maxRate) {
+    	this.maxRate = maxRate;
     }
 
     /**
@@ -60,10 +68,23 @@ public class TransferRateLimiter {
      * 
      * @param maxRate The maximum transfer rate.
      */
-    public void init(double maxRate) {
+    public void init(double maxRate, AbstractFtpCmd cmd) {
         this.maxRate = maxRate;
         startTime = System.currentTimeMillis();
         transferredBytes = 0;
+        this.cmd=cmd;
+        sendPerfMarker();
+    }
+    
+    public void sendPerfMarker(){
+        lastPerfMarkerTime=System.currentTimeMillis();
+    	StringBuffer perf=new StringBuffer("112-Perf Marker\r\n");
+    	perf.append(" Timestamp:  "+lastPerfMarkerTime+"\r\n");
+    	perf.append(" Stripe Index: 0\r\n");
+    	perf.append(" Stripe Bytes Transferred: "+transferredBytes+"\r\n");
+    	perf.append(" Total Stripe Count: 1\r\n");
+    	perf.append("112 End.");
+    	cmd.out(perf.toString());
     }
 
     /**
@@ -88,13 +109,14 @@ public class TransferRateLimiter {
      */
     public void execute(long byteCount) {
         transferredBytes += byteCount;
-        while (maxRate >= 0 && getCurrentTransferRate() > maxRate) {
-            try {
-                Thread.sleep(SLEEP_INTERVAL);
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
+        if (System.currentTimeMillis()-lastPerfMarkerTime>PERF_MARKER_INTERVAL) sendPerfMarker();
+//        while (maxRate >= 0 && getCurrentTransferRate() > maxRate) {
+//            try {
+//                Thread.sleep(SLEEP_INTERVAL);
+//            } catch (InterruptedException e) {
+//                break;
+//            }
+//        }
     }
 
 }

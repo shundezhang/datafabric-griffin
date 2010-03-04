@@ -109,7 +109,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                     msgOut(MSG426);
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
 
             }
 //            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
@@ -137,7 +137,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                     msgOut(MSG426);
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
 
             }
 //            getCtx().updateAverageStat(STAT_UPLOAD_RATE,
@@ -196,7 +196,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                     msgOut(MSG426);
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
 
 //                synchronized (_parent) {
 //                    ostr.write(eDataBlock.getHeader());
@@ -206,7 +206,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                 //say("Done writing");
             }
             getCtx().updateAverageStat(STAT_UPLOAD_RATE,
-                    (int) getTransferRateLimiter().getCurrentTransferRate());
+                    (int) getCtx().getTransferMonitor().getCurrentTransferRate());
                 msgOut(MSG226);
 //            say("Adapter: done, EOD received ? = " + eod);
         } catch (IOException e) {
@@ -292,7 +292,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                     msgOut(MSG426);
                     return;
                 }
-                getTransferRateLimiter().execute(count);
+                getCtx().getTransferMonitor().execute(count);
 
 //                synchronized (_parent) {
 //                    ostr.write(eDataBlock.getHeader());
@@ -302,7 +302,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                 //say("Done writing");
             }
             getCtx().updateAverageStat(STAT_UPLOAD_RATE,
-                    (int) getTransferRateLimiter().getCurrentTransferRate());
+                    (int) getCtx().getTransferMonitor().getCurrentTransferRate());
                 msgOut(MSG226);
 //            say("Adapter: done, EOD received ? = " + eod);
         } catch (IOException e) {
@@ -357,11 +357,11 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                     msgOut(MSG426);
                     return;
                 }
-                getTransferRateLimiter().execute(recordBuffer.length);
+                getCtx().getTransferMonitor().execute(recordBuffer.length);
             }
             writeRecord(os, lastRecordBuffer, true);
             getCtx().updateAverageStat(STAT_UPLOAD_RATE,
-                (int) getTransferRateLimiter().getCurrentTransferRate());
+                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
             msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(rrs);

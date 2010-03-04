@@ -47,7 +47,7 @@ import au.org.arcs.griffin.streams.EBlockModeInputStream;
 import au.org.arcs.griffin.streams.RecordInputStream;
 import au.org.arcs.griffin.streams.RecordReadSupport;
 import au.org.arcs.griffin.streams.TextInputStream;
-import au.org.arcs.griffin.utils.TransferRateLimiter;
+import au.org.arcs.griffin.utils.TransferMonitor;
 
 /**
  * Ancestor command class that is extended by commands that store data on the remote file system.
@@ -58,8 +58,6 @@ import au.org.arcs.griffin.utils.TransferRateLimiter;
 public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
 
     private static Log          log                 = LogFactory.getLog(AbstractFtpCmdStor.class);
-
-    private TransferRateLimiter transferRateLimiter = new TransferRateLimiter();
 
     private long                fileSize;
 
@@ -87,7 +85,6 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
         int maxThread=getCtx().getParallelMax();
         if (maxThread<1) maxThread=1;
         log.debug("storing file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
-        getTransferRateLimiter().init(-1); //getCtx().getMaxUploadRate());
 
         try {
             /* Check availability and access rights */
@@ -99,6 +96,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
 
             /* Wrap inbound data stream and call handler method */
             msgOut(MSG150);
+            getCtx().getTransferMonitor().init(-1,this); //getCtx().getMaxUploadRate());
             if (mode==MODE_EBLOCK){
             	DataChannelProvider provider=getCtx().getDataChannelProvider();
             	provider.setMaxThread(maxThread);
@@ -120,7 +118,8 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             	doStoreFileData(dataChannel, file, fileOffset);
             }
             getCtx().updateAverageStat(STAT_UPLOAD_RATE,
-                    (int) getTransferRateLimiter().getCurrentTransferRate());
+                    (int) getCtx().getTransferMonitor().getCurrentTransferRate());
+            getCtx().getTransferMonitor().sendPerfMarker();
             msgOut(MSG226);
 
 //            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
@@ -363,22 +362,6 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
      */
     protected boolean isAbortRequested() {
         return abortRequested;
-    }
-
-    /**
-     * Getter Methode fuer die Eigenschaft <code>transferRateLimiter</code>.
-     * 
-     * @return Wert der Eigenschaft <code>transferRateLimiter</code>.
-     */
-    public TransferRateLimiter getTransferRateLimiter() {
-        return transferRateLimiter;
-    }
-
-    /**
-     * @param transferRateLimiter the transferRateLimiter to set
-     */
-    public void setTransferRateLimiter(TransferRateLimiter transferRateLimiter) {
-        this.transferRateLimiter = transferRateLimiter;
     }
 
 }

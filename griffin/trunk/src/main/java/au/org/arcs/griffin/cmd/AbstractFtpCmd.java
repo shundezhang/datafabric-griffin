@@ -102,7 +102,7 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
      * 
      * @param text The response.
      */
-    protected void out(String text) {
+    public void out(String text) {
         responded = !text.startsWith("150");
         if (getCtx().getReplyType().equals("clear")){
             getCtx().getClientResponseWriter().println(text);
