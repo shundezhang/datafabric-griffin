@@ -158,6 +158,11 @@ public interface FtpConstants {
     public static final int		NETWORK_STACK_TCP	=	0;
     public static final int		NETWORK_STACK_UDP	=	1;
     
+    /* DCAU types */
+    public static final int		DCAU_NONE	=	0;
+    public static final int		DCAU_SELF	=	1;
+    public static final int		DCAU_SUBJECT	=	2;
+    
     /* Data types */
 
     /** ASCII data type. */

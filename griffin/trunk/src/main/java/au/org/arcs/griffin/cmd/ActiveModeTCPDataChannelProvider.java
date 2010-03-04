@@ -35,6 +35,7 @@ import javax.net.ssl.SSLSocket;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ietf.jgss.GSSException;
 
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpSessionContext;
@@ -50,16 +51,11 @@ import au.org.arcs.griffin.utils.IOUtils;
  * @author Behnke
  * @author Shunde Zhang
  */
-public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
+public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 	private static Log          log               = LogFactory.getLog(ActiveModeTCPDataChannelProvider.class);
-    private FtpSessionContext ctx;
 
     private DataChannelInfo   dataChannelInfo;
 
-    private List<DataChannel>            channels;
-    private int maxThread;
-    private FileObject fileObject;
-    private int direction;
     private SynchronizedInputStream sis;
 
     /**
@@ -89,7 +85,18 @@ public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
         	channels=new ArrayList<DataChannel>();
         }
         Socket socket = createClientSocket();
-        DataChannel dc=new TCPDataChannel(socket, ctx, 0);
+        DataChannel dc;
+		try {
+			dc = new TCPDataChannel(wrapSocket(socket, true), ctx, 0);
+		} catch (GSSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		}
         channels.add(dc);
         return dc;
     }
@@ -121,11 +128,6 @@ public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
         log.debug("established socket "+dataSocket+" to client:"+dataChannelInfo.getAddress()+" "+dataChannelInfo.getPort());
         return dataSocket;
     }
-
-	public void setMaxThread(int maxThread) {
-		this.maxThread=maxThread;
-		
-	}
 
 	public void run() {
 		Thread[] transferThreads=new Thread[channels.size()];
@@ -162,30 +164,29 @@ public class ActiveModeTCPDataChannelProvider implements DataChannelProvider {
 //		log.debug("1 channel is closed. "+channels.size()+" left.");
 	}
 
-	public void setDirection(int direction) {
-		this.direction=direction;
-		
-	}
-
-	public void setFileObject(FileObject file) {
-		this.fileObject=file;
-		
-	}
 
 	public int getChannelNumber(){
 		return channels.size();
 	}
 	
-	public int getMaxThread(){
-		return this.maxThread;
-	}
 
 	public void prepare() throws IOException {
 		channels=new ArrayList<DataChannel>();
 		if (direction==DataChannel.DIRECTION_GET) sis=new SynchronizedInputStream(new RafInputStream(fileObject, 0));
 		for (int i=0;i<maxThread;i++){
 			Socket s=createClientSocket();
-			TCPDataChannel dc=new TCPDataChannel(s,ctx,i);
+			TCPDataChannel dc;
+			try {
+				dc = new TCPDataChannel(wrapSocket(s, true),ctx,i);
+			} catch (GSSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new IOException(e.getMessage());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new IOException(e.getMessage());
+			}
 			dc.setDirection(direction);
 			dc.setFileObject(fileObject);
 			dc.setDataChannelProvider(this);

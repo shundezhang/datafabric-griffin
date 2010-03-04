@@ -42,7 +42,8 @@ public interface FtpCmdParser {
      * @param map The commands.
      */
     void setCommands(Map<String, String> map);
-
+    public Map<String, String> getCommands();
+    
     /**
      * Lists the known FTP commands.
      * 
