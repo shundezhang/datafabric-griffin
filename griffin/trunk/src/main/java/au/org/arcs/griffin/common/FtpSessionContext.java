@@ -44,6 +44,7 @@ import au.org.arcs.griffin.filesystem.FileSystem;
 import au.org.arcs.griffin.filesystem.FileSystemConnection;
 import au.org.arcs.griffin.usermanager.UserManager;
 import au.org.arcs.griffin.usermanager.model.UserData;
+import au.org.arcs.griffin.utils.TransferMonitor;
 
 
 /**
@@ -385,4 +386,6 @@ public interface FtpSessionContext {
 	
 	int getDCAU();
 	void setDCAU(int dcauType);
+	
+    TransferMonitor getTransferMonitor();
 }

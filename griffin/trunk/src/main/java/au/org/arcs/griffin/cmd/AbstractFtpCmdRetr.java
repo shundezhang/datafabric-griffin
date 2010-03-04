@@ -44,7 +44,7 @@ import au.org.arcs.griffin.streams.BlockModeOutputStream;
 import au.org.arcs.griffin.streams.RecordOutputStream;
 import au.org.arcs.griffin.streams.RecordWriteSupport;
 import au.org.arcs.griffin.streams.TextOutputStream;
-import au.org.arcs.griffin.utils.TransferRateLimiter;
+import au.org.arcs.griffin.utils.TransferMonitor;
 
 /**
  * Abstract base class for RETR command implementations.
@@ -55,8 +55,6 @@ import au.org.arcs.griffin.utils.TransferRateLimiter;
 public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpConstants {
 
     private static Log          log                 = LogFactory.getLog(AbstractFtpCmdRetr.class);
-
-    private TransferRateLimiter transferRateLimiter = new TransferRateLimiter();
 
     private long                fileSize;
 
@@ -140,13 +138,13 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
         int maxThread=getCtx().getParallelMax();
         if (maxThread<1) maxThread=1;
         log.debug("retriving file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
-        getTransferRateLimiter().init(-1); //getCtx().getMaxDownloadRate());
         try {
 
             /* Check availability and access rights */
             doPerformAccessChecks(file);
 
             msgOut(MSG150);
+            getCtx().getTransferMonitor().init(-1,this); //getCtx().getMaxDownloadRate());
 
             if (mode==MODE_EBLOCK){
             	DataChannelProvider provider=getCtx().getDataChannelProvider();
@@ -169,7 +167,8 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
             	doRetrieveFileData(dataChannel, file, fileOffset);
             }
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-            		(int) getTransferRateLimiter().getCurrentTransferRate());
+            		(int) getCtx().getTransferMonitor().getCurrentTransferRate());
+            getCtx().getTransferMonitor().sendPerfMarker();
             msgOut(MSG226);
 
 //            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
@@ -312,22 +311,6 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
      */
     public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
-    }
-
-    /**
-     * Getter Methode fuer die Eigenschaft <code>transferRateLimiter</code>.
-     * 
-     * @return Wert der Eigenschaft <code>transferRateLimiter</code>.
-     */
-    public TransferRateLimiter getTransferRateLimiter() {
-        return transferRateLimiter;
-    }
-
-    /**
-     * @param transferRateLimiter the transferRateLimiter to set
-     */
-    public void setTransferRateLimiter(TransferRateLimiter transferRateLimiter) {
-        this.transferRateLimiter = transferRateLimiter;
     }
 
 }

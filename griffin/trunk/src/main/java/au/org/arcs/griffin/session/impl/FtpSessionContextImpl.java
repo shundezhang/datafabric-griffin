@@ -63,6 +63,7 @@ import au.org.arcs.griffin.usermanager.model.GroupDataList;
 import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.utils.LoggingReader;
 import au.org.arcs.griffin.utils.LoggingWriter;
+import au.org.arcs.griffin.utils.TransferMonitor;
 import au.org.arcs.griffin.utils.VarMerger;
 
 /**
@@ -136,6 +137,8 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     private DataChannelProvider dataChannelProvider;
     
     private int dcauType;
+    private TransferMonitor transferMonitor;
+
     /**
      * Constructor.
      * 
@@ -152,6 +155,11 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
         this.options = options;
         this.attributes = Collections.synchronizedMap(new HashMap<String, Object>());
         this.eventListener = listener;
+        transferMonitor = new TransferMonitor();
+    }
+    
+    public TransferMonitor getTransferMonitor(){
+    	return this.transferMonitor;
     }
 
     /**

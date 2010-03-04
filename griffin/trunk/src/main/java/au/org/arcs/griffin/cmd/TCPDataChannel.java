@@ -199,7 +199,7 @@ public class TCPDataChannel implements DataChannel {
 //	                    msgOut(MSG426);
 //	                    return;
 //	                }
-//	                getTransferRateLimiter().execute(count);
+	                ctx.getTransferMonitor().execute(eDataBlock.getSize());
 
 //	                synchronized (_parent) {
 //	                    ostr.write(eDataBlock.getHeader());
@@ -252,7 +252,7 @@ public class TCPDataChannel implements DataChannel {
 //	                    log.debug("File transfer aborted");
 //	                    return;
 //	                }
-//	                getTransferRateLimiter().execute(count);
+	                ctx.getTransferMonitor().execute(count);
 	            }
 	        	eDataBlock.clearHeader();
 	        	eDataBlock.setData(null);
