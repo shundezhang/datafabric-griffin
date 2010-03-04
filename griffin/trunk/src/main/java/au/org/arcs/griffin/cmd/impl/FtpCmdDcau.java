@@ -18,25 +18,32 @@ public class FtpCmdDcau extends AbstractFtpCmd {
 	public void execute() throws FtpCmdException {
 		String arg=getArguments();
         if(arg.equalsIgnoreCase("N")) {
+        	getCtx().setDCAU(DCAU_NONE);
             out("200 data channel authtication switched off");
-        }else{
-            out("202 data channel authtication not sopported");
+        }else if(arg.equalsIgnoreCase("A")) {
+        	getCtx().setDCAU(DCAU_SELF);
+            out("200 data channel authtication is set to self authentication");
+        }else if(arg.equalsIgnoreCase("S")) {
+//        	getCtx().setDCAU(DCAU_SUBJECT);
+            out("202 data channel authtication type subject-name is not implemented");
+        }else {
+            out("202 data channel authtication type not recognized");
         }
 	}
 
 	public String getHelp() {
 		// TODO Auto-generated method stub
-		return null;
+		return "DCAU type";
 	}
 
 	public boolean isAuthenticationRequired() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public boolean isExtension() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

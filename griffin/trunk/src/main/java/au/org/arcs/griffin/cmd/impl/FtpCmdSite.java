@@ -1,5 +1,7 @@
 package au.org.arcs.griffin.cmd.impl;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -82,13 +84,22 @@ public class FtpCmdSite extends AbstractFtpCmd {
             out("250 ok");
         }else{
     		StringBuffer msg=new StringBuffer();
+    		Map<String,String> commands=getParser().getCommands();
     		msg.append("214-The following commands are recognized:\r\n");
-    		msg.append("    ALLO    ESTO    RNTO    APPE    DCAU    MODE    SIZE    STRU\r\n");
-    		msg.append("    TYPE    DELE    SITE    CWD     ERET    FEAT    LIST    NLST\r\n");
-    		msg.append("    MLSD    MLST    PORT    PROT    EPRT    PWD     QUIT    REST\r\n");
-    		msg.append("    STAT    SYST    MKD     RMD     CDUP    HELP    NOOP    EPSV\r\n");
-    		msg.append("    PASV    TREV    SBUF    MDTM    CKSM    OPTS    PASS    SPAS\r\n");
-    		msg.append("    PBSZ    SPOR    RETR    STOR    USER    RNFR    LANG\r\n");
+    		int i=0;
+    		for (String cmd:commands.keySet()){
+    			msg.append("    ");
+    			if (!commands.get(cmd).equals("cmdNotImpl")) msg.append(cmd);
+    			if (i%8==0&&i/8>0) msg.append("\r\n");
+    			i++;
+    		}
+    		if (i%8>0) msg.append("\r\n");
+//    		msg.append("    ALLO    ESTO    RNTO    APPE    MODE    SIZE    STRU\r\n"); // DCAU
+//    		msg.append("    TYPE    DELE    SITE    CWD     ERET    FEAT    LIST    NLST\r\n");
+//    		msg.append("    MLSD    MLST    PORT    PROT    EPRT    PWD     QUIT    REST\r\n");
+//    		msg.append("    STAT    SYST    MKD     RMD     CDUP    HELP    NOOP    EPSV\r\n");
+//    		msg.append("    PASV    TREV    SBUF    MDTM    CKSM    OPTS    PASS    SPAS\r\n");
+//    		msg.append("    PBSZ    SPOR    RETR    STOR    USER    RNFR\r\n"); // LANG
     		msg.append("214 End");
     		out(msg.toString());
         }

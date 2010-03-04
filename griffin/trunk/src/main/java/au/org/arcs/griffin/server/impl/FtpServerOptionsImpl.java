@@ -262,7 +262,13 @@ public class FtpServerOptionsImpl implements FtpServerOptions, FtpConstants {
 	                               TrustedCertificates.load(getProperty(SERVICE_TRUSTED_CERTS));
 	        GSSManager manager = ExtendedGSSManager.getInstance();
 	        ExtendedGSSContext context =
-	                               (ExtendedGSSContext)manager.createContext(cred);
+	                               (ExtendedGSSContext)manager.createContext(
+	                                       null,
+	                                       GSSConstants.MECH_OID,
+	                                       cred,
+	                                       GSSContext.DEFAULT_LIFETIME);
+	                               
+//	                               manager.createContext(cred);
 	
 	        context.setOption(GSSConstants.GSS_MODE, GSIConstants.MODE_GSI);
 	        context.setOption(GSSConstants.TRUSTED_CERTIFICATES, trusted_certs);

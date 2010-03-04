@@ -382,4 +382,7 @@ public interface FtpSessionContext {
 	DataChannelProvider getDataChannelProvider();
 	
 	void closeDataChannels();
+	
+	int getDCAU();
+	void setDCAU(int dcauType);
 }

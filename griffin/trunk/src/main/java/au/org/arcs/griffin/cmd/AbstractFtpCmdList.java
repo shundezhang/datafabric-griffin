@@ -66,12 +66,15 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
             /* Ignore server specific extension to RFC 959 such as LIST -la */
             if (argParts[0].trim().startsWith("-")) {
 //            	dirName = getCtx().getFileSystemConnection().getFileObject(getCtx().getRemoteDir());
+            	if (!argParts[argParts.length-1].trim().startsWith("-")){
+            		dirName=argParts[argParts.length-1].trim();
+            	}
             } else {
             	dirName = args;
             }
             dirName=getAbsPath(dirName);
             FileObject dir=getCtx().getFileSystemConnection().getFileObject(dirName);
-            log.debug("listing dir "+dir);
+            log.debug("listing dir "+dir.getCanonicalPath());
 
             // TODO Allow filtering with wildcards *, ?
 

@@ -134,6 +134,8 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     
     private int networkStack;
     private DataChannelProvider dataChannelProvider;
+    
+    private int dcauType;
     /**
      * Constructor.
      * 
@@ -712,6 +714,16 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 		}
 	}
 
+	public int getDCAU() {
+		// TODO Auto-generated method stub
+		return this.dcauType;
+	}
+
+	public void setDCAU(int dcauType) {
+		this.dcauType=dcauType;
+		
+	}
+	
 
 
 }

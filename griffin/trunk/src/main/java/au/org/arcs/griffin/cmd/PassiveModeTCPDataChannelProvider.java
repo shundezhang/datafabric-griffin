@@ -41,6 +41,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ietf.jgss.GSSException;
 
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpSessionContext;
@@ -54,7 +55,7 @@ import au.org.arcs.griffin.utils.IOUtils;
  * @author Behnke
  * @author Shunde Zhang
  */
-public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
+public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
     private static final int  MAX_BIND_RETRIES     = 3;
 
@@ -62,20 +63,15 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 
     private static Log        log                  = LogFactory.getLog(PassiveModeTCPDataChannelProvider.class);
 
-    private FtpSessionContext ctx;
 
     private ServerSocket      serverSocket;
 
-    private List<DataChannel>            channels;
 
     private int               preferredProtocol;
     
-    private int maxThread;
     
     private boolean running;
     
-    private FileObject fileObject;
-    private int direction;
     private SynchronizedOutputStream sos;
     
     private int eodNum;
@@ -164,7 +160,18 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
         	channels=new ArrayList<DataChannel>();
         }
         Socket dataSocket = serverSocket.accept();
-        TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, 0);
+        TCPDataChannel dc;
+		try {
+			dc = new TCPDataChannel(wrapSocket(dataSocket, false),ctx, 0);
+		} catch (GSSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		}
 //		dc.setDirection(direction);
 //		dc.setFileObject(fileObject);
 //		dc.setDataChannelProvider(this);
@@ -199,10 +206,6 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
         return sock;
     }
 
-	public void setMaxThread(int maxThread) {
-		this.maxThread=maxThread;
-		
-	}
 	
 	public void prepare() throws IOException {
 		if (direction==DataChannel.DIRECTION_PUT)
@@ -226,7 +229,7 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 				try {
 					Socket dataSocket = serverSocket.accept();
 					log.debug("accepted a new connection from client:"+dataSocket);
-					TCPDataChannel dc=new TCPDataChannel(dataSocket,ctx, num);
+					TCPDataChannel dc=new TCPDataChannel(wrapSocket(dataSocket, false), ctx, num);
 					dc.setDirection(direction);
 					dc.setFileObject(fileObject);
 					dc.setDataChannelProvider(this);
@@ -236,6 +239,12 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 					t.start();
 					num++;
 				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (GSSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -279,22 +288,7 @@ public class PassiveModeTCPDataChannelProvider implements DataChannelProvider {
 //		}
 	}
 
-	public void setDirection(int direction) {
-		this.direction=direction;
-		
-	}
 
-	public void setFileObject(FileObject file) {
-		this.fileObject=file;
-		
-	}
-	
-	public int getChannelNumber(){
-		return channels.size();
-	}
-	public int getMaxThread(){
-		return this.maxThread;
-	}
 
 	public void seenEOD() {
 		this.eodNum++;
