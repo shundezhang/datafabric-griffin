@@ -24,6 +24,8 @@
 
 package au.org.arcs.griffin.utils;
 
+import java.text.DecimalFormat;
+
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 
 /**
@@ -46,6 +48,8 @@ public class TransferMonitor {
     private static final int PERF_MARKER_INTERVAL = 5000;
     
     private long lastPerfMarkerTime;
+    
+    private DecimalFormat decFormatter = new DecimalFormat("###.#");
 
     /**
      * Constructor.
@@ -79,7 +83,7 @@ public class TransferMonitor {
     public void sendPerfMarker(){
         lastPerfMarkerTime=System.currentTimeMillis();
     	StringBuffer perf=new StringBuffer("112-Perf Marker\r\n");
-    	perf.append(" Timestamp:  "+lastPerfMarkerTime+"\r\n");
+    	perf.append(" Timestamp:  "+decFormatter.format(lastPerfMarkerTime/1000d)+"\r\n");
     	perf.append(" Stripe Index: 0\r\n");
     	perf.append(" Stripe Bytes Transferred: "+transferredBytes+"\r\n");
     	perf.append(" Total Stripe Count: 1\r\n");
