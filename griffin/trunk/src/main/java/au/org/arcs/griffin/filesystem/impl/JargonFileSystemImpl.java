@@ -71,10 +71,5 @@ public class JargonFileSystemImpl implements FileSystem {
 		return String.valueOf(IRODSFile.PATH_SEPARATOR_CHAR);
 	}
 
-	public long getFreeSpace(String path) {
-		// TODO Auto-generated method stub
-		return -1;
-	}
-
 
 }

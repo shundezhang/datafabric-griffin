@@ -14,4 +14,5 @@ public interface FileSystemConnection {
 	public String getUser();
 	public void close() throws IOException;
 	public boolean isConnected();
+	public long getFreeSpace(String path);
 }
