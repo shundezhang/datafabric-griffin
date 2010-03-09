@@ -61,7 +61,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
 
     private long                fileSize;
 
-    private long                completed;
+//    private long                completed;
 
     private boolean             abortRequested;
 
@@ -78,7 +78,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
         /* Get relevant information from context */
     	FileObject file = getCtx().getFileSystemConnection().getFileObject(getPathArg());
         int mode = getCtx().getTransmissionMode();
-        int struct = getCtx().getStorageStructure();
+//        int struct = getCtx().getStorageStructure();
         int type = getCtx().getDataType();
         String charset = type == DT_ASCII || type == DT_EBCDIC ? getCtx().getCharset() : null;
         long fileOffset = getAndResetFileOffset();
@@ -117,9 +117,9 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             	DataChannel dataChannel=getCtx().getDataChannelProvider().provideDataChannel();
             	doStoreFileData(dataChannel, file, fileOffset);
             }
+            getCtx().getTransferMonitor().sendPerfMarker();
             getCtx().updateAverageStat(STAT_UPLOAD_RATE,
                     (int) getCtx().getTransferMonitor().getCurrentTransferRate());
-            getCtx().getTransferMonitor().sendPerfMarker();
             msgOut(MSG226);
 
 //            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
@@ -175,93 +175,93 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
         }
     }
 
-    abstract protected void doStoreFileDataInEBlockMode(InputStream dataIn, FileObject file) throws IOException;
-    abstract protected void doStoreFileDataInEBlockMode(DataChannel dc, FileObject file) throws IOException;
+//    abstract protected void doStoreFileDataInEBlockMode(InputStream dataIn, FileObject file) throws IOException;
+//    abstract protected void doStoreFileDataInEBlockMode(DataChannel dc, FileObject file) throws IOException;
 
-	/**
-     * Creates an input stream that supports unstructured file data.
-     * 
-     * @param is The nested input stream.
-     * @param mode The transmission mode.
-     * @param charset The encoding or null if binary.
-     * @param restartMarkers Optional map that stores restart markers.
-     * @return The stream object.
-     * @throws UnsupportedEncodingException Thrown if encoding is unknown.
-     */
-    private InputStream createInputStream(InputStream is, int mode, Map<Long, Long> restartMarkers,
-                                          String charset) throws UnsupportedEncodingException {
-        InputStream result = null;
-        if (mode == MODE_BLOCK) {
-            byte[] eorBytes = getEorBytes(null);
-            result = new BlockModeInputStream(is, eorBytes, restartMarkers);
-        } else if (mode == MODE_EBLOCK) {
-            byte[] eorBytes = getEorBytes(null);
-            result = new EBlockModeInputStream(is, eorBytes, restartMarkers);
-        } else if (mode == MODE_STREAM) {
-            result = is;
-        } else if (mode == MODE_ZIP) {
-            result = new InflaterInputStream(is);
-        } else {
-            log.error("Unsupported file mode: " + mode);
-        }
-        if (charset != null) {
-            result = new TextInputStream(is, charset);
-        }
-        return result;
+//	/**
+//     * Creates an input stream that supports unstructured file data.
+//     * 
+//     * @param is The nested input stream.
+//     * @param mode The transmission mode.
+//     * @param charset The encoding or null if binary.
+//     * @param restartMarkers Optional map that stores restart markers.
+//     * @return The stream object.
+//     * @throws UnsupportedEncodingException Thrown if encoding is unknown.
+//     */
+//    private InputStream createInputStream(InputStream is, int mode, Map<Long, Long> restartMarkers,
+//                                          String charset) throws UnsupportedEncodingException {
+//        InputStream result = null;
+//        if (mode == MODE_BLOCK) {
+//            byte[] eorBytes = getEorBytes(null);
+//            result = new BlockModeInputStream(is, eorBytes, restartMarkers);
+//        } else if (mode == MODE_EBLOCK) {
+//            byte[] eorBytes = getEorBytes(null);
+//            result = new EBlockModeInputStream(is, eorBytes, restartMarkers);
+//        } else if (mode == MODE_STREAM) {
+//            result = is;
+//        } else if (mode == MODE_ZIP) {
+//            result = new InflaterInputStream(is);
+//        } else {
+//            log.error("Unsupported file mode: " + mode);
+//        }
+//        if (charset != null) {
+//            result = new TextInputStream(is, charset);
+//        }
+//        return result;
+//
+//    }
 
-    }
+//    /**
+//     * Creates an input stream that supports reading records.
+//     * 
+//     * @param is The nested input stream.
+//     * @param mode The transmission mode.
+//     * @param charset The encoding or null if binary.
+//     * @param restartMarkers Optional map that stores restart markers.
+//     * @return The stream object.
+//     * @throws UnsupportedEncodingException Thrown if encoding unknown.
+//     */
+//    private RecordReadSupport createRecInputStream(InputStream is, int mode, String charset,
+//                                                   Map<Long, Long> restartMarkers)
+//            throws UnsupportedEncodingException {
+//        RecordReadSupport result = null;
+//        byte[] eorBytes = charset == null ? new byte[0] : getEorBytes(charset);
+//        if (mode == MODE_BLOCK) {
+//            result = new BlockModeInputStream(is, eorBytes, restartMarkers);
+//        } else if (mode == MODE_STREAM) {
+//            result = new RecordInputStream(is, getEorBytes(charset));
+//        } else if (mode == MODE_ZIP) {
+//            result = new RecordInputStream(new InflaterInputStream(is), getEorBytes(charset));
+//        } else {
+//            log.error("Unsupported record mode: " + mode);
+//        }
+//        if (charset != null) {
+//            result = new TextInputStream((InputStream) result, charset);
+//        }
+//        return result;
+//
+//    }
 
-    /**
-     * Creates an input stream that supports reading records.
-     * 
-     * @param is The nested input stream.
-     * @param mode The transmission mode.
-     * @param charset The encoding or null if binary.
-     * @param restartMarkers Optional map that stores restart markers.
-     * @return The stream object.
-     * @throws UnsupportedEncodingException Thrown if encoding unknown.
-     */
-    private RecordReadSupport createRecInputStream(InputStream is, int mode, String charset,
-                                                   Map<Long, Long> restartMarkers)
-            throws UnsupportedEncodingException {
-        RecordReadSupport result = null;
-        byte[] eorBytes = charset == null ? new byte[0] : getEorBytes(charset);
-        if (mode == MODE_BLOCK) {
-            result = new BlockModeInputStream(is, eorBytes, restartMarkers);
-        } else if (mode == MODE_STREAM) {
-            result = new RecordInputStream(is, getEorBytes(charset));
-        } else if (mode == MODE_ZIP) {
-            result = new RecordInputStream(new InflaterInputStream(is), getEorBytes(charset));
-        } else {
-            log.error("Unsupported record mode: " + mode);
-        }
-        if (charset != null) {
-            result = new TextInputStream((InputStream) result, charset);
-        }
-        return result;
-
-    }
-
-    /**
-     * Returns the EOR-byte representation in non-record text files, which corresponds to the line
-     * break sequence of the passed character set.
-     * 
-     * @param charset The character set.
-     * @return The EOR marker.
-     */
-    private static byte[] getEorBytes(String charset) {
-        String lineSep = System.getProperty("line.separator");
-        try {
-            if (charset == null) {
-                return lineSep.getBytes();
-            } else {
-                return lineSep.getBytes(charset);
-            }
-        } catch (UnsupportedEncodingException e) {
-            log.error(e);
-            return lineSep.getBytes();
-        }
-    }
+//    /**
+//     * Returns the EOR-byte representation in non-record text files, which corresponds to the line
+//     * break sequence of the passed character set.
+//     * 
+//     * @param charset The character set.
+//     * @return The EOR marker.
+//     */
+//    private static byte[] getEorBytes(String charset) {
+//        String lineSep = System.getProperty("line.separator");
+//        try {
+//            if (charset == null) {
+//                return lineSep.getBytes();
+//            } else {
+//                return lineSep.getBytes(charset);
+//            }
+//        } catch (UnsupportedEncodingException e) {
+//            log.error(e);
+//            return lineSep.getBytes();
+//        }
+//    }
 
     /**
      * {@inheritDoc}
@@ -297,17 +297,17 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
      */
     protected abstract void doPerformAccessChecks(boolean unique, FileObject file, long offset) throws FtpException;
 
-    /**
-     * Stores record based data as file. The method acts as a primitive operation that is called by
-     * the template method <code>execute(boolean)</code>;
-     * 
-     * @param rrs The wrapped input stream.
-     * @param file Destination file.
-     * @param offset The file offset (-1 on append).
-     * @throws IOException Thrown if IO fails or if at least one resource limit was reached.
-     */
-    protected abstract void doStoreRecordData(RecordReadSupport rrs, FileObject file, long offset)
-            throws IOException;
+//    /**
+//     * Stores record based data as file. The method acts as a primitive operation that is called by
+//     * the template method <code>execute(boolean)</code>;
+//     * 
+//     * @param rrs The wrapped input stream.
+//     * @param file Destination file.
+//     * @param offset The file offset (-1 on append).
+//     * @throws IOException Thrown if IO fails or if at least one resource limit was reached.
+//     */
+//    protected abstract void doStoreRecordData(RecordReadSupport rrs, FileObject file, long offset)
+//            throws IOException;
 
     /**
      * Stores unstructured data as file. The method acts as a primitive operation that is called by
@@ -318,8 +318,8 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
      * @param offset The file offset (-1 on append).
      * @throws IOException Thrown if IO fails or if at least one resource limit was reached
      */
-    protected abstract void doStoreFileData(InputStream is, FileObject file, long offset) throws IOException;
     protected abstract void doStoreFileData(DataChannel dc, FileObject file, long offset) throws IOException;
+//    protected abstract void doStoreFileData(InputStream is, FileObject file, long offset) throws IOException;
 
     /**
      * Getter method for the java bean <code>completed</code>.
@@ -327,17 +327,17 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
      * @return Returns the value of the java bean <code>completed</code>.
      */
     public synchronized long getCompleted() {
-        return completed;
+        return getCtx().getTransferMonitor().getTransferredBytes(); //completed;
     }
 
-    /**
-     * Setter method for the java bean <code>completed</code>.
-     * 
-     * @param completed The value of completed to set.
-     */
-    public synchronized void incCompleted(long completed) {
-        this.completed += completed;
-    }
+//    /**
+//     * Setter method for the java bean <code>completed</code>.
+//     * 
+//     * @param completed The value of completed to set.
+//     */
+//    public synchronized void incCompleted(long completed) {
+//        this.completed += completed;
+//    }
 
     /**
      * Getter method for the java bean <code>fileSize</code>.

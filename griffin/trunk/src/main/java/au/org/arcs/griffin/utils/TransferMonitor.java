@@ -122,5 +122,9 @@ public class TransferMonitor {
 //            }
 //        }
     }
+    
+    public long getTransferredBytes(){
+    	return this.transferredBytes;
+    }
 
 }
