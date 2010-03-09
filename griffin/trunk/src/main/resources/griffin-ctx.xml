@@ -187,7 +187,7 @@
 		<property name="fileSystem" ref="fileSystem" />
 	</bean>
 	
-	<bean id="fileSystem" class="au.org.arcs.griffin.filesystem.impl.JargonFileSystemImpl" singleton="false">
+	<bean id="fileSystem" class="au.org.arcs.griffin.filesystem.impl.JargonFileSystemImpl" singleton="true">
 		<property name="serverName" value="arcs-df.vpac.org" />
 		<property name="serverPort" value="1247" />
 		<property name="serverType" value="irods" />
