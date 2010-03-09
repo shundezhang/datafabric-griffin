@@ -59,5 +59,10 @@ public class JargonFileSystemConnectionImpl implements FileSystemConnection {
 	public boolean isConnected(){
 		return remoteFileSystem.isConnected();
 	}
+	public long getFreeSpace(String path) {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
 
 }
