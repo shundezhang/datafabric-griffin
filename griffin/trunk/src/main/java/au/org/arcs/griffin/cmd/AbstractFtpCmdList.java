@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -103,10 +105,10 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
             msgOut(MSG550);
         } finally {
             IOUtils.closeGracefully(dataOut);
-            getCtx().closeSockets();
+            getCtx().closeDataChannels();
         }
     }
-
+    
     /**
      * Prints information about a single file or directory.
      * 

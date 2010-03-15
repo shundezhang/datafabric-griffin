@@ -105,7 +105,7 @@ public final class IOUtils {
      * @param write True if writable.
      * @return The formatted line.
      */
-    public static String formatUnixFtpFileInfo(FileObject file, boolean read, boolean write) {
+    public static String formatUnixFtpFileInfo(String user, FileObject file, boolean read, boolean write) {
         long size;
         StringBuffer sb = new StringBuffer();
         String wFlag = write ? "w" : "-";
@@ -120,7 +120,7 @@ public final class IOUtils {
         }
         Date date = new Date(file.lastModified());
         sb.append(permflags);
-        sb.append(" 1 ftp ftp ");
+        sb.append(" 1 ").append(user).append(" nobody ");
         sb.append(StringUtils.leftPad("" + size, FILE_SIZE_LENGTH_UNIX));
         sb.append(" ");
         sb.append(DATE_FORMAT_UNIX.format(date));
