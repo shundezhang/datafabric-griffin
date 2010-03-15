@@ -92,7 +92,7 @@ public class FtpCmdList extends AbstractFtpCmdList {
         int permission = file.getPermission();
         boolean read = (permission & PRIV_READ) > 0;
         boolean write = (permission & PRIV_WRITE) > 0;
-        String s = IOUtils.formatUnixFtpFileInfo(file, read, write);
+        String s = IOUtils.formatUnixFtpFileInfo(getCtx().getUser(), file, read, write);
         out.println(s);
     }
 

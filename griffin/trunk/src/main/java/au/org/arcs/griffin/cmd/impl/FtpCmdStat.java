@@ -89,7 +89,7 @@ public class FtpCmdStat extends AbstractFtpCmd {
         int permission = file.getPermission();
         boolean read = (permission & PRIV_READ) > 0;
         boolean write = (permission & PRIV_WRITE) > 0;
-        out("211-" + IOUtils.formatUnixFtpFileInfo(file, read, write));
+        out("211-" + IOUtils.formatUnixFtpFileInfo(getCtx().getUser(), file, read, write));
 
     }
 

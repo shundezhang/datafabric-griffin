@@ -149,7 +149,7 @@ public class FtpCmdFeat extends AbstractFtpCmd {
     	msg.append(msg(MSG211_FEAT_ENTRY, " DCAU")).append("\r\n");
     	msg.append(msg(MSG211_FEAT_ENTRY, " PARALLEL")).append("\r\n");
     	msg.append(msg(MSG211_FEAT_ENTRY, " SIZE")).append("\r\n");
-    	msg.append(msg(MSG211_FEAT_ENTRY, " MLST Type*;Size*;Modify*;Perm*;UNIX.mode*;")).append("\r\n");
+    	msg.append(msg(MSG211_FEAT_ENTRY, " MLST Type*;Modify*;Size*;Perm*;UNIX.mode*;UNIX.owner*;UNIX.group*;Unique*;")).append("\r\n");
     	msg.append(msg(MSG211_FEAT_ENTRY, " ERET")).append("\r\n");
     	msg.append(msg(MSG211_FEAT_ENTRY, " ESTO")).append("\r\n");
 //    	msg.append(msg(MSG211_FEAT_ENTRY, "SPAS")).append("\r\n");
