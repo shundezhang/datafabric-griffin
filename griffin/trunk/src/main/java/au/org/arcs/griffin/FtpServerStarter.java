@@ -121,9 +121,9 @@ public final class FtpServerStarter {
      * @param args The arguments passed with main method.
      */
     public void startServer(String[] args) {
-        if (!NetUtils.isSSLAvailable()) {
-            System.exit(1);
-        }
+//        if (!NetUtils.isSSLAvailable()) {
+//            System.exit(1);
+//        }
         
     	redirectOutErr();
 //    	System.out.println("test redirection - out");
@@ -134,7 +134,7 @@ public final class FtpServerStarter {
 
         logPaths(file);
         if (System.getProperty(FtpConstants.GRIFFIN_HOME)==null)
-        	System.setProperty(FtpConstants.GRIFFIN_HOME,file.getPath());
+        	System.setProperty(FtpConstants.GRIFFIN_HOME,file.getParent());
 
         /* Prepare three main threads */
         ApplicationContext appContext = getApplicationContext(beanRes, file);

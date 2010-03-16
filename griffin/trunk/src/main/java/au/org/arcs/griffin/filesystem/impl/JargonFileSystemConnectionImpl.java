@@ -25,10 +25,23 @@ public class JargonFileSystemConnectionImpl implements FileSystemConnection {
 	private String user;
 	private String homeCollection;
 	
-	public JargonFileSystemConnectionImpl(String serverName, int serverPort, String serverType, GSSCredential credential) throws NullPointerException, IOException{
+	public JargonFileSystemConnectionImpl(String serverName, int serverPort, String serverType, GSSCredential credential, String defaultResource) throws NullPointerException, IOException{
 		if (serverType.equalsIgnoreCase("irods")){
 			log.debug("server:"+serverName+" serverPort:"+serverPort+" credential:"+credential.toString());
 			IRODSAccount account=new IRODSAccount(serverName,serverPort,credential);
+			if (defaultResource!=null) account.setDefaultStorageResource(defaultResource);
+			remoteFileSystem=new IRODSFileSystem( account );
+			user=account.getUserName();
+			homeCollection=account.getHomeDirectory();
+		}
+	}
+	public JargonFileSystemConnectionImpl(String serverName, int serverPort,
+			String serverType, String username, String zoneName, GSSCredential credential, String defaultResource) throws NullPointerException, IOException {
+		if (serverType.equalsIgnoreCase("irods")){
+			log.debug("server:"+serverName+" serverPort:"+serverPort+" user: "+username+"@"+zoneName+" credential:"+credential.toString());
+			IRODSAccount account=new IRODSAccount(serverName, serverPort, username, "", "/"+zoneName+"/home/"+username, zoneName, "" );
+			if (defaultResource!=null) account.setDefaultStorageResource(defaultResource);
+			account.setGSSCredential(credential);
 			remoteFileSystem=new IRODSFileSystem( account );
 			user=account.getUserName();
 			homeCollection=account.getHomeDirectory();
