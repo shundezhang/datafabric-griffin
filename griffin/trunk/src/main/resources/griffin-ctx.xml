@@ -191,6 +191,10 @@
 		<property name="serverName" value="arcs-df.vpac.org" />
 		<property name="serverPort" value="1247" />
 		<property name="serverType" value="irods" />
+		<!-- if connecting to a slave, this is needed for irods2.3 and previous versions. -->
+		<property name="mapFile" value="irods-mapfile" />
+		<!-- default resource can be specified here. if no default resource is specified, it will be decided by the rule engine. -->
+		<!-- <property name="defaultResource" value="arcs-df.vpac.org" /> -->
 	</bean>
 	
 <!-- 
