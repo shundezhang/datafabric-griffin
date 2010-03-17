@@ -193,6 +193,8 @@
 		<property name="serverType" value="irods" />
 		<!-- if connecting to a slave, this is needed for irods2.3 and previous versions. -->
 		<property name="mapFile" value="irods-mapfile" />
+		<!-- update interval, default is 10 mins -->
+		<!-- <property name="updateInterval" value="10" /> -->
 		<!-- default resource can be specified here. if no default resource is specified, it will be decided by the rule engine. -->
 		<!-- <property name="defaultResource" value="arcs-df.vpac.org" /> -->
 	</bean>
