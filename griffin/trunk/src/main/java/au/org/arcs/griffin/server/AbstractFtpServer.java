@@ -190,7 +190,7 @@ public abstract class AbstractFtpServer extends AbstractAppAwareBean implements 
             terminateAllClientSessions();
             IOUtils.closeGracefully(serverSocket);
         }
-
+        getFileSystem().exit();
     }
 
     private void registerSession(FtpSession session) {

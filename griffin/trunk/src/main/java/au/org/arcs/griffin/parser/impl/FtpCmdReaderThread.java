@@ -88,7 +88,7 @@ public class FtpCmdReaderThread extends Thread implements FtpCmdReader {
         try {
             while (!isTerminated()) {
                 String cmdLine = getCtx().getClientCmdReader().readLine();
-                log.info("cmdLine:"+cmdLine);
+                log.debug("cmdLine:"+cmdLine);
                 if (cmdLine == null) {
                     log.debug("Client disconnected. Command reader is terminated.");
                     break;

@@ -127,7 +127,7 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
         	getCtx().getClientResponseWriter().flush();
             return;
         }
-        log.debug("Printing encrypted msg: "+answer);
+        log.info("Printing encrypted msg: "+answer);
         getCtx().getClientResponseWriter().println(code + " " + new String(Base64.encode(data)));
         getCtx().getClientResponseWriter().flush();
 	}

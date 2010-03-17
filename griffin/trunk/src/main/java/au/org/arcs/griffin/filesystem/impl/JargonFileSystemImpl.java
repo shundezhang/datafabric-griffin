@@ -36,7 +36,17 @@ public class JargonFileSystemImpl implements FileSystem {
 	private String mapFile;
 	private Map<String,String> mapping;
 	private String defaultResource;
+	private UpdateThread updateThread;
+	private int updateInterval;
 	
+	public int getUpdateInterval() {
+		return updateInterval;
+	}
+
+	public void setUpdateInterval(int updateInterval) {
+		this.updateInterval = updateInterval;
+	}
+
 	public String getDefaultResource() {
 		return defaultResource;
 	}
@@ -104,54 +114,38 @@ public class JargonFileSystemImpl implements FileSystem {
 		}
 	}
 
-	public void init() {
+	public void init() throws IOException{
 		log.debug("JargonFileSystemImpl is checking map file in "+System.getProperty(FtpConstants.GRIFFIN_HOME));
 		if (getMapFile()!=null){
-			String path=System.getProperty(FtpConstants.GRIFFIN_HOME)+File.separator+getMapFile();
 			mapping=new HashMap<String,String>();
-//			InputStream rsrc = Thread.currentThread().getContextClassLoader()
-//				.getResourceAsStream(getMapFile());
-//			if (rsrc == null)
-//				rsrc = JargonFileSystemImpl.class.getResourceAsStream(getMapFile());
-			BufferedReader reader=null;
-			if (new File(path).exists()){
+			if (updateInterval==0) updateInterval=10;
+			readMapFile();
+			updateThread=new UpdateThread();
+			updateThread.running=true;
+			updateThread.start();
+		}
+	}
+	
+	class UpdateThread extends Thread{
+		public boolean running;
+		public void run(){
+			while (running){
 				try {
-					reader=new BufferedReader(new FileReader(path));
-			        String line = null; //not declared within while loop
-			        /*
-			        * readLine is a bit quirky :
-			        * it returns the content of a line MINUS the newline.
-			        * it returns null only for the END of the stream.
-			        * it returns an empty String if two newlines appear in a row.
-			        */
-			       while (( line = reader.readLine()) != null){
-			    	   log.debug("read "+line);
-			          if (line.startsWith("\"")){
-			        	  int n=line.indexOf("\"",1);
-			        	  if (n>-1){
-			        		  String dn=line.substring(1,n);
-			        		  String user=line.substring(n+1).trim();
-			        		  if (user.indexOf("@")>-1&&user.split("@").length==2){
-					        	   log.debug("found mapping: "+user+" -> "+dn);
-					        	   mapping.put(dn, user);
-			        		  }
-			        	  }
-			          }
-			       }
-			    } catch (IOException e) {
-			    	log.error("Error when reading mapfile.");
+					Thread.sleep(updateInterval*60000);
+				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					log.error("update thread exit because it is interrupted.");
+					break;
 				}
-			    finally {
-			    	try {
-						if (reader!=null) reader.close();
-					} catch (IOException e) {
-				    	log.error("Error when closing mapfile.");
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-			    }
+				try {
+					readMapFile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					log.error("update thread exit because of error.");
+					break;
+				}
 			}
 		}
 	}
@@ -159,6 +153,57 @@ public class JargonFileSystemImpl implements FileSystem {
 	public String getPathSeparator() {
 		// TODO Auto-generated method stub
 		return String.valueOf(IRODSFile.PATH_SEPARATOR_CHAR);
+	}
+
+	public void exit() {
+		log.debug("stopping update thread...");
+		updateThread.running=false;
+		updateThread.interrupt();
+	}
+	
+	protected void readMapFile() throws IOException{
+		mapping.clear();
+		String path=System.getProperty(FtpConstants.GRIFFIN_HOME)+File.separator+getMapFile();
+		BufferedReader reader=null;
+		if (new File(path).exists()){
+			try {
+				reader=new BufferedReader(new FileReader(path));
+		        String line = null; //not declared within while loop
+		        /*
+		        * readLine is a bit quirky :
+		        * it returns the content of a line MINUS the newline.
+		        * it returns null only for the END of the stream.
+		        * it returns an empty String if two newlines appear in a row.
+		        */
+		       while (( line = reader.readLine()) != null){
+		    	   log.debug("read "+line);
+		          if (line.startsWith("\"")){
+		        	  int n=line.indexOf("\"",1);
+		        	  if (n>-1){
+		        		  String dn=line.substring(1,n);
+		        		  String user=line.substring(n+1).trim();
+		        		  if (user.indexOf("@")>-1&&user.split("@").length==2){
+				        	   log.debug("found mapping: "+user+" -> "+dn);
+				        	   mapping.put(dn, user);
+		        		  }
+		        	  }
+		          }
+		       }
+		    } catch (IOException e) {
+		    	log.error("Error when reading mapfile.");
+				// TODO Auto-generated catch block
+				throw e;
+			}
+		    finally {
+		    	try {
+					if (reader!=null) reader.close();
+				} catch (IOException e) {
+			    	log.error("Error when closing mapfile.");
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    }
+		}
 	}
 
 
