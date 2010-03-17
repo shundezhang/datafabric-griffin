@@ -58,7 +58,7 @@ public class FtpCmdEnc extends AbstractFtpCmd {
         }
         String msg = new String(data, 0, i);
         msg = msg.trim();
-        log.debug("decrypted msg:"+msg);
+        log.info("decrypted msg:"+msg);
 
         if ( msg.equalsIgnoreCase("CCC") ) {
           getCtx().setReplyType("clear");
