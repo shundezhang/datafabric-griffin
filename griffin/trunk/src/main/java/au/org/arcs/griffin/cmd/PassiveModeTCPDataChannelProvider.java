@@ -225,6 +225,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 			running=true;
 			channels=new ArrayList<DataChannel>();
 			int num=0;
+			List<Thread> transferThreads=new ArrayList<Thread>();
 			while (running){
 				try {
 					Socket dataSocket = serverSocket.accept();
@@ -236,17 +237,32 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 					if (direction==DataChannel.DIRECTION_PUT) dc.setSynchronizedOutputStream(sos);
 					channels.add(dc);
 					Thread t=new Thread(dc);
+					transferThreads.add(t);
 					t.start();
 					num++;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					break;
 				} catch (GSSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					break;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					break;
+				}
+			}
+			for (Thread t:transferThreads){
+				if (t.isAlive()){
+					try {
+						log.debug("thread "+t+" joined.");
+						t.join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}else{  //there are existing channels, reuse them
@@ -295,7 +311,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 		if (dataChannelCount>0&&dataChannelCount==eodNum) {
 			log.debug("got all "+dataChannelCount+" eod(s). closing serverSocket:"+serverSocket);
 	    	running=false;
-	        IOUtils.closeGracefully(serverSocket);
+//	        IOUtils.closeGracefully(serverSocket);
 		}
 	}
 
