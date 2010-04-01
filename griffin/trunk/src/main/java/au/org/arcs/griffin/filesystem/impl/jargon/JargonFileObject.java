@@ -1,4 +1,4 @@
-package au.org.arcs.griffin.filesystem.impl;
+package au.org.arcs.griffin.filesystem.impl.jargon;
 
 import java.io.IOException;
 
@@ -60,15 +60,8 @@ public class JargonFileObject implements FileObject {
 		// TODO Auto-generated method stub
 		return remoteFile.isFile();
 	}
-	public String getCanonicalPath() {
-		// TODO Auto-generated method stub
-		try {
-			return remoteFile.getCanonicalPath();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public String getCanonicalPath() throws IOException {
+		return remoteFile.getCanonicalPath();
 	}
 	public FileObject[] listFiles() {
 		GeneralFile[] flist=remoteFile.listFiles();

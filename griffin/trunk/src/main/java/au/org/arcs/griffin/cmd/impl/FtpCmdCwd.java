@@ -25,6 +25,7 @@
 package au.org.arcs.griffin.cmd.impl;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -59,10 +60,17 @@ public class FtpCmdCwd extends AbstractFtpCmd {
         String path = getPathArg();
         log.debug("path:"+path);
         FileObject dir=getCtx().getFileSystemConnection().getFileObject(path);
+        try {
+			path=dir.getCanonicalPath();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			path=null;
+		}
 
         if ((dir.getPermission() & PRIV_READ) == 0) {
             response = msg(MSG550_PERM);
-        } else if (dir.exists() && dir.isDirectory()&& (path=dir.getCanonicalPath())!=null) {
+        } else if (dir.exists() && dir.isDirectory()&&path!=null) {
             getCtx().setRemoteDir(path);
             response = msg(MSG250);
         } else {

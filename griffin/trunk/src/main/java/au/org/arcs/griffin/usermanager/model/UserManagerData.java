@@ -38,6 +38,8 @@ public class UserManagerData {
     private GroupDataList  groupDataList;
 
     private List<UserData> userData;
+    
+    private List<MappingData> mappingData;
 
     /**
      * Getter method for the java bean <code>groupData</code>.
@@ -61,6 +63,14 @@ public class UserManagerData {
             userData = Collections.synchronizedList(new ArrayList<UserData>());
         }
         return userData;
+    }
+    
+    
+    public List<MappingData> getMappingData() {
+        if (mappingData == null) {
+        	mappingData = Collections.synchronizedList(new ArrayList<MappingData>());
+        }
+        return mappingData;
     }
 
     /**
@@ -87,6 +97,16 @@ public class UserManagerData {
      */
     public GroupData getGroupData(String groupname) {
         return groupDataList.getGroup(groupname.trim());
+    }
+    
+    public MappingData getMappingData(String dn){
+    	dn=dn.trim();
+    	for (MappingData mapping : getMappingData()){
+    		if (mapping.getDn().equals(dn)){
+    			return mapping;
+    		}
+    	}
+    	return null;
     }
 
 }

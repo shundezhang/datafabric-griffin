@@ -43,6 +43,7 @@ import au.org.arcs.griffin.exception.FtpQuotaException;
 import au.org.arcs.griffin.usermanager.UserManager;
 import au.org.arcs.griffin.usermanager.model.GroupData;
 import au.org.arcs.griffin.usermanager.model.GroupDataList;
+import au.org.arcs.griffin.usermanager.model.MappingData;
 import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.usermanager.model.UserManagerData;
 import au.org.arcs.griffin.utils.SecurityUtil;
@@ -85,6 +86,18 @@ public class XmlFileUserManager implements UserManager {
         }
 
         return result;
+    }
+    
+    public synchronized UserData authenticate(String dn) throws FtpConfigException {
+    	MappingData mappingData = userManagerData.getMappingData(dn);
+    	if (mappingData==null){
+    		throw new FtpConfigException("Could not find a mapping for the given DN.");
+    	}
+    	UserData userData = userManagerData.getUserData(mappingData.getUid());
+        if (userData == null) {
+        	throw new FtpConfigException("Could not find the mapped user.");
+        }
+        return userData;
     }
 
     /**

@@ -1,4 +1,4 @@
-package au.org.arcs.griffin.filesystem.impl;
+package au.org.arcs.griffin.filesystem.impl.jargon;
 
 import java.io.IOException;
 

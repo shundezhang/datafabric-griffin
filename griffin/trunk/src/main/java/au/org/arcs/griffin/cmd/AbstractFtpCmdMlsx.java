@@ -92,6 +92,10 @@ abstract public class AbstractFtpCmdMlsx extends AbstractFtpCmd {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			buffer.append("unique-id");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			buffer.append("unique-id");
 		}
         buffer.append(";");
         buffer.append(" ");

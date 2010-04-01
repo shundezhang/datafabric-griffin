@@ -42,6 +42,7 @@ import org.dom4j.io.SAXReader;
 
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.usermanager.model.GroupData;
+import au.org.arcs.griffin.usermanager.model.MappingData;
 import au.org.arcs.griffin.usermanager.model.PermissionData;
 import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.usermanager.model.UserManagerData;
@@ -55,7 +56,7 @@ public class XmlFileReader {
 
     private static Log          log                          = LogFactory.getLog(XmlFileReader.class);
 
-    private static final String DEFAULT_HERMESFTP_USERS_FILE = "hermesftp-users.xml";
+    private static final String DEFAULT_GRIFFIN_USERS_FILE = "griffin-users.xml";
 
     private static final String ATTR_PATH                    = "path";
 
@@ -88,6 +89,12 @@ public class XmlFileReader {
     private static final String ATTR_DEFAULT_DIR             = "default-dir";
 
     private static final String XPATH_USERS                  = "/user-manager/users";
+    
+    private static final String XPATH_MAPPINGS               = "/user-manager/mappings";
+
+    private static final String ELEM_MAPPING                 = "mapping";
+
+    private static final String ATTR_DN                     = "dn";
 
     private String              filename;
 
@@ -98,12 +105,12 @@ public class XmlFileReader {
      */
     public String getFilename() {
         if (filename == null || filename.length() == 0) {
-            String ctxDir = System.getProperty("hermes.ctx.dir");
+            String ctxDir = System.getProperty("griffin.ctx.dir");
             File file;
             if (ctxDir != null) {
-                file = new File(ctxDir, DEFAULT_HERMESFTP_USERS_FILE);
+                file = new File(ctxDir, DEFAULT_GRIFFIN_USERS_FILE);
             } else {
-                file = new File(DEFAULT_HERMESFTP_USERS_FILE);
+                file = new File(DEFAULT_GRIFFIN_USERS_FILE);
             }
             filename = file.getAbsolutePath();
         }
@@ -137,7 +144,7 @@ public class XmlFileReader {
             if (file.exists()) {
                 br = new BufferedReader(new FileReader(file));
             } else {
-                InputStream is = getClass().getResourceAsStream("/" + DEFAULT_HERMESFTP_USERS_FILE);
+                InputStream is = getClass().getResourceAsStream("/" + DEFAULT_GRIFFIN_USERS_FILE);
                 br = new BufferedReader(new InputStreamReader(is));
             }
             Document doc = reader.read(br);
@@ -155,11 +162,27 @@ public class XmlFileReader {
         UserManagerData result = new UserManagerData();
         processUserData(doc, result);
         processGroupData(doc, result);
+        processMappingData(doc, result);
 
         return result;
     }
 
-    private void processUserData(Document doc, UserManagerData umd) {
+    private void processMappingData(Document doc, UserManagerData umd) {
+        Element mappingsElement = (Element) doc.selectSingleNode(XPATH_MAPPINGS);
+
+        List<Element> mappingElements = mappingsElement.selectNodes(ELEM_MAPPING);
+        for (Element mappingElement : mappingElements) {
+            String uid = mappingElement.attributeValue(ATTR_UID);
+            String dn = mappingElement.attributeValue(ATTR_DN);
+            MappingData mappingData = new MappingData();
+            mappingData.setDn(dn);
+            mappingData.setUid(uid);
+            umd.getMappingData().add(mappingData);
+
+        }
+	}
+
+	private void processUserData(Document doc, UserManagerData umd) {
         Element usersElement = (Element) doc.selectSingleNode(XPATH_USERS);
         String defaultDir = usersElement.attributeValue(ATTR_DEFAULT_DIR);
 

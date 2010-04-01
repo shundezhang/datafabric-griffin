@@ -84,7 +84,12 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
         long fileOffset = getAndResetFileOffset();
         int maxThread=getCtx().getParallelMax();
         if (maxThread<1) maxThread=1;
-        log.debug("storing file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
+        try {
+			log.debug("storing file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
         try {
             /* Check availability and access rights */

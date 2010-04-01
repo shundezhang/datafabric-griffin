@@ -138,7 +138,12 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
         int maxThread=getCtx().getParallelMax();
         if (maxThread<1) maxThread=1;
         fileSize=file.length();
-        log.debug("retriving file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
+        try {
+			log.debug("retriving file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         try {
 
             /* Check availability and access rights */

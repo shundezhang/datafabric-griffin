@@ -25,6 +25,7 @@
 package au.org.arcs.griffin.cmd.impl;
 
 import java.io.File;
+import java.io.IOException;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
@@ -61,7 +62,12 @@ public class FtpCmdCdup extends AbstractFtpCmd {
             msgOut(MSG550_PERM);
             return;
         }
-        getCtx().setRemoteDir(parent.getCanonicalPath());
+        try {
+			getCtx().setRemoteDir(parent.getCanonicalPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw new FtpCmdException(e.getMessage());
+		}
         msgOut(MSG250);
     }
 
