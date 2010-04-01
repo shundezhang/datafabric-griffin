@@ -64,7 +64,12 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
      * {@inheritDoc}
      */
     protected void doPerformAccessChecks(boolean unique, FileObject file, long fileOffset) throws FtpException {
-    	log.debug("file:"+file.getCanonicalPath()+"; parent perm:"+file.getParent().getPermission());
+    	try {
+			log.debug("file:"+file.getCanonicalPath()+"; parent perm:"+file.getParent().getPermission());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         if ((file.getParent().getPermission() & PRIV_WRITE) == 0) {
             throw new FtpPermissionException();
         }

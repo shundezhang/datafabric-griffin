@@ -139,35 +139,10 @@
 				<prop key="ftp.port">2811</prop>
 				<prop key="charset.ebcdic">CP1047</prop>
 				<prop key="charset.ascii">ISO-8859-1</prop>
-<!-- 				<prop key="console.enabled">true</prop> -->
 				<prop key="service.key">/etc/grid-security/hostkey.pem</prop>
 				<prop key="service.cert">/etc/grid-security/hostcert.pem</prop>
 				<prop key="service.trusted.certs">/etc/grid-security/certificates</prop>
 				<!-- <prop key="ipv4.black.list">!127.0.0.1,!192.*.*.*</prop> -->
-			</props>
-		</property>
-	</bean>
-
-
-	<bean id="testOptions" class="au.org.arcs.griffin.server.impl.FtpServerOptionsImpl" singleton="true">
-		<property name="properties">
-			<props>
-				<prop key="ftp.root.dir">/Users/shundezh/tmp/ftp</prop>
-				<prop key="max.connections">20</prop>
-				<prop key="max.idle.seconds">120</prop>
-				<prop key="buffer.size">2048</prop>
-				<!--<prop key="allowed.passive.ports">12000-12100</prop>-->
-				<prop key="ftp.port">2121</prop>
-				<prop key="ssl.force">false</prop>
-				<prop key="ssl.allow.explicit">true</prop>
-				<prop key="ssl.allow.implicit">true</prop>
-				<prop key="ssl.port.implicit">9990</prop>
-				<prop key="ssl.keystore.file">keystore</prop>
-				<prop key="ssl.keystore.password">secret</prop>
-				<prop key="ssl.cipher.suites"></prop>
-				<prop key="charset.ebcdic">CP1047</prop>
-				<prop key="charset.ascii">ISO-8859-1</prop>
-				<prop key="console.enabled">false</prop>
 			</props>
 		</property>
 	</bean>
@@ -187,7 +162,7 @@
 		<property name="fileSystem" ref="fileSystem" />
 	</bean>
 	
-	<bean id="fileSystem" class="au.org.arcs.griffin.filesystem.impl.JargonFileSystemImpl" singleton="true">
+	<bean id="fileSystem" class="au.org.arcs.griffin.filesystem.impl.jargon.JargonFileSystemImpl" singleton="true">
 		<property name="serverName" value="arcs-df.vpac.org" />
 		<property name="serverPort" value="1247" />
 		<property name="serverType" value="irods" />
@@ -199,53 +174,19 @@
 		<!-- <property name="defaultResource" value="arcs-df.vpac.org" /> -->
 	</bean>
 	
+<!-- Config for local file system -->
 <!-- 
-	<bean id="server" class="au.org.arcs.griffin.server.impl.DefaultFtpServer" singleton="true">
-		<property name="name" value="Default FTP Server" />
-		<property name="options" ref="options" />
-		<property name="resources" value="hermesftp-resources"/>
+	<bean id="fileSystem" class="au.org.arcs.griffin.filesystem.impl.localfs.LocalFileSystemImpl" singleton="true">
+		<property name="rootPath" value="/data/testroot" />
 		<property name="userManager" ref="userManager" />
 	</bean>
-
-	<bean id="sslserver" class="au.org.arcs.griffin.server.impl.SecureFtpServer" singleton="true">
-		<property name="name" value="Secure FTP Server" />
-		<property name="options" ref="options" />
-		<property name="resources" value="hermesftp-resources"/>
-		<property name="userManager" ref="userManager" />
-	</bean>
-	<bean id="testServer" class="au.org.arcs.griffin.server.impl.DefaultFtpServer" singleton="true">
-		<property name="options" ref="testOptions" />
-		<property name="resources" value="hermesftp-resources"/>
-		<property name="userManager" ref="userManager" />
-	</bean>
- -->
-
+	
 	<bean id="userFileReader" class="au.org.arcs.griffin.usermanager.impl.XmlFileReader" singleton="true">
 	</bean>
 
 	<bean id="userManager" class="au.org.arcs.griffin.usermanager.impl.XmlFileUserManager" singleton="true">
 		<property name="fileReader" ref="userFileReader"/>
 	</bean>
-<!-- 
-	<bean id="console" class="au.org.arcs.griffin.console.ConsoleServerImpl" singleton="true">
-		<property name="port" value="9988" />
-		<property name="userManager" ref="userManager" />
-		<property name="realm" ref="consoleRealm" />
-		<property name="servlets">
-			<map>
-				<entry key="/" value-ref="overviewServlet" />
-				<entry key="/overview" value-ref="overviewServlet" />
-				<entry key="/sessions" value-ref="ftpSessionsServlet" />
-				<entry key="/sslsessions" value-ref="ftpSslSessionsServlet" />
-				<entry key="/users" value-ref="userServlet" />
-				<entry key="/log" value-ref="logServlet" />
-			</map>
-		</property>
-	</bean>
-	
-    <bean id="consoleRealm" class="org.mortbay.jetty.security.HashUserRealm" singleton="true">
-       <constructor-arg><value>Hermes FTP Realm</value></constructor-arg>
-    </bean>
-	 -->
+-->
 	
 </beans>

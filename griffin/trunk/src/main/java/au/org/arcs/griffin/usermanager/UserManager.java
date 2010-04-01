@@ -122,6 +122,7 @@ public interface UserManager {
      * @throws FtpConfigException Error on reading or processing a configuration file.
      */
     boolean authenticate(String user, String password, FtpSessionContext ctx) throws FtpConfigException;
+    UserData authenticate(String dn) throws FtpConfigException;
 
     /**
      * (Re)loads the configuration.

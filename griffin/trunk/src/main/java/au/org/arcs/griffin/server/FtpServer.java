@@ -101,13 +101,6 @@ public interface FtpServer extends Runnable {
     FtpServerOptions getOptions();
 
     /**
-     * Returns the user manager implementation.
-     * 
-     * @return The user manager.
-     */
-    UserManager getUserManager();
-
-    /**
      * Adds an external listerner that wants to get informed about FTP events.
      * 
      * @param lstnr The listener.

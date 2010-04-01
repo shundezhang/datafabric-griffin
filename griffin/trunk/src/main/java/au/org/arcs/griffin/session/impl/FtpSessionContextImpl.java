@@ -395,40 +395,13 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     public void authenticate() throws FtpConfigException, IOException, GSSException {
         authenticated = false;
         String dirName = null;
-//            authenticated = userManager.authenticate(getUser(), getPassword(), this);
-        	fileSystemConnection = fileSystem.createFileSystemConnection(getServiceContext().getDelegCred());
-//            if (authenticated) {
-                setAttribute(ATTR_LOGIN_TIME, new Date());
-//                UserData userData = userManager.getUserData(getUser());
-//                setAttribute(ATTR_USER_DATA, userData);
-//                GroupDataList groupList = userManager.getGroupDataList(getUser());
-//                setAttribute(ATTR_GROUP_DATA, groupList);
-                dirName = fileSystemConnection.getHomeDir();
-                user=fileSystemConnection.getUser();
-//                File dir = new File(dirName);
-//                if (!dir.exists()) {
-//                    FileUtils.forceMkdir(dir);
-//                }
-                setRemoteDir(dirName);
-//            }
-                log.debug("fs.isconnected:"+fileSystemConnection.isConnected());
-            authenticated=true;
-    }
-
-    private synchronized String getStartDir() throws FtpConfigException {
-        UserData userData = (UserData) getAttribute(ATTR_USER_DATA);
-        if (userData == null) {
-            throw new FtpConfigException("User data not available");
-        }
-        VarMerger varMerger = new VarMerger(userData.getDir());
-        Properties props = new Properties();
-        props.setProperty("ftproot", FilenameUtils.separatorsToUnix(options.getRootDir()));
-        props.setProperty("user", user);
-        varMerger.merge(props);
-        if (!varMerger.isReplacementComplete()) {
-            throw new FtpConfigException("Unresolved placeholders in user configuration file found.");
-        }
-        return varMerger.getText();
+    	fileSystemConnection = fileSystem.createFileSystemConnection(getServiceContext().getDelegCred());
+        setAttribute(ATTR_LOGIN_TIME, new Date());
+        dirName = fileSystemConnection.getHomeDir();
+        user=fileSystemConnection.getUser();
+        setRemoteDir(dirName);
+        log.debug("fs.isconnected:"+fileSystemConnection.isConnected());
+        authenticated=true;
     }
 
     /**

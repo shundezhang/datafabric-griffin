@@ -15,7 +15,7 @@ public interface FileObject {
 	public boolean isFile();
 	public boolean isDirectory();
 	public int getPermission();
-	public String getCanonicalPath();
+	public String getCanonicalPath() throws IOException;
 	public FileObject[] listFiles();
 	public long length();
 	public long lastModified();

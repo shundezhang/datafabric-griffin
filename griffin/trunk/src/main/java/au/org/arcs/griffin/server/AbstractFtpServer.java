@@ -73,8 +73,6 @@ public abstract class AbstractFtpServer extends AbstractAppAwareBean implements 
 
     private int                    status                    = SERVER_STATUS_UNDEF;
 
-    private UserManager            userManager;
-
     private List<FtpEventListener> ftpEventListeners         = new ArrayList<FtpEventListener>();
 
     private int                    connectionCountHWMark;
@@ -288,24 +286,6 @@ public abstract class AbstractFtpServer extends AbstractAppAwareBean implements 
      */
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    /**
-     * Getter method for the java bean <code>userManager</code>.
-     * 
-     * @return Returns the value of the java bean <code>userManager</code>.
-     */
-    public UserManager getUserManager() {
-        return userManager;
-    }
-
-    /**
-     * Setter method for the java bean <code>userManager</code>.
-     * 
-     * @param userManager The value of userManager to set.
-     */
-    public void setUserManager(UserManager userManager) {
-        this.userManager = userManager;
     }
 
     /**
