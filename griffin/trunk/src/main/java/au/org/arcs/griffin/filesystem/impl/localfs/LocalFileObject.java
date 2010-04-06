@@ -18,21 +18,25 @@ public class LocalFileObject implements FileObject {
 	private static Log log = LogFactory.getLog(LocalFileObject.class);
 	private File file;
 	private LocalFileSystemConnectionImpl connection;
-	// this path is a relative path in the gridftp server context
+	// this path is a relative canonical path in the gridftp server context
 	private String canonicalPath;
-	private String relativePath;
+	// this path is a relative path in the gridftp server context
+	private String path;
 	public LocalFileObject(String path, LocalFileSystemConnectionImpl connection){
-		this.relativePath=path;
-		this.connection=connection;
+		this.path=path;
+		log.debug("path="+path);
         path = FilenameUtils.normalizeNoEndSeparator(path);
+		log.debug("path="+path);
+		this.canonicalPath=path;
+		this.connection=connection;
     	file = new File(connection.getRootPath(), path);
-    	try {
-			canonicalPath=file.getCanonicalPath().substring(connection.getRootPath().length()-1);
-	    	log.debug("create object with ftp path: "+canonicalPath+" and real path:"+file.getCanonicalPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			canonicalPath=file.getCanonicalPath().substring(connection.getRootPath().length()-1);
+//	    	log.debug("create object with ftp path: "+canonicalPath+" and real path:"+file.getCanonicalPath());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	public File getLocalFile(){
@@ -68,7 +72,7 @@ public class LocalFileObject implements FileObject {
 
 	public String getPath() {
 		// TODO Auto-generated method stub
-		return relativePath;
+		return path;
 	}
 
 	public int getPermission() {
@@ -115,7 +119,7 @@ public class LocalFileObject implements FileObject {
 		for (int i=0;i<list.length;i++){
 			try {
 				s=flist[i].getCanonicalPath();
-				list[i]=new LocalFileObject(s.substring(0,s.lastIndexOf("/")), connection);
+				list[i]=new LocalFileObject(s.substring(connection.getRootPath().length()+1), connection);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

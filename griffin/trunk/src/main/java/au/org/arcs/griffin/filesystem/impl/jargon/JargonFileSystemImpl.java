@@ -150,7 +150,7 @@ public class JargonFileSystemImpl implements FileSystem {
 		}
 	}
 
-	public String getPathSeparator() {
+	public String getSeparator() {
 		// TODO Auto-generated method stub
 		return String.valueOf(IRODSFile.PATH_SEPARATOR_CHAR);
 	}

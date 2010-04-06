@@ -71,10 +71,12 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
             	if (!argParts[argParts.length-1].trim().startsWith("-")){
             		dirName=argParts[argParts.length-1].trim();
             	}
-            } else {
+            } else if (args.length()>0) {
             	dirName = args;
             }
+            log.debug("path in cmd to list:"+dirName);
             dirName=getAbsPath(dirName);
+            log.debug("virtual path to list:"+dirName);
             FileObject dir=getCtx().getFileSystemConnection().getFileObject(dirName);
             log.debug("listing dir "+dir.getCanonicalPath());
 

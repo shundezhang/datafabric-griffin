@@ -118,7 +118,7 @@ public class VarMerger {
      */
     public void setText(String text) {
         if (text == null) {
-            throw new IllegalArgumentException("NULL-Werte k�nnen nicht verarbeitet werden.");
+            throw new IllegalArgumentException("NULL-Values can not be processed.");
         }
         this.text = text;
     }

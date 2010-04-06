@@ -11,7 +11,7 @@
 		    	<limit name="Download rate" value="100"/>
 		    </limits>
 		    <permissions>
-		    	<permission flag="r" path="${ftproot}/guest/**"/>
+		    	<permission flag="r" path="/guest/**"/>
 			</permissions>
 		</group>
 		<group name="users" >
@@ -24,8 +24,8 @@
 		    	<limit name="Download rate" value="1000"/>
 		    </limits>
 		    <permissions>
-		    	<permission flag="rw" path="${ftproot}/${user}/**"/>
-		    	<permission flag="r" path="${ftproot}"/>
+		    	<permission flag="rw" path="/${user}/**"/>
+		    	<permission flag="r" path="/"/>
 			</permissions>
 		</group>
 		<group name="administrators" >
@@ -38,11 +38,11 @@
 		    	<limit name="Download rate" value="-1"/>
 		    </limits>
 		    <permissions>
-		    	<permission flag="rw" path="${ftproot}/**"/>
+		    	<permission flag="rw" path="/**"/>
 			</permissions>
 		</group>
 	</groups>
-	<users default-dir="${ftproot}/${user}">
+	<users default-dir="/${user}">
 
         <!-- Admin password: admin -->
 		<user uid="admin" fullname="Administrator" password="{MD5}ISMvKXpXpadDiUoOSoAfww==" adminrole="true">
@@ -50,7 +50,7 @@
 			<group-ref name="administrators"/>
 		</user>
 
-		<user uid="anonymous" fullname="Anonymous User" dir="${ftproot}/guest">
+		<user uid="anonymous" fullname="Anonymous User" dir="/guest">
 			<group-ref name="guest"/>
 		</user>
 		<user uid="user" fullname="Test User" password="user">

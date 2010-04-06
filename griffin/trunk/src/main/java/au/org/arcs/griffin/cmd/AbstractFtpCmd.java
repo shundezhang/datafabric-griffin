@@ -182,12 +182,15 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
         String result;
         try {
         	path=path.replace("~", getCtx().getFileSystemConnection().getHomeDir()); 
-            if (path.startsWith(getCtx().getFileSystem().getPathSeparator())) {
+            if (path.startsWith(getCtx().getFileSystem().getSeparator())) {
                 result = path; //new File(getCtx().getOptions().getRootDir(), path.substring(1)).getCanonicalPath();
             } else {
-                result = getCtx().getRemoteDir()+getCtx().getFileSystem().getPathSeparator()+path; //new File(getCtx().getRemoteDir(), path).getCanonicalPath();
+            	if (getCtx().getRemoteDir().equals("/"))
+            		result = getCtx().getFileSystem().getSeparator()+path;
+            	else
+            		result = getCtx().getRemoteDir()+getCtx().getFileSystem().getSeparator()+path; //new File(getCtx().getRemoteDir(), path).getCanonicalPath();
             }
-          path = FilenameUtils.normalizeNoEndSeparator(path);
+            if (!path.equals("/")) path = FilenameUtils.normalizeNoEndSeparator(path);
         } catch (Exception e) {
             result = getCtx().getRemoteDir();
             log.error(e);

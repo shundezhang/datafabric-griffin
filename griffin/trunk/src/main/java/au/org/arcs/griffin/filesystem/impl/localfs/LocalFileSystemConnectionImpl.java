@@ -73,7 +73,7 @@ public class LocalFileSystemConnectionImpl implements FileSystemConnection {
         }
         VarMerger varMerger = new VarMerger(userData.getDir());
         Properties props = new Properties();
-        props.setProperty("ftproot", FilenameUtils.separatorsToUnix(rootPath));
+//        props.setProperty("ftproot", FilenameUtils.separatorsToUnix(rootPath));
         props.setProperty("user", userData.getUid());
         varMerger.merge(props);
         if (!varMerger.isReplacementComplete()) {
