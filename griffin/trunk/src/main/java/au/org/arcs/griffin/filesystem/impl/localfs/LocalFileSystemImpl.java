@@ -69,9 +69,9 @@ public class LocalFileSystemImpl implements FileSystem {
 
 	}
 
-	public String getPathSeparator() {
+	public String getSeparator() {
 		// TODO Auto-generated method stub
-		return File.pathSeparator;
+		return File.separator;
 	}
 
 	public void init() throws IOException {

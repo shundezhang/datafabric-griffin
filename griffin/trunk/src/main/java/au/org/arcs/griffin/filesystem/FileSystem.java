@@ -13,7 +13,7 @@ import au.org.arcs.griffin.exception.FtpConfigException;
  *
  */
 public interface FileSystem {
-	public String getPathSeparator();
+	public String getSeparator();
 	public void init() throws IOException;
 	public FileSystemConnection createFileSystemConnection(GSSCredential credential) throws FtpConfigException, IOException;
 	public void exit();
