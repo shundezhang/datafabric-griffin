@@ -23,8 +23,10 @@ public class JargonRandomAccessFileObjectImpl implements RandomAccessFileObject 
 	private RemoteRandomAccessFile raf;
 	public JargonRandomAccessFileObjectImpl(RemoteFile file,
 			String type)  throws IOException{
-		if (file instanceof IRODSFile) raf=new IRODSRandomAccessFile((IRODSFile) file,type);
-		throw new IOException("Object type is not recognizable.");
+		if (file instanceof IRODSFile) 
+			raf=new IRODSRandomAccessFile((IRODSFile) file,type);
+		else
+			throw new IOException("Object type is not recognizable.");
 	}
 
 	public void close() throws IOException {
