@@ -168,7 +168,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             log.error(e.toString());
         } catch (IOException e) {
             msgOut(MSG550_MSG, e.getMessage());
-            log.error(e.toString());
+            e.printStackTrace();
         } catch (RuntimeException e) {
         	e.printStackTrace();
             msgOut(MSG550);
