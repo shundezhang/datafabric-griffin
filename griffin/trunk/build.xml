@@ -10,7 +10,7 @@
     <property file="build.properties" />
 
 	<property name="application" value="griffin"/>
-	<property name="app.version" value="0.6.1"/>
+	<property name="app.version" value="0.7.0"/>
 	<property name="lib" value="lib"/>
     <property name="src" value="src/main/java"/>
     <property name="resources" value="src/main/resources"/>
