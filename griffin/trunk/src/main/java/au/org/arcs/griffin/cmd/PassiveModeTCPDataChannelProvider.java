@@ -208,6 +208,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
 	
 	public void prepare() throws IOException {
+		this.eodNum=0;
 		if (direction==DataChannel.DIRECTION_PUT)
 			sos=new SynchronizedOutputStream(fileObject.getRandomAccessFileObject("rw"));
 		if (channels!=null){
@@ -243,14 +244,17 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					running=false;
 					break;
 				} catch (GSSException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					running=false;
 					break;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					running=false;
 					break;
 				}
 			}
@@ -284,7 +288,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 					}
 			}
 		}
-		log.debug("all threads finished(?) channels.size()="+channels.size()+" closing sos");
+		log.debug("all threads finished. channels.size()="+channels.size()+" closing sos");
 		if (sos!=null){
 			try {
 				sos.close();
@@ -311,7 +315,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 		if (dataChannelCount>0&&dataChannelCount==eodNum) {
 			log.debug("got all "+dataChannelCount+" eod(s). closing serverSocket:"+serverSocket);
 	    	running=false;
-//	        IOUtils.closeGracefully(serverSocket);
+	        IOUtils.closeGracefully(serverSocket);
 		}
 	}
 
