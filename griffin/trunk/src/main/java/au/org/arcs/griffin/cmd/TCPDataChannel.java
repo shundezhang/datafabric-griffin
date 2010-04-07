@@ -158,7 +158,7 @@ public class TCPDataChannel implements DataChannel {
 	            boolean eod = false;
 	            long count;
 	            while (!eod && (count = eDataBlock.read(this)) > -1) {
-	            	log.debug("thread "+threadNum+" got "+eDataBlock+" count="+count);
+	            	log.debug("thread "+threadNum+" got "+eDataBlock+" count="+count+" offset="+eDataBlock.getOffset());
 	                //If we're running a modeE demux then check for end of channel
 	                //allow the block to be forwarded as it may have data
 	                if (eDataBlock.isDescriptorSet(EDataBlock.DESC_CODE_EOF)) {
