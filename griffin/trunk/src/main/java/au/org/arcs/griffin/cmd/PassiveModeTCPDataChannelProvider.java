@@ -46,6 +46,7 @@ import org.ietf.jgss.GSSException;
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.filesystem.FileObject;
+import au.org.arcs.griffin.filesystem.RandomAccessFileObject;
 import au.org.arcs.griffin.streams.SynchronizedOutputStream;
 import au.org.arcs.griffin.utils.IOUtils;
 
@@ -76,6 +77,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
     
     private int eodNum;
     private int dataChannelCount;
+    private long offset;
 
     /**
      * Constructor.
@@ -209,8 +211,11 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 	
 	public void prepare() throws IOException {
 		this.eodNum=0;
-		if (direction==DataChannel.DIRECTION_PUT)
-			sos=new SynchronizedOutputStream(fileObject.getRandomAccessFileObject("rw"));
+		if (direction==DataChannel.DIRECTION_PUT){
+			RandomAccessFileObject rafo=fileObject.getRandomAccessFileObject("rw");
+			if (offset>0) rafo.seek(offset);
+			sos=new SynchronizedOutputStream(rafo);
+		}
 		if (channels!=null){
 			for (DataChannel dc:channels){
 				dc.setDirection(direction);
@@ -321,6 +326,11 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
 	public void setDataChannelCount(int dataChannelCount) {
 		this.dataChannelCount=dataChannelCount;
+		
+	}
+
+	public void setOffset(long offset) {
+		this.offset=offset;
 		
 	}
 

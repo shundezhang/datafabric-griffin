@@ -57,6 +57,7 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
     private DataChannelInfo   dataChannelInfo;
 
     private SynchronizedInputStream sis;
+    private long offset;
 
     /**
      * Constructor.
@@ -172,7 +173,7 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
 	public void prepare() throws IOException {
 		channels=new ArrayList<DataChannel>();
-		if (direction==DataChannel.DIRECTION_GET) sis=new SynchronizedInputStream(new RafInputStream(fileObject, 0));
+		if (direction==DataChannel.DIRECTION_GET) sis=new SynchronizedInputStream(new RafInputStream(fileObject, offset));
 		for (int i=0;i<maxThread;i++){
 			Socket s=createClientSocket();
 			TCPDataChannel dc;
@@ -204,6 +205,10 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
 	public void setDataChannelCount(int dataChannelCount) {
 		// TODO Auto-generated method stub
+		
+	}
+	public void setOffset(long offset) {
+		this.offset=offset;
 		
 	}
 

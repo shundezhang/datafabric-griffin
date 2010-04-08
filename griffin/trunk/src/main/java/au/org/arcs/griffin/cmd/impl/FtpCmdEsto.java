@@ -65,10 +65,10 @@ public class FtpCmdEsto extends FtpCmdStor {
             return;
         }
         getCtx().setAttribute(ATTR_FILE_OFFSET, asm_offset);
-//        if (asm_offset != 0) {
-//            out("504 ESTO Adjusted Store Mode does not work with nonzero offset: " + offset);
-//            return;
-//        }
+        if (asm_offset != 0) {
+            out("504 ESTO Adjusted Store Mode does not work with nonzero offset: " + offset);
+            return;
+        }
         this.setArguments(filename);
         super.execute(false);
     }
