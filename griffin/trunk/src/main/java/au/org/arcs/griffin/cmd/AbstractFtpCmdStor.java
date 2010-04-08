@@ -104,6 +104,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             getCtx().getTransferMonitor().init(-1,this); //getCtx().getMaxUploadRate());
             if (mode==MODE_EBLOCK){
             	DataChannelProvider provider=getCtx().getDataChannelProvider();
+            	provider.setOffset(fileOffset);
             	provider.setMaxThread(maxThread);
             	provider.setDirection(DataChannel.DIRECTION_PUT);
             	provider.setFileObject(file);

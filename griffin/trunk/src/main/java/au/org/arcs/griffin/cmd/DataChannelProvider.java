@@ -68,6 +68,7 @@ public interface DataChannelProvider extends Runnable{
 	int getChannelNumber();
 	void setDataChannelCount(int dataChannelCount);
 	void seenEOD();
+	void setOffset(long offset);
 	
 	void prepare() throws IOException;
 

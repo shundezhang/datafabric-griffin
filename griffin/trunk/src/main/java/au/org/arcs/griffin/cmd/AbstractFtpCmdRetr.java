@@ -154,6 +154,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
 
             if (mode==MODE_EBLOCK){
             	DataChannelProvider provider=getCtx().getDataChannelProvider();
+            	provider.setOffset(fileOffset);
             	provider.setMaxThread(maxThread);
             	provider.setDirection(DataChannel.DIRECTION_GET);
             	provider.setFileObject(file);
