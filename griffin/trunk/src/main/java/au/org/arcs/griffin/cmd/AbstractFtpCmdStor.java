@@ -100,7 +100,10 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             getCtx().setAttribute(ATTR_RESTART_MARKERS, restartMarkers);
 
             /* Wrap inbound data stream and call handler method */
-            msgOut(MSG150);
+            if (mode==MODE_EBLOCK)
+            	getCtx().getTransferMonitor().showPerfMarker();
+            else
+            	getCtx().getTransferMonitor().hidePerfMarker();
             getCtx().getTransferMonitor().init(-1,this); //getCtx().getMaxUploadRate());
             if (mode==MODE_EBLOCK){
             	DataChannelProvider provider=getCtx().getDataChannelProvider();
@@ -109,6 +112,11 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             	provider.setDirection(DataChannel.DIRECTION_PUT);
             	provider.setFileObject(file);
             	provider.prepare();
+            	if (!provider.isUsed())
+                    msgOut(MSG150);
+            	else
+                    out("125 Begining transfer; reusing existing data connection.");
+            	getCtx().getTransferMonitor().sendPerfMarker();
             	Thread thread=new Thread(provider);
             	thread.start();
             	try {
@@ -120,6 +128,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
 //            	provider.closeProvider();
 				log.info("transfer is complete");
             }else{  // Stream mode
+                msgOut(MSG150);
             	DataChannel dataChannel=getCtx().getDataChannelProvider().provideDataChannel();
             	doStoreFileData(dataChannel, file, fileOffset);
             }
@@ -176,7 +185,10 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             log.error(e.toString());
         } finally {
         	log.debug("in finally");
-        	if (mode==MODE_STREAM) getCtx().closeDataChannels();
+        	if (mode==MODE_STREAM) {
+        		log.debug("closing data channels for stream mode");
+        		getCtx().closeDataChannels();
+        	}
 //            getCtx().closeSockets();
         }
     }

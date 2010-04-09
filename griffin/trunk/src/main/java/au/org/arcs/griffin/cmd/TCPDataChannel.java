@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import javax.net.ServerSocketFactory;
 
@@ -56,10 +57,6 @@ public class TCPDataChannel implements DataChannel {
 //		this.fileObject=file;
 //		direction=DIRECTION_PUT;
 //	}
-	
-	public void setSynchronizedInputStream(SynchronizedInputStream sis){
-		this.sis=sis;
-	}
 	
 	public void setDataChannelProvider(DataChannelProvider provider){
 		this.provider=provider;
@@ -149,6 +146,18 @@ public class TCPDataChannel implements DataChannel {
 	}
 
 	public void run() {
+		if (clientSocket!=null) {
+			try {
+				log.debug("clientSocket.getKeepAlive():"+clientSocket.getKeepAlive());
+			} catch (SocketException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			log.debug("clientSocket.isConnected():"+clientSocket.isConnected());
+			log.debug("clientSocket.isOutputShutdown():"+clientSocket.isOutputShutdown());
+			log.debug("clientSocket.isClosed():"+clientSocket.isClosed());
+			log.debug("clientSocket.isInputShutdown():"+clientSocket.isInputShutdown());
+		}
 		log.debug(clientSocket+" entering loop; direction="+direction);
 		if (direction==DIRECTION_PUT){
 			EDataBlock eDataBlock = new EDataBlock(ctx.getUser()+threadNum);
@@ -260,14 +269,14 @@ public class TCPDataChannel implements DataChannel {
 	            if (offset+lastBlockSize>=fileSize){ //end of file
 		        	eDataBlock.setDescriptor(64);  //eodc
 		        	eDataBlock.setDescriptor(8);  //eod
-		        	eDataBlock.setDescriptor(4);  //close data channel
+//		        	eDataBlock.setDescriptor(4);  //close data channel
 		        	eDataBlock.setSize(0);
 		        	eDataBlock.setOffset(provider.getMaxThread());
 		        	log.debug(eDataBlock);
 		        	eDataBlock.writeHeader(this);
 	            }else{ //end of channel
 		        	eDataBlock.setDescriptor(8);  //eod
-		        	eDataBlock.setDescriptor(4);  //close data channel
+//		        	eDataBlock.setDescriptor(4);  //close data channel
 		        	eDataBlock.setSize(0);
 		        	eDataBlock.setOffset(0);
 		        	log.debug(eDataBlock);
@@ -317,9 +326,12 @@ public class TCPDataChannel implements DataChannel {
 
 	public void setSynchronizedOutputStream(SynchronizedOutputStream sos) {
 		this.sos=sos;
-		
 	}
 
+	public void setSynchronizedInputStream(SynchronizedInputStream sis){
+		this.sis=sis;
+	}
+	
 	public OutputStream getOutputStream() {
 		// TODO Auto-generated method stub
 		return new DataChannelOutputStream(this);

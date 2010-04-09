@@ -78,6 +78,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
     private int eodNum;
     private int dataChannelCount;
     private long offset;
+	private boolean isUsed;
 
     /**
      * Constructor.
@@ -203,7 +204,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
     private ServerSocket createServerSocket(InetAddress localIp, int port) throws IOException {
         ServerSocket sock;
         Boolean dataProtection = (Boolean) ctx.getAttribute(FtpConstants.ATTR_DATA_PROT);
-            sock = ServerSocketFactory.getDefault().createServerSocket(port, 1, localIp);
+        sock = ServerSocketFactory.getDefault().createServerSocket(port, 1, localIp);
         sock.setSoTimeout(DATA_CHANNEL_TIMEOUT);
         return sock;
     }
@@ -275,6 +276,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 				}
 			}
 		}else{  //there are existing channels, reuse them
+			isUsed=true;
 			Thread[] transferThreads=new Thread[channels.size()];
 			for (int i=0;i<channels.size();i++){
 				transferThreads[i]=new Thread(channels.get(i));
@@ -332,6 +334,10 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 	public void setOffset(long offset) {
 		this.offset=offset;
 		
+	}
+	public boolean isUsed() {
+		// TODO Auto-generated method stub
+		return this.isUsed;
 	}
 
 }

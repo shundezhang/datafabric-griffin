@@ -234,7 +234,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
 //            os.flush();
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
                 (int) getCtx().getTransferMonitor().getCurrentTransferRate());
-            msgOut(MSG226);
+//            msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(is);
 //            IOUtils.closeGracefully(os);
