@@ -148,17 +148,29 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
 
             /* Check availability and access rights */
             doPerformAccessChecks(file);
-
-            msgOut(MSG150);
+            getCtx().getTransferMonitor().hidePerfMarker();
             getCtx().getTransferMonitor().init(-1,this); //getCtx().getMaxDownloadRate());
 
             if (mode==MODE_EBLOCK){
             	DataChannelProvider provider=getCtx().getDataChannelProvider();
+            	log.debug("provider:"+provider);
             	provider.setOffset(fileOffset);
             	provider.setMaxThread(maxThread);
             	provider.setDirection(DataChannel.DIRECTION_GET);
             	provider.setFileObject(file);
             	provider.prepare();
+            	if (!provider.isUsed())
+                    msgOut(MSG150);
+            	else{
+                    out("125 Begining transfer; reusing existing data connection.");
+                    try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+            	}
+                getCtx().getTransferMonitor().sendPerfMarker();
             	Thread thread=new Thread(provider);
             	thread.start();
             	try {
@@ -170,6 +182,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
 //            	provider.closeProvider();
 				log.info("transfer is complete");
             }else{  // Stream mode
+                msgOut(MSG150);
             	DataChannel dataChannel=getCtx().getDataChannelProvider().provideDataChannel();
             	doRetrieveFileData(dataChannel, file, fileOffset);
             }

@@ -25,6 +25,7 @@
 package au.org.arcs.griffin.cmd;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,8 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
     private SynchronizedInputStream sis;
     private long offset;
+
+	private boolean isUsed;
 
     /**
      * Constructor.
@@ -124,8 +127,13 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
     private Socket createClientSocket() throws IOException {
         Socket dataSocket;
-        dataSocket = SocketFactory.getDefault().createSocket(dataChannelInfo.getAddress(),
-            dataChannelInfo.getPort());
+        dataSocket = new Socket();
+        dataSocket.setKeepAlive(true);
+        dataSocket.setReuseAddress(true);
+        InetSocketAddress serverEndpoint=new InetSocketAddress(dataChannelInfo.getAddress(), dataChannelInfo.getPort());
+        dataSocket.connect(serverEndpoint);
+//        dataSocket = SocketFactory.getDefault().createSocket(dataChannelInfo.getAddress(),
+//                dataChannelInfo.getPort());
         log.debug("established socket "+dataSocket+" to client:"+dataChannelInfo.getAddress()+" "+dataChannelInfo.getPort());
         return dataSocket;
     }
@@ -172,29 +180,38 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 	
 
 	public void prepare() throws IOException {
-		channels=new ArrayList<DataChannel>();
 		if (direction==DataChannel.DIRECTION_GET) sis=new SynchronizedInputStream(new RafInputStream(fileObject, offset));
-		for (int i=0;i<maxThread;i++){
-			Socket s=createClientSocket();
-			TCPDataChannel dc;
-			try {
-				dc = new TCPDataChannel(wrapSocket(s, true),ctx,i);
-			} catch (GSSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				throw new IOException(e.getMessage());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				throw new IOException(e.getMessage());
+		if (channels==null){
+//			log.debug("new provider, init'ing...");
+			channels=new ArrayList<DataChannel>();
+			for (int i=0;i<maxThread;i++){
+				Socket s=createClientSocket();
+				TCPDataChannel dc;
+				try {
+					dc = new TCPDataChannel(wrapSocket(s, true),ctx,i);
+				} catch (GSSException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					throw new IOException(e.getMessage());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					throw new IOException(e.getMessage());
+				}
+				channels.add(dc);
 			}
+		}else{
+//			log.debug("used provider");
+			isUsed=true;
+		}
+		log.debug("channels:"+channels);
+		for (DataChannel dc:channels){
 			dc.setDirection(direction);
 			dc.setFileObject(fileObject);
 			dc.setDataChannelProvider(this);
 			if (direction==DataChannel.DIRECTION_GET) {
 				dc.setSynchronizedInputStream(sis);
 			}
-			channels.add(dc);
 		}
 	}
 
@@ -210,6 +227,11 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 	public void setOffset(long offset) {
 		this.offset=offset;
 		
+	}
+
+	public boolean isUsed() {
+		// TODO Auto-generated method stub
+		return this.isUsed;
 	}
 
 }

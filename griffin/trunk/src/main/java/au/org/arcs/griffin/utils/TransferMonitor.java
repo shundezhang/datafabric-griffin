@@ -51,6 +51,8 @@ public class TransferMonitor {
     
     private DecimalFormat decFormatter = new DecimalFormat("###.#");
 
+	private boolean showPerfMarker;
+
     /**
      * Constructor.
      */
@@ -77,10 +79,10 @@ public class TransferMonitor {
         startTime = System.currentTimeMillis();
         transferredBytes = 0;
         this.cmd=cmd;
-        sendPerfMarker();
     }
     
     public void sendPerfMarker(){
+    	if (!showPerfMarker) return;
         lastPerfMarkerTime=System.currentTimeMillis();
     	StringBuffer perf=new StringBuffer("112-Perf Marker\r\n");
     	perf.append(" Timestamp:  "+decFormatter.format(lastPerfMarkerTime/1000d)+"\r\n");
@@ -126,5 +128,15 @@ public class TransferMonitor {
     public long getTransferredBytes(){
     	return this.transferredBytes;
     }
+
+	public void hidePerfMarker() {
+		showPerfMarker = false;
+		
+	}
+
+	public void showPerfMarker() {
+		showPerfMarker = true;
+		
+	}
 
 }
