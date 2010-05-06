@@ -45,7 +45,7 @@
 	<users default-dir="/${user}">
 
         <!-- Admin password: admin -->
-		<user uid="admin" fullname="Administrator" password="{MD5}ISMvKXpXpadDiUoOSoAfww==" adminrole="true">
+		<user uid="admin" fullname="Administrator" adminrole="true">
 			<group-ref name="users"/>
 			<group-ref name="administrators"/>
 		</user>
@@ -53,7 +53,7 @@
 		<user uid="anonymous" fullname="Anonymous User" dir="/guest">
 			<group-ref name="guest"/>
 		</user>
-		<user uid="user" fullname="Test User" password="user">
+		<user uid="user" fullname="Test User">
 			<group-ref name="users"/>
 		</user>
 	
