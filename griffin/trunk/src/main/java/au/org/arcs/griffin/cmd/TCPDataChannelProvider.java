@@ -45,10 +45,11 @@ abstract public class TCPDataChannelProvider implements DataChannelProvider {
 	
 	public Socket wrapSocket(Socket socket, boolean isClientSocket) throws GSSException, Exception{
 //		DataChannelAuthentication dcau=DataChannelAuthentication.NONE;
+		int protLevel="P".equalsIgnoreCase((String) ctx.getAttribute(FtpConstants.ATTR_DATA_PROT))?GridFTPSession.PROTECTION_PRIVATE:GridFTPSession.PROTECTION_CLEAR;
 		if (ctx.getDCAU()==FtpConstants.DCAU_SELF) {
 //			DataChannelAuthentication dcau=DataChannelAuthentication.SELF;
 			log.debug("creating secure socket for DCAU self. isClientSocket:"+isClientSocket);
-			return GridFTPServerFacade.authenticate(socket, isClientSocket, ctx.getServiceContext().getDelegCred(), GridFTPSession.PROTECTION_CLEAR, DataChannelAuthentication.SELF);
+			return GridFTPServerFacade.authenticate(socket, isClientSocket, ctx.getServiceContext().getDelegCred(), protLevel, DataChannelAuthentication.SELF);
 		}else
 			return socket;
 //		if (ctx.getDCAU()==FtpConstants.DCAU_SUBJECT) dcau=new DataChannelAuthentication("S");

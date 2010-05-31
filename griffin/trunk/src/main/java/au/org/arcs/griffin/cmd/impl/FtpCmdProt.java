@@ -86,26 +86,28 @@ public class FtpCmdProt extends AbstractFtpCmd {
     public void execute() throws FtpCmdException {
         String level = getArguments().trim().toUpperCase();
         
-        if (!level.equals("C"))
-            msg("534 Will accept only Clear protection level");
-        else
-        	msgOut(MSG200);
+//        if (!level.equals("C"))
+//            out("534 Will accept only Clear protection level");
+//        else
+//        	msgOut(MSG200);
 
         
 //        Boolean ssl = (Boolean) getCtx().getAttribute(ATTR_SSL);
 //        if (ssl == null || !ssl.booleanValue()) {
 //            msgOut(MSG536);
-//        } else if ("C".equals(level)) {
-//            getCtx().setAttribute(ATTR_DATA_PROT, Boolean.FALSE);
-//            msgOut(MSG200);
-//        } else if ("P".equals(level)) {
-//            getCtx().setAttribute(ATTR_DATA_PROT, Boolean.TRUE);
-//            msgOut(MSG200);
+//        } else 
+        if ("C".equals(level)) {
+            getCtx().setAttribute(ATTR_DATA_PROT, level);
+            msgOut(MSG200);
+        } else if ("P".equals(level)) {
+            getCtx().setAttribute(ATTR_DATA_PROT, level);
+            msgOut(MSG200);
 //        } else if ("E".equals(level) || "S".equals(level)) {
 //            msgOut(MSG504);
-//        } else {
+        } else {
 //            msgOut(MSG501);
-//        }
+            out("534 Will accept only Clear protection level or Private protection level");
+        }
     }
 
     /**
