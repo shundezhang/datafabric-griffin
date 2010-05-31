@@ -203,7 +203,7 @@ public class PassiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
      */
     private ServerSocket createServerSocket(InetAddress localIp, int port) throws IOException {
         ServerSocket sock;
-        Boolean dataProtection = (Boolean) ctx.getAttribute(FtpConstants.ATTR_DATA_PROT);
+//        Boolean dataProtection = (Boolean) ctx.getAttribute(FtpConstants.ATTR_DATA_PROT);
         sock = ServerSocketFactory.getDefault().createServerSocket(port, 1, localIp);
         sock.setSoTimeout(DATA_CHANNEL_TIMEOUT);
         return sock;
