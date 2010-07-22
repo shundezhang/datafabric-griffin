@@ -42,6 +42,7 @@ import au.org.arcs.griffin.exception.FtpIllegalCmdException;
 import au.org.arcs.griffin.exception.FtpQuitException;
 import au.org.arcs.griffin.parser.FtpCmdReader;
 import au.org.arcs.griffin.session.FtpSession;
+import au.org.arcs.griffin.utils.IOUtils;
 
 /**
  * Default FTP session implementation.
@@ -93,7 +94,7 @@ public class FtpSessionImpl extends Thread implements FtpSession, FtpConstants {
                         DEFAULT_IDLE_SECONDS);
                     if (System.currentTimeMillis() - startWaiting > (maxIdleSecs * MILLI)) {
                         out(formatResString(MSG421, new Object[0]));
-                        log.debug("Session timeout after " + maxIdleSecs + " seconds");
+                        log.info("Session timeout after " + maxIdleSecs + " seconds for user "+getFtpContext().getUser());
                         terminated = true;
                     }
                 }
@@ -104,6 +105,7 @@ public class FtpSessionImpl extends Thread implements FtpSession, FtpConstants {
         } finally {
             terminated = true;
             getCmdReader().abort();
+            IOUtils.closeGracefully(getFtpContext().getClientSocket());
 //            getFtpContext().closeSockets();
 //            getFtpContext().closeDataChannels();
 //            getFtpContext().disconnectFileSystem();
