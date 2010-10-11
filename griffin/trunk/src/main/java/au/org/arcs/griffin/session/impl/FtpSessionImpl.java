@@ -154,7 +154,7 @@ public class FtpSessionImpl extends Thread implements FtpSession, FtpConstants {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        String welcome = formatResString(MSG220, new Object[] {hostname});
+        String welcome = formatResString(MSG220, new Object[] {hostname, title, version});
 //        getFtpContext().getClientResponseWriter().println(welcome);
         out(welcome);
     }
