@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-
 	<bean id="cmdAbor" class="au.org.arcs.griffin.cmd.impl.FtpCmdAbor" singleton="false" />
 	<bean id="cmdAllo" class="au.org.arcs.griffin.cmd.impl.FtpCmdAllo" singleton="false" />
 	<bean id="cmdAppe" class="au.org.arcs.griffin.cmd.impl.FtpCmdAppe" singleton="false" />
@@ -62,7 +61,9 @@
 		was not used here since we need to create a new command instance each time we access the hash table
 		and cannot reuse the command prototype.
 	-->
-	<bean id="parser" singleton="true" class="au.org.arcs.griffin.parser.impl.FtpCmdParserImpl">
+	<bean id="parser"
+	        class="au.org.arcs.griffin.parser.impl.FtpCmdParserImpl"
+	        singleton="true">
 		<property name="commands">
 			<map>
 				<entry key="ABOR" value="cmdAbor" />
@@ -128,7 +129,9 @@
 		</property>
 	</bean>
 
-	<bean id="options" class="au.org.arcs.griffin.server.impl.FtpServerOptionsImpl" singleton="true">
+	<bean id="options"
+	        class="au.org.arcs.griffin.server.impl.FtpServerOptionsImpl"
+	        singleton="true">
 		<property name="properties">
 			<props>
 				<prop key="max.connections">20</prop>
@@ -147,22 +150,30 @@
 		</property>
 	</bean>
 
-	<bean id="cmdReader" class="au.org.arcs.griffin.parser.impl.FtpCmdReaderThread" singleton="false">
+	<bean id="cmdReader"
+	        class="au.org.arcs.griffin.parser.impl.FtpCmdReaderThread"
+	        singleton="false">
 		<property name="parser" ref="parser" />
 	</bean>
 
-	<bean id="session" class="au.org.arcs.griffin.session.impl.FtpSessionImpl" singleton="false">
+	<bean id="session"
+	        class="au.org.arcs.griffin.session.impl.FtpSessionImpl"
+	        singleton="false">
 		<property name="cmdReader" ref="cmdReader" />
 	</bean>
 
-	<bean id="server" class="au.org.arcs.griffin.server.impl.GsiFtpServer" singleton="true">
+	<bean id="server"
+	        class="au.org.arcs.griffin.server.impl.GsiFtpServer"
+	        singleton="true">
 		<property name="name" value="GSI FTP Server" />
 		<property name="options" ref="options" />
 		<property name="resources" value="griffin-resources"/>
 		<property name="fileSystem" ref="fileSystem" />
 	</bean>
 	
-	<bean id="fileSystem" class="au.org.arcs.griffin.filesystem.impl.jargon.JargonFileSystemImpl" singleton="true">
+	<bean id="fileSystem"
+	        class="au.org.arcs.griffin.filesystem.impl.jargon.JargonFileSystemImpl"
+	        singleton="true">
 		<property name="serverName" value="arcs-df.vpac.org" />
 		<property name="serverPort" value="1247" />
 		<property name="serverType" value="irods" />
@@ -170,22 +181,30 @@
 		<property name="mapFile" value="irods-mapfile" />
 		<!-- update interval, default is 10 mins -->
 		<!-- <property name="updateInterval" value="10" /> -->
-		<!-- default resource can be specified here. if no default resource is specified, it will be decided by the rule engine. -->
+		<!-- Default resource can be specified here. 
+		     If no default resource is specified, \
+		     it will be decided by the rule engine. -->
 		<!-- <property name="defaultResource" value="arcs-df.vpac.org" /> -->
 	</bean>
 	
 <!-- Config for local file system -->
 <!-- 
-	<bean id="fileSystem" class="au.org.arcs.griffin.filesystem.impl.localfs.LocalFileSystemImpl" singleton="true">
+	<bean id="fileSystem"
+	        class="au.org.arcs.griffin.filesystem.impl.localfs.LocalFileSystemImpl"
+	        singleton="true">
 		<property name="rootPath" value="/data/testroot" />
 		<property name="userManager" ref="userManager" />
 	</bean>
 	
-	<bean id="userFileReader" class="au.org.arcs.griffin.usermanager.impl.XmlFileReader" singleton="true">
+	<bean id="userFileReader"
+	        class="au.org.arcs.griffin.usermanager.impl.XmlFileReader"
+	        singleton="true">
 	</bean>
 
-	<bean id="userManager" class="au.org.arcs.griffin.usermanager.impl.XmlFileUserManager" singleton="true">
-		<property name="fileReader" ref="userFileReader"/>
+	<bean id="userManager"
+	        class="au.org.arcs.griffin.usermanager.impl.XmlFileUserManager"
+	        singleton="true">
+		<property name="fileReader" ref="userFileReader" />
 	</bean>
 -->
 	
