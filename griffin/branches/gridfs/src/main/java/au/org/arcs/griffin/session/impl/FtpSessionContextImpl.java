@@ -25,7 +25,6 @@
 package au.org.arcs.griffin.session.impl;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -35,19 +34,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 
-import au.org.arcs.griffin.cmd.DataChannel;
 import au.org.arcs.griffin.cmd.DataChannelProvider;
 import au.org.arcs.griffin.cmd.SocketProvider;
 import au.org.arcs.griffin.common.FtpConstants;
@@ -58,13 +54,11 @@ import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.exception.FtpQuotaException;
 import au.org.arcs.griffin.filesystem.FileSystem;
 import au.org.arcs.griffin.filesystem.FileSystemConnection;
-import au.org.arcs.griffin.usermanager.UserManager;
 import au.org.arcs.griffin.usermanager.model.GroupDataList;
 import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.utils.LoggingReader;
 import au.org.arcs.griffin.utils.LoggingWriter;
 import au.org.arcs.griffin.utils.TransferMonitor;
-import au.org.arcs.griffin.utils.VarMerger;
 
 /**
  * This class servers as a means of transportation for data shared by a single FTP session.
@@ -75,6 +69,12 @@ import au.org.arcs.griffin.utils.VarMerger;
  * 
  * @author Lars Behnke
  * @author Shunde Zhang
+ */
+/**
+ * TODO: guy: Enter comment!
+ *
+ * @version $Revision: 1.1 $
+ * @author Guy K. Kloss
  */
 public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 
@@ -110,7 +110,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 
     private SocketProvider      dataSocketProvider;
 
-    private FileSystem 			fileSystem;
+    private FileSystem          fileSystem;
 
     private Date                creationTime;
 
@@ -127,7 +127,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     private FileSystemConnection fileSystemConnection;
     
     private int parallelStart;
-	private int parallelMin;
+    private int parallelMin;
     private int parallelMax;
     
     private boolean confirmEOFs;
@@ -143,12 +143,12 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
      * Constructor.
      * 
      * @param options The server options.
-     * @param userManager The user manager.
-     * @param resourceBundle The resource bundle that containts messages and texts.
+     * @param fileSystem The file system.
+     * @param resourceBundle The resource bundle that contains messages and texts.
      * @param listener The listener that is informed on session events.
      */
-    public FtpSessionContextImpl(FtpServerOptions options, FileSystem fileSystem,
-            ResourceBundle resourceBundle, FtpEventListener listener) {
+    public FtpSessionContextImpl(FtpServerOptions options,
+            FileSystem fileSystem, ResourceBundle resourceBundle, FtpEventListener listener) {
         super();
         this.fileSystem = fileSystem;
         this.resourceBundle = resourceBundle;
@@ -158,8 +158,11 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
         transferMonitor = new TransferMonitor();
     }
     
-    public TransferMonitor getTransferMonitor(){
-    	return this.transferMonitor;
+    /**
+     * {@inheritDoc}
+     */
+    public TransferMonitor getTransferMonitor() {
+        return this.transferMonitor;
     }
 
     /**
@@ -213,7 +216,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
      */
     public String getRemoteDir() {
         if (remoteDir == null) {
-            remoteDir = fileSystemConnection.getHomeDir(); //getOptions().getRootDir();
+            remoteDir = getOptions().getRootDir();
         }
         return remoteDir;
     }
@@ -222,25 +225,9 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
      * {@inheritDoc}
      */
     public String getRemoteRelDir() {
-    	return remoteDir;
-//        String relDir = null;
-//        try {
-//            String canDir = new File(getRemoteDir()).getCanonicalPath();
-//            canDir = FilenameUtils.normalizeNoEndSeparator(canDir);
-//
-//            String canRoot = new File(getOptions().getRootDir()).getCanonicalPath();
-//            canRoot = FilenameUtils.normalizeNoEndSeparator(canRoot);
-//
-//            if (canDir.toUpperCase().startsWith(canRoot.toUpperCase())) {
-//                relDir = canDir.substring(canRoot.length());
-//            }
-//            if (!relDir.startsWith(File.separator)) {
-//                relDir = File.separator + relDir;
-//            }
-//        } catch (IOException e) {
-//            log.error(e);
-//        }
-//        return relDir;
+        // Directory storage paths are handled in the filesystem implementations,
+        // So we are only returning here what getRemoteDir() does.
+        return getRemoteDir();
     }
 
     /**
@@ -395,13 +382,13 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
     public void authenticate() throws FtpConfigException, IOException, GSSException {
         authenticated = false;
         String dirName = null;
-    	fileSystemConnection = fileSystem.createFileSystemConnection(getServiceContext().getDelegCred());
+        fileSystemConnection = fileSystem.createFileSystemConnection(getServiceContext().getDelegCred());
         setAttribute(ATTR_LOGIN_TIME, new Date());
         dirName = fileSystemConnection.getHomeDir();
-        user=fileSystemConnection.getUser();
+        user = fileSystemConnection.getUser();
         setRemoteDir(dirName);
-        log.debug("fs.isconnected:"+fileSystemConnection.isConnected());
-        authenticated=true;
+        log.debug("fs.isconnected:" + fileSystemConnection.isConnected());
+        authenticated = true;
     }
 
     /**
@@ -429,15 +416,19 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
         }
     }
     
-    public void disconnectFileSystem(){
-	    if (getFileSystemConnection() != null){
-	    	try {
-				getFileSystemConnection().close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    }
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#disconnectFileSystem()
+     */
+    public void disconnectFileSystem() {
+        if (getFileSystemConnection() != null) {
+            try {
+                getFileSystemConnection().close();
+            } catch (IOException e) {
+                log.error(e.toString());
+            }
+        }
     }
 
     /**
@@ -474,8 +465,13 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
             }
         }
         return port;
-
     }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getNextPassiveUDPPort()
+     */
     public Integer getNextPassiveUDPPort() {
         Integer port;
         Integer[] allowedPorts = getOptions().getAllowedUDPPorts();
@@ -521,7 +517,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
         long globalLimit = getOptions().getInt(globalOptionKey, -1);
 
         GroupDataList list = (GroupDataList) getAttribute(ATTR_GROUP_DATA);
-        log.debug("group data list:"+list);
+        log.debug("group data list:" + list);
         long groupLimit = list.getUpperLimit(groupLimitKey);
 
         if (globalLimit < 0) {
@@ -591,120 +587,231 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
         sessionStats.put(countKey, new Long(prevCount + 1));
     }
 
-	public void setServiceContext(GSSContext gssContext) {
-		this.serviceContext=gssContext;
-		
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setServiceContext(org.ietf.jgss.GSSContext)
+     */
+    public void setServiceContext(GSSContext gssContext) {
+        this.serviceContext = gssContext;
+    }
 
-	public GSSContext getServiceContext() {
-		// TODO Auto-generated method stub
-		return serviceContext;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getServiceContext()
+     */
+    public GSSContext getServiceContext() {
+        return serviceContext;
+    }
 
-	public String getReplyType() {
-		// TODO Auto-generated method stub
-		return replyType;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getReplyType()
+     */
+    public String getReplyType() {
+        return replyType;
+    }
 
-	public void setReplyType(String replyType) {
-		this.replyType=replyType;
-		
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setReplyType(java.lang.String)
+     */
+    public void setReplyType(String replyType) {
+        this.replyType = replyType;
+    }
 
-	public GSSName getGSSIdentity() {
-		// TODO Auto-generated method stub
-		return this.gssIdentity;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getGSSIdentity()
+     */
+    public GSSName getGSSIdentity() {
+        return this.gssIdentity;
+    }
 
-	public void setGSSIdentity(GSSName identity) {
-		this.gssIdentity=identity;
-		
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setGSSIdentity(org.ietf.jgss.GSSName)
+     */
+    public void setGSSIdentity(GSSName identity) {
+        this.gssIdentity = identity;
+    }
 
-	public FileSystemConnection getFileSystemConnection() {
-		// TODO Auto-generated method stub
-		return fileSystemConnection;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getFileSystemConnection()
+     */
+    public FileSystemConnection getFileSystemConnection() {
+        return fileSystemConnection;
+    }
 
-	public FileSystem getFileSystem() {
-		// TODO Auto-generated method stub
-		return fileSystem;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getFileSystem()
+     */
+    public FileSystem getFileSystem() {
+        return fileSystem;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getParallelStart()
+     */
     public int getParallelStart() {
-		return parallelStart;
-	}
+        return parallelStart;
+    }
 
-	public void setParallelStart(int parallelStart) {
-		this.parallelStart = parallelStart;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setParallelStart(int)
+     */
+    public void setParallelStart(int parallelStart) {
+        this.parallelStart = parallelStart;
+    }
 
-	public int getParallelMin() {
-		return parallelMin;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getParallelMin()
+     */
+    public int getParallelMin() {
+        return parallelMin;
+    }
 
-	public void setParallelMin(int parallelMin) {
-		this.parallelMin = parallelMin;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setParallelMin(int)
+     */
+    public void setParallelMin(int parallelMin) {
+        this.parallelMin = parallelMin;
+    }
 
-	public int getParallelMax() {
-		return parallelMax;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getParallelMax()
+     */
+    public int getParallelMax() {
+        return parallelMax;
+    }
 
-	public void setParallelMax(int parallelMax) {
-		this.parallelMax = parallelMax;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setParallelMax(int)
+     */
+    public void setParallelMax(int parallelMax) {
+        this.parallelMax = parallelMax;
+    }
 
-	public boolean isConfirmEOFs() {
-		return confirmEOFs;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#isConfirmEOFs()
+     */
+    public boolean isConfirmEOFs() {
+        return confirmEOFs;
+    }
 
-	public void setConfirmEOFs(boolean confirmEOFs) {
-		this.confirmEOFs = confirmEOFs;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setConfirmEOFs(boolean)
+     */
+    public void setConfirmEOFs(boolean confirmEOFs) {
+        this.confirmEOFs = confirmEOFs;
+    }
 
-	public int getBufferSize() {
-		return bufferSize;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getBufferSize()
+     */
+    public int getBufferSize() {
+        return bufferSize;
+    }
 
-	public void setBufferSize(int bufferSize) {
-		this.bufferSize = bufferSize;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setBufferSize(int)
+     */
+    public void setBufferSize(int bufferSize) {
+        this.bufferSize = bufferSize;
+    }
 
-	public int getNetworkStack() {
-		return networkStack;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getNetworkStack()
+     */
+    public int getNetworkStack() {
+        return networkStack;
+    }
 
-	public void setNetworkStack(int networkStack) {
-		this.networkStack=networkStack;
-		
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setNetworkStack(int)
+     */
+    public void setNetworkStack(int networkStack) {
+        this.networkStack = networkStack;
+    }
 
-	public DataChannelProvider getDataChannelProvider() {
-		return this.dataChannelProvider;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getDataChannelProvider()
+     */
+    public DataChannelProvider getDataChannelProvider() {
+        return this.dataChannelProvider;
+    }
 
-	public void setDataChannelProvider(DataChannelProvider dataChannelProvider) {
-		this.dataChannelProvider=dataChannelProvider;
-		
-	}
-	
-	public void closeDataChannels(){
-		if (getDataChannelProvider()!=null){
-			getDataChannelProvider().closeProvider();
-			this.dataChannelProvider=null;
-		}
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setDataChannelProvider(au.org.arcs.griffin.cmd.DataChannelProvider)
+     */
+    public void setDataChannelProvider(DataChannelProvider dataChannelProvider) {
+        this.dataChannelProvider = dataChannelProvider;
+    }
 
-	public int getDCAU() {
-		// TODO Auto-generated method stub
-		return this.dcauType;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#closeDataChannels()
+     */
+    public void closeDataChannels() {
+        if (getDataChannelProvider() != null) {
+            getDataChannelProvider().closeProvider();
+            this.dataChannelProvider = null;
+        }
+    }
 
-	public void setDCAU(int dcauType) {
-		this.dcauType=dcauType;
-		
-	}
-	
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#getDCAU()
+     */
+    public int getDCAU() {
+        return this.dcauType;
+    }
 
-
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.common.FtpSessionContext#setDCAU(int)
+     */
+    public void setDCAU(int dcauType) {
+        this.dcauType = dcauType;
+    }
 }

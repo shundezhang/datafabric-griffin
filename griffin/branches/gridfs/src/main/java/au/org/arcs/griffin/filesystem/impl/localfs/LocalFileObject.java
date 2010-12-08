@@ -10,140 +10,227 @@ import org.apache.commons.logging.LogFactory;
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.filesystem.FileObject;
-import au.org.arcs.griffin.filesystem.FileSystemConnection;
 import au.org.arcs.griffin.filesystem.RandomAccessFileObject;
 import au.org.arcs.griffin.usermanager.model.GroupDataList;
 
+/**
+ * Implementation of local file system storage interface.
+ *
+ * @version $Revision: 1.1 $
+ * @author Shunde Zhang
+ */
 public class LocalFileObject implements FileObject {
-	private static Log log = LogFactory.getLog(LocalFileObject.class);
-	private File file;
-	private LocalFileSystemConnectionImpl connection;
-	// this path is a relative canonical path in the gridftp server context
-	private String canonicalPath;
-	// this path is a relative path in the gridftp server context
-	private String path;
-	public LocalFileObject(String path, LocalFileSystemConnectionImpl connection){
-		this.path=path;
-		log.debug("path="+path);
-        path = FilenameUtils.normalizeNoEndSeparator(path);
-		log.debug("path="+path);
-		this.canonicalPath=path;
-		this.connection=connection;
-    	file = new File(connection.getRootPath(), path);
-//    	try {
-//			canonicalPath=file.getCanonicalPath().substring(connection.getRootPath().length()-1);
-//	    	log.debug("create object with ftp path: "+canonicalPath+" and real path:"+file.getCanonicalPath());
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-	}
-	
-	public File getLocalFile(){
-		return this.file;
-	}
-	
-	public boolean delete() {
-		// TODO Auto-generated method stub
-		return file.delete();
-	}
 
-	public boolean exists() {
-		// TODO Auto-generated method stub
-		return file.exists();
-	}
+    private static Log log = LogFactory.getLog(LocalFileObject.class);
+    private File localFile;
+    private LocalFileSystemConnectionImpl connection;
+    
+    /** Relative, canonicalised path in the GridFTP server context. */
+    private String canonicalPath;
+    
+    /** Relative path in the GridFTP server context. */
+    private String path;
 
-	public String getCanonicalPath() throws IOException {
-		// TODO Auto-generated method stub
-		return canonicalPath;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param aPath File/directory path.
+     * @param aConnection Connection to file system handler.
+     */
+    public LocalFileObject(String aPath, LocalFileSystemConnectionImpl aConnection) {
+        this.path = aPath;
+        this.canonicalPath = FilenameUtils.normalizeNoEndSeparator(aPath);
+        this.connection = aConnection;
+        this.localFile = new File(connection.getRootPath(), canonicalPath);
+        log.debug("XXX1 absolute file path: " + this.localFile.getAbsolutePath());
+        log.debug("XXX1 path: " + path + ", canonicalPath: " + canonicalPath);
+    }
 
-	public String getName() {
-		// TODO Auto-generated method stub
-		return file.getName();
-	}
+    /**
+     * Handle to the actual file.
+     * 
+     * @return Local file.
+     */
+    public File getLocalFile() {
+        return this.localFile;
+    }
 
-	public FileObject getParent() {
-		if (canonicalPath.equals("/")) 
-			return new LocalFileObject("/", connection);
-		else
-			return new LocalFileObject(canonicalPath.substring(0,canonicalPath.lastIndexOf("/")), connection);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#delete()
+     */
+    public boolean delete() {
+        return localFile.delete();
+    }
 
-	public String getPath() {
-		// TODO Auto-generated method stub
-		return path;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#exists()
+     */
+    public boolean exists() {
+        return localFile.exists();
+    }
 
-	public int getPermission() {
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#getCanonicalPath()
+     */
+    public String getCanonicalPath() throws IOException {
+        return canonicalPath;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#getName()
+     */
+    public String getName() {
+        return localFile.getName();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#getParent()
+     */
+    public FileObject getParent() {
+        if (canonicalPath.equals(FtpConstants.PATH_SEPARATOR)) {
+            return new LocalFileObject(FtpConstants.PATH_SEPARATOR, connection);
+        } else {
+            return new LocalFileObject(canonicalPath.substring(0,
+                                                               canonicalPath.lastIndexOf(FtpConstants.PATH_SEPARATOR)),
+                                       connection);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#getPath()
+     */
+    public String getPath() {
+        return path;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see au.org.arcs.griffin.filesystem.FileObject#getPermission()
+     */
+    public int getPermission() {
         int result = FtpConstants.PRIV_NONE;
         try {
             GroupDataList list = connection.getGroupDataList();
-            result = list.getPermission(canonicalPath, connection.getUser(), connection.getRootPath());
+            result = list.getPermission(canonicalPath, connection.getUser(),
+                                        connection.getRootPath());
         } catch (FtpConfigException e) {
             log.error(e);
         }
+        log.debug("XXX path " + this.path
+                  + ", canonicalPath " + canonicalPath
+                  + ", rootPath " + connection.getRootPath());
         return result;
-	}
+    }
 
-	public RandomAccessFileObject getRandomAccessFileObject(String type)
-			throws IOException {
-		// TODO Auto-generated method stub
-		return new LocalRandomAccessFileObjectImpl(file,type);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#getRandomAccessFileObject(java.lang.String)
+     */
+    public RandomAccessFileObject getRandomAccessFileObject(String type)
+            throws IOException {
+        return new LocalRandomAccessFileObjectImpl(localFile, type);
+    }
 
-	public boolean isDirectory() {
-		// TODO Auto-generated method stub
-		return file.isDirectory();
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#isDirectory()
+     */
+    public boolean isDirectory() {
+        return localFile.isDirectory();
+    }
 
-	public boolean isFile() {
-		// TODO Auto-generated method stub
-		return file.isFile();
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#isFile()
+     */
+    public boolean isFile() {
+        return localFile.isFile();
+    }
 
-	public long lastModified() {
-		// TODO Auto-generated method stub
-		return file.lastModified();
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#lastModified()
+     */
+    public long lastModified() {
+        return localFile.lastModified();
+    }
 
-	public long length() {
-		// TODO Auto-generated method stub
-		return file.length();
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#length()
+     */
+    public long length() {
+        return localFile.length();
+    }
 
-	public FileObject[] listFiles() {
-		File[] flist=file.listFiles();
-		FileObject[] list=new FileObject[flist.length];
-		String s;
-		for (int i=0;i<list.length;i++){
-			try {
-				s=flist[i].getCanonicalPath();
-				list[i]=new LocalFileObject(s.substring(connection.getRootPath().length()+1), connection);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return list;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#listFiles()
+     */
+    public FileObject[] listFiles() {
+        File[] fileList = localFile.listFiles();
+        FileObject[] list = new FileObject[fileList.length];
+        String myPath;
+        for (int i = 0; i < list.length; i++) {
+            try {
+                myPath = fileList[i].getCanonicalPath();
+                list[i] = new LocalFileObject(myPath.substring(connection.getRootPath()
+                                                                         .length() + 1),
+                                              connection);
+            } catch (IOException e) {
+                log.error(e.toString());
+            }
+        }
+        return list;
+    }
 
-	public boolean mkdir() {
-		// TODO Auto-generated method stub
-		return file.mkdir();
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#mkdir()
+     */
+    public boolean mkdir() {
+        return localFile.mkdir();
+    }
 
-	public boolean renameTo(FileObject file) {
-		// TODO Auto-generated method stub
-		if (file instanceof LocalFileObject)
-			return this.file.renameTo(((LocalFileObject)file).getLocalFile());
-		else
-			return false;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#renameTo(au.org.arcs.griffin.filesystem.FileObject)
+     */
+    public boolean renameTo(FileObject aFile) {
+        if (aFile instanceof LocalFileObject) {
+            return this.localFile.renameTo(((LocalFileObject) aFile).getLocalFile());
+        } else {
+            return false;
+        }
+    }
 
-	public boolean setLastModified(long t) {
-		// TODO Auto-generated method stub
-		return file.setLastModified(t);
-	}
-
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileObject#setLastModified(long)
+     */
+    public boolean setLastModified(long t) {
+        return localFile.setLastModified(t);
+    }
 }

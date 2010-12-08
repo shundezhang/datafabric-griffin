@@ -29,7 +29,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

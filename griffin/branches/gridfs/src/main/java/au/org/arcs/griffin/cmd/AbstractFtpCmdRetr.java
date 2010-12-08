@@ -24,13 +24,8 @@
 
 package au.org.arcs.griffin.cmd;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.Socket;
-import java.util.zip.DeflaterOutputStream;
-
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,11 +35,6 @@ import au.org.arcs.griffin.exception.FtpCmdException;
 import au.org.arcs.griffin.exception.FtpPermissionException;
 import au.org.arcs.griffin.exception.FtpQuotaException;
 import au.org.arcs.griffin.filesystem.FileObject;
-import au.org.arcs.griffin.streams.BlockModeOutputStream;
-import au.org.arcs.griffin.streams.RecordOutputStream;
-import au.org.arcs.griffin.streams.RecordWriteSupport;
-import au.org.arcs.griffin.streams.TextOutputStream;
-import au.org.arcs.griffin.utils.TransferMonitor;
 
 /**
  * Abstract base class for RETR command implementations.
@@ -77,7 +67,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
 //     * Retrieves record based data. Since native files generally do not support records, the
 //     * assumption is made that each line of a text file corresponds to a record. The method acts as
 //     * a primitive operation that is called by the template method <code>execute()</code>;
-//     * Futhermore, text record data must be encoded by an 1-byte character set (ACII, ANSI or
+//     * Furthermore, text record data must be encoded by an 1-byte character set (ACII, ANSI or
 //     * EBCDIC).
 //     * 
 //     * @param out The output stream.
@@ -97,10 +87,8 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
      * @param fileOffset The file offset.
      * @throws IOException Thrown if IO fails or if a resource limit has been reached.
      */
-    protected abstract void doRetrieveFileData(DataChannel dc, FileObject file, long fileOffset)
-	throws IOException;
-//    protected abstract void doRetrieveFileData(OutputStream out, FileObject file, long fileOffset)
-//            throws IOException;
+    protected abstract void doRetrieveFileData(DataChannel dc, FileObject file,
+            long fileOffset) throws IOException;
 
     /**
      * {@inheritDoc}
@@ -135,126 +123,132 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
         int type = getCtx().getDataType();
         String charset = type == DT_ASCII || type == DT_EBCDIC ? getCtx().getCharset() : null;
         long fileOffset = getAndResetFileOffset();
-        int maxThread=getCtx().getParallelMax();
-        if (maxThread<1) maxThread=1;
-        fileSize=file.length();
+        int maxThread = getCtx().getParallelMax();
+        if (maxThread < 1) {
+            maxThread = 1;
+        }
+        fileSize = file.length();
         try {
-			log.debug("retriving file:"+file.getCanonicalPath()+" in mode="+mode+"; max thread="+maxThread);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+            log.debug("retriving file:" + file.getCanonicalPath()
+                      + " in mode=" + mode + "; max thread=" + maxThread);
+        } catch (IOException e1) {
+            log.error(e1.toString());
+        }
         try {
-
             /* Check availability and access rights */
             doPerformAccessChecks(file);
             getCtx().getTransferMonitor().hidePerfMarker();
-            getCtx().getTransferMonitor().init(-1,this); //getCtx().getMaxDownloadRate());
+            getCtx().getTransferMonitor().init(-1, this); //getCtx().getMaxDownloadRate());
 
-            if (mode==MODE_EBLOCK){
-            	DataChannelProvider provider=getCtx().getDataChannelProvider();
-            	log.debug("provider:"+provider);
-            	provider.setOffset(fileOffset);
-            	provider.setMaxThread(maxThread);
-            	provider.setDirection(DataChannel.DIRECTION_GET);
-            	provider.setFileObject(file);
-            	provider.prepare();
-            	if (!provider.isUsed())
+            if (mode == MODE_EBLOCK) {
+                DataChannelProvider provider = getCtx().getDataChannelProvider();
+                log.debug("provider:" + provider);
+                provider.setOffset(fileOffset);
+                provider.setMaxThread(maxThread);
+                provider.setDirection(DataChannel.DIRECTION_GET);
+                provider.setFileObject(file);
+                provider.prepare();
+                if (!provider.isUsed()) {
                     msgOut(MSG150);
-            	else{
+                } else {
                     out("125 Begining transfer; reusing existing data connection.");
                     try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-            	}
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        log.warn(e.toString());
+                    }
+                }
                 getCtx().getTransferMonitor().sendPerfMarker();
-            	Thread thread=new Thread(provider);
-            	thread.start();
-            	try {
-            		if (thread.isAlive()) thread.join();
-            	} catch (InterruptedException e) {
-					log.warn("interrupted exception, this is logged and ignored");
-					e.printStackTrace();
-				}
-//            	provider.closeProvider();
-				log.info("transfer is complete");
-            }else{  // Stream mode
+                Thread thread = new Thread(provider);
+                thread.start();
+                try {
+                    if (thread.isAlive()) {
+                        thread.join();
+                    }
+                } catch (InterruptedException e) {
+                    log.warn("interrupted exception, this is logged and ignored");
+                    log.warn(e.toString());
+                }
+//                provider.closeProvider();
+                log.info("transfer is complete");
+            } else { // Stream mode
                 msgOut(MSG150);
-            	DataChannel dataChannel=getCtx().getDataChannelProvider().provideDataChannel();
-            	doRetrieveFileData(dataChannel, file, fileOffset);
+                DataChannel dataChannel = getCtx().getDataChannelProvider()
+                                                  .provideDataChannel();
+                doRetrieveFileData(dataChannel, file, fileOffset);
             }
             getCtx().getTransferMonitor().sendPerfMarker();
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-            		(int) getCtx().getTransferMonitor().getCurrentTransferRate());
+                                       (int) getCtx().getTransferMonitor()
+                                                     .getCurrentTransferRate());
             msgOut(MSG226);
 
 //            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
-//            	DataChannel dc=getCtx().getDataChannel();
-//            	dc.start();
-//            	if (mode==MODE_EBLOCK){
-//            		doRetrieveFileDataInEBlockMode(dc, file, maxThread);
-//            	}else{
-//            		doRetrieveFileData(dc, file, fileOffset);
-//            	}
+//                DataChannel dc=getCtx().getDataChannel();
+//                dc.start();
+//                if (mode==MODE_EBLOCK){
+//                    doRetrieveFileDataInEBlockMode(dc, file, maxThread);
+//                }else{
+//                    doRetrieveFileData(dc, file, fileOffset);
+//                }
 //            }else{
-//	            /* Wrap outbound data stream and call handler method */
-//	            Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
-//	            OutputStream dataOut = dataSocket.getOutputStream();
-//	            if (struct == STRUCT_RECORD) {
-//	                RecordWriteSupport recordOut = createRecOutputStream(dataOut, mode, charset);
-//	                doRetrieveRecordData(recordOut, file, fileOffset);
-//	            } else if (struct == STRUCT_FILE) {
-//	            	if (mode==MODE_EBLOCK){
-//	            		doRetrieveFileDataInEBlockMode(dataOut, file, maxThread);
-//	            	}else{
-//		                OutputStream fileOut = createOutputStream(dataOut, mode, charset);
-//		                doRetrieveFileData(fileOut, file, fileOffset);
-//	            	}
-//	            } else {
-//	                log.error("Unknown data type");
-//	                msgOut(MSG550, "Unsupported data type");
-//	                return;
-//	            }
-//	            // TODO delegate event to FtpEventListener
+//                /* Wrap outbound data stream and call handler method */
+//                Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
+//                OutputStream dataOut = dataSocket.getOutputStream();
+//                if (struct == STRUCT_RECORD) {
+//                    RecordWriteSupport recordOut = createRecOutputStream(dataOut, mode, charset);
+//                    doRetrieveRecordData(recordOut, file, fileOffset);
+//                } else if (struct == STRUCT_FILE) {
+//                    if (mode==MODE_EBLOCK){
+//                        doRetrieveFileDataInEBlockMode(dataOut, file, maxThread);
+//                    }else{
+//                        OutputStream fileOut = createOutputStream(dataOut, mode, charset);
+//                        doRetrieveFileData(fileOut, file, fileOffset);
+//                    }
+//                } else {
+//                    log.error("Unknown data type");
+//                    msgOut(MSG550, "Unsupported data type");
+//                    return;
+//                }
+//                // TODO delegate event to FtpEventListener
 //            }
         } catch (FtpQuotaException e) {
-        	e.printStackTrace();
+            log.error(e.toString());
             msgOut(MSG550, e.getMessage());
             log.warn(e.getMessage());
         } catch (FtpPermissionException e) {
-        	e.printStackTrace();
+            log.error(e.toString());
             msgOut(MSG550_PERM);
         } catch (UnsupportedEncodingException e) {
-        	e.printStackTrace(System.out);
+            log.error(e.toString());
             msgOut(MSG550, "Unsupported Encoding: " + charset);
             log.error(e.toString());
         } catch (IOException e) {
-        	e.printStackTrace();
+            log.error(e.toString());
             msgOut(MSG550);
             log.error(e.toString());
         } catch (RuntimeException e) {
-        	e.printStackTrace();
+            log.error(e.toString());
             msgOut(MSG550);
             log.error(e.toString());
         } finally {
-        	log.debug("in finally");
-        	if (mode==MODE_STREAM) getCtx().closeDataChannels();
-//        	if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
-//        		getCtx().closeDataChannels();
-//        	}else{
-//        		if (mode==MODE_STREAM) getCtx().closeSockets();
-//        	}
+            log.debug("in finally");
+            if (mode == MODE_STREAM) {
+                getCtx().closeDataChannels();
+            }
+//            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
+//                getCtx().closeDataChannels();
+//            }else{
+//                if (mode==MODE_STREAM) getCtx().closeSockets();
+//            }
         }
     }
 
 //    abstract protected void doRetrieveFileDataInEBlockMode(DataChannel dc, FileObject file, int maxThread) throws IOException;
 //
-//	abstract protected void doRetrieveFileDataInEBlockMode(OutputStream dataOut, FileObject file, int maxThread) throws IOException;
+//    abstract protected void doRetrieveFileDataInEBlockMode(OutputStream dataOut, FileObject file, int maxThread) throws IOException;
 
-//	private OutputStream createOutputStream(OutputStream dataOut, int mode, String charset)
+//    private OutputStream createOutputStream(OutputStream dataOut, int mode, String charset)
 //            throws UnsupportedEncodingException {
 //        OutputStream result = null;
 //        if (mode == MODE_BLOCK) {
@@ -332,5 +326,4 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
     public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
-
 }

@@ -107,5 +107,11 @@ public interface FtpCmd extends Cloneable {
      * @param parser The value of parser to set.
      */
     void setParser(FtpCmdParser parser);
+    
+    /**
+     * Indicates whether the FTP command is a GSI specific FTP extension.
+     * 
+     * @return True if it is an extension.
+     */
     boolean isExtension();
 }
