@@ -15,7 +15,7 @@ import au.org.arcs.griffin.usermanager.model.GroupDataList;
 
 /**
  * Implementation of local file system storage interface.
- *
+ * 
  * @version $Revision: 1.1 $
  * @author Shunde Zhang
  */
@@ -24,26 +24,27 @@ public class LocalFileObject implements FileObject {
     private static Log log = LogFactory.getLog(LocalFileObject.class);
     private File localFile;
     private LocalFileSystemConnectionImpl connection;
-    
+
     /** Relative, canonicalised path in the GridFTP server context. */
     private String canonicalPath;
-    
+
     /** Relative path in the GridFTP server context. */
     private String path;
 
     /**
      * Constructor.
      * 
-     * @param aPath File/directory path.
-     * @param aConnection Connection to file system handler.
+     * @param aPath
+     *            File/directory path.
+     * @param aConnection
+     *            Connection to file system handler.
      */
-    public LocalFileObject(String aPath, LocalFileSystemConnectionImpl aConnection) {
+    public LocalFileObject(String aPath,
+            LocalFileSystemConnectionImpl aConnection) {
         this.path = aPath;
         this.canonicalPath = FilenameUtils.normalizeNoEndSeparator(aPath);
         this.connection = aConnection;
         this.localFile = new File(connection.getRootPath(), canonicalPath);
-        log.debug("XXX1 absolute file path: " + this.localFile.getAbsolutePath());
-        log.debug("XXX1 path: " + path + ", canonicalPath: " + canonicalPath);
     }
 
     /**
@@ -57,7 +58,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#delete()
      */
     public boolean delete() {
@@ -66,7 +67,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#exists()
      */
     public boolean exists() {
@@ -75,7 +76,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#getCanonicalPath()
      */
     public String getCanonicalPath() throws IOException {
@@ -84,7 +85,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#getName()
      */
     public String getName() {
@@ -93,14 +94,15 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#getParent()
      */
     public FileObject getParent() {
         if (canonicalPath.equals(FtpConstants.PATH_SEPARATOR)) {
             return new LocalFileObject(FtpConstants.PATH_SEPARATOR, connection);
         } else {
-            return new LocalFileObject(canonicalPath.substring(0,
+            return new LocalFileObject(
+                                       canonicalPath.substring(0,
                                                                canonicalPath.lastIndexOf(FtpConstants.PATH_SEPARATOR)),
                                        connection);
         }
@@ -108,7 +110,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#getPath()
      */
     public String getPath() {
@@ -124,20 +126,25 @@ public class LocalFileObject implements FileObject {
         int result = FtpConstants.PRIV_NONE;
         try {
             GroupDataList list = connection.getGroupDataList();
-            result = list.getPermission(canonicalPath, connection.getUser(),
+            String absoluteVirtualPath = null;
+            if (canonicalPath.startsWith(FtpConstants.PATH_SEPARATOR)) {
+                absoluteVirtualPath = canonicalPath;
+            } else {
+                absoluteVirtualPath = FilenameUtils.concat(FtpConstants.PATH_SEPARATOR,
+                                                           canonicalPath);
+            }
+            result = list.getPermission(absoluteVirtualPath,
+                                        connection.getUser(),
                                         connection.getRootPath());
         } catch (FtpConfigException e) {
             log.error(e);
         }
-        log.debug("XXX path " + this.path
-                  + ", canonicalPath " + canonicalPath
-                  + ", rootPath " + connection.getRootPath());
         return result;
     }
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#getRandomAccessFileObject(java.lang.String)
      */
     public RandomAccessFileObject getRandomAccessFileObject(String type)
@@ -147,7 +154,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#isDirectory()
      */
     public boolean isDirectory() {
@@ -156,7 +163,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#isFile()
      */
     public boolean isFile() {
@@ -165,7 +172,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#lastModified()
      */
     public long lastModified() {
@@ -174,7 +181,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#length()
      */
     public long length() {
@@ -183,7 +190,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#listFiles()
      */
     public FileObject[] listFiles() {
@@ -193,7 +200,8 @@ public class LocalFileObject implements FileObject {
         for (int i = 0; i < list.length; i++) {
             try {
                 myPath = fileList[i].getCanonicalPath();
-                list[i] = new LocalFileObject(myPath.substring(connection.getRootPath()
+                list[i] = new LocalFileObject(
+                                              myPath.substring(connection.getRootPath()
                                                                          .length() + 1),
                                               connection);
             } catch (IOException e) {
@@ -205,7 +213,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#mkdir()
      */
     public boolean mkdir() {
@@ -214,7 +222,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#renameTo(au.org.arcs.griffin.filesystem.FileObject)
      */
     public boolean renameTo(FileObject aFile) {
@@ -227,7 +235,7 @@ public class LocalFileObject implements FileObject {
 
     /**
      * {@inheritDoc}
-     *
+     * 
      * @see au.org.arcs.griffin.filesystem.FileObject#setLastModified(long)
      */
     public boolean setLastModified(long t) {

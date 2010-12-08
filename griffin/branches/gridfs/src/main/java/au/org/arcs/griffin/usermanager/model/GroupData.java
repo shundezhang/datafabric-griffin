@@ -106,7 +106,6 @@ public class GroupData {
             if (permission.matches(path, ftproot, user)) {
                 return permission.getPermission();
             }
-
         }
         return FtpConstants.PRIV_NONE;
     }

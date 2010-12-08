@@ -26,8 +26,6 @@ package au.org.arcs.griffin.cmd.impl;
 
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
@@ -49,8 +47,6 @@ public class FtpCmdPwd
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-        Log  log = LogFactory.getLog(FtpCmdPwd.class);
-        log.debug("XXX: remoteRelDir " + getCtx().getRemoteRelDir());
         String dir = FilenameUtils.separatorsToUnix(getCtx().getRemoteRelDir());
         String comment = getCtx().getRes(PWD);
         msgOut(MSG257, new Object[] {dir, comment});

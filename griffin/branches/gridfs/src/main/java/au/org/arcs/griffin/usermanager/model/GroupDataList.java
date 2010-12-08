@@ -110,7 +110,5 @@ public class GroupDataList {
             result = Math.max(result, permission);
         }
         return result;
-
     }
-
 }

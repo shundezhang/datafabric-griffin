@@ -24,7 +24,6 @@
 
 package au.org.arcs.griffin.cmd.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -62,7 +61,7 @@ public class FtpCmdList extends AbstractFtpCmdList {
     }
 
     /**
-     * Lists the contents of the current working directory if no arugment was passed. Or
+     * Lists the contents of the current working directory if no argument was passed. Or
      * information/contents about the passed file/path.
      * <p>
      * Example directory in unix mode:
