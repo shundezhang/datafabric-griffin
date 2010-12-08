@@ -93,7 +93,8 @@ public class FtpSessionImpl extends Thread implements FtpSession, FtpConstants {
                         DEFAULT_IDLE_SECONDS);
                     if (System.currentTimeMillis() - startWaiting > (maxIdleSecs * MILLI)) {
                         out(formatResString(MSG421, new Object[0]));
-                        log.info("Session timeout after " + maxIdleSecs + " seconds for user "+getFtpContext().getUser());
+                        log.info("Session timeout after " + maxIdleSecs
+                                 + " seconds for user " + getFtpContext().getUser());
                         terminated = true;
                     }
                 }

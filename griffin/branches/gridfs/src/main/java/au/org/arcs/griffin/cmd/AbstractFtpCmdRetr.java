@@ -115,7 +115,6 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-
         /* Get relevant information from context */
         FileObject file = getCtx().getFileSystemConnection().getFileObject(getPathArg());
         int mode = getCtx().getTransmissionMode();
