@@ -78,6 +78,8 @@
 			<zipfileset src="${lib}/barchart-udt4-1.0.0-SNAPSHOT.jar" excludes="META-INF/*"/>
 			<zipfileset src="${lib}/slf4j-api-1.5.8.jar" includes="**/*.class"/>  
 			<zipfileset src="${lib}/slf4j-log4j12-1.5.8.jar" includes="**/*.class"/>  
+			<zipfileset src="${lib}/mongo.jar" excludes="META-INF/*"/>
+			<zipfileset src="${lib}/bson.jar" excludes="META-INF/*"/>
 			<manifest>
 			  <attribute name="Main-Class" value="${mainclass}"/>
 			</manifest>
