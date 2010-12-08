@@ -3,16 +3,16 @@
  * 
  * Implementation of a general file system connecting to MongoDB GridFS.
  * 
- * Created: 2010-10-07 Guy K. Kloss <g.kloss@massey.ac.nz>
+ * Created: 2010-10-07 Guy K. Kloss <guy.kloss@aut.ac.nz>
  * Changed:
  * 
  * Version: $Id$
  * 
- * Copyright (C) 2010 Massey University, New Zealand
+ * Copyright (C) 2010 Auckland University of Technology, New Zealand
  * 
  * All rights reserved
  * 
- * http://www.massey.ac.nz/~gkloss/
+ * http://www.xxx.ac.nz/~gkloss/
  */
  
 package au.org.arcs.griffin.filesystem.impl.gridfs;

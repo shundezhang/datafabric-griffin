@@ -55,7 +55,8 @@ abstract public class AbstractFtpCmdMlsx extends AbstractFtpCmd {
         buffer.append("Size=").append(file.length()).append(";");
         buffer.append("Perm=");
         int perm=file.getPermission();
-        log.debug("file perm:"+perm);
+        log.debug("File permissions for \"" + file.getPath() + "\": "
+                  + Integer.toOctalString(perm));
         int unixPerm=0;
         if (file.isDirectory()){
         	unixPerm++;
