@@ -1,3 +1,18 @@
+/*
+ * LocalFileObject.java
+ * 
+ * Implementation of local file system storage interface.
+ * 
+ * Created: 2010-01-04 Shunde Zhang <shunde.zhang@arcs.org.au>
+ * Changed:
+ * 
+ * Copyright (C) 2010 Australian Research Collaboration Service
+ * 
+ * Some rights reserved
+ * 
+ * http://www.arcs.org.au/
+ */
+
 package au.org.arcs.griffin.filesystem.impl.localfs;
 
 import java.io.File;
@@ -16,7 +31,6 @@ import au.org.arcs.griffin.usermanager.model.GroupDataList;
 /**
  * Implementation of local file system storage interface.
  * 
- * @version $Revision: 1.1 $
  * @author Shunde Zhang
  */
 public class LocalFileObject implements FileObject {
@@ -101,9 +115,7 @@ public class LocalFileObject implements FileObject {
         if (canonicalPath.equals(FtpConstants.PATH_SEPARATOR)) {
             return new LocalFileObject(FtpConstants.PATH_SEPARATOR, connection);
         } else {
-            return new LocalFileObject(
-                                       canonicalPath.substring(0,
-                                                               canonicalPath.lastIndexOf(FtpConstants.PATH_SEPARATOR)),
+            return new LocalFileObject(canonicalPath.substring(0, canonicalPath.lastIndexOf(FtpConstants.PATH_SEPARATOR)),
                                        connection);
         }
     }
@@ -200,9 +212,7 @@ public class LocalFileObject implements FileObject {
         for (int i = 0; i < list.length; i++) {
             try {
                 myPath = fileList[i].getCanonicalPath();
-                list[i] = new LocalFileObject(
-                                              myPath.substring(connection.getRootPath()
-                                                                         .length() + 1),
+                list[i] = new LocalFileObject(myPath.substring(connection.getRootPath().length() + 1),
                                               connection);
             } catch (IOException e) {
                 log.error(e.toString());
