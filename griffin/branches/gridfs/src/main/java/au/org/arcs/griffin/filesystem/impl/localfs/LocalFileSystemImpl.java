@@ -1,3 +1,18 @@
+/*
+ * LocalFileSystemImpl.java
+ * 
+ * Implementation of local file system storage interface.
+ * 
+ * Created: 2010-01-04 Shunde Zhang <shunde.zhang@arcs.org.au>
+ * Changed:
+ * 
+ * Copyright (C) 2010 Australian Research Collaboration Service
+ * 
+ * Some rights reserved
+ * 
+ * http://www.arcs.org.au/
+ */
+
 package au.org.arcs.griffin.filesystem.impl.localfs;
 
 import java.io.File;
