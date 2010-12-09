@@ -69,7 +69,7 @@
     
     <mappings>
         <mapping dn="/C=NZ/O=BeSTGRID/OU=Massey University/CN=Guy Kloss"
-                uid="user" />
+                uid="fooman" />
         <mapping dn="/C=AU/O=APACGrid/OU=SAPAC/CN=Shunde Zhang"
                 uid="admin" />
     </mappings>
