@@ -35,14 +35,12 @@ import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 
-import au.org.arcs.griffin.cmd.DataChannel;
 import au.org.arcs.griffin.cmd.DataChannelProvider;
 import au.org.arcs.griffin.cmd.SocketProvider;
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.exception.FtpQuotaException;
 import au.org.arcs.griffin.filesystem.FileSystem;
 import au.org.arcs.griffin.filesystem.FileSystemConnection;
-import au.org.arcs.griffin.usermanager.UserManager;
 import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.utils.TransferMonitor;
 
@@ -60,7 +58,7 @@ import au.org.arcs.griffin.utils.TransferMonitor;
 public interface FtpSessionContext {
 
     /**
-     * Returns a sesson attribute.
+     * Returns a session attribute.
      * 
      * @param name Name of the attribute.
      * @return Value of the attribute.
@@ -230,8 +228,19 @@ public interface FtpSessionContext {
      */
     void setClientSocket(Socket clientSocket) throws IOException;
     
-    void setServiceContext(GSSContext gssContext);
+    /**
+     * Returns the service context.
+     * 
+     * @return The service context.
+     */
     GSSContext getServiceContext();
+
+    /**
+     * Sets a service context.
+     * 
+     * @param gssContext A service context.
+     */
+    void setServiceContext(GSSContext gssContext);
 
     /**
      * Returns the writer that is used to respond to client requests.
@@ -270,16 +279,29 @@ public interface FtpSessionContext {
     String getCharset();
 
     /**
-     * Returns the next available port from a user defined list of passive ports. If no port list
-     * was configured, 0 is returned. The port 0 makes a the system decide which port to use.
+     * Returns the next available TCP port from a user defined list of passive
+     * ports. If no port list was configured, 0 is returned. The port 0 makes a
+     * the system decide which port to use.
      * 
      * @return The port for passive data transfer.
      */
     Integer getNextPassiveTCPPort();
+
+    /**
+     * Returns the next available UDP port from a user defined list of passive
+     * ports. If no port list was configured, 0 is returned. The port 0 makes a
+     * the system decide which port to use.
+     * 
+     * @return The port for passive data transfer.
+     */
     Integer getNextPassiveUDPPort();
 
     /**
-     * @return True, if successful.
+     * Authenticates user and connects the file system.
+     * 
+     * @throws FtpConfigException On configuration errors.
+     * @throws IOException On errors with the file system to connect.
+     * @throws GSSException On errors with security system.
      */
     public void authenticate() throws FtpConfigException, IOException, GSSException;
 
@@ -362,30 +384,30 @@ public interface FtpSessionContext {
     FileSystemConnection getFileSystemConnection();
     
     int getParallelStart();
-	void setParallelStart(int parallelStart);
-	int getParallelMin();
-	void setParallelMin(int parallelMin);
-	int getParallelMax();
-	void setParallelMax(int parallelMax);
+    void setParallelStart(int parallelStart);
+    int getParallelMin();
+    void setParallelMin(int parallelMin);
+    int getParallelMax();
+    void setParallelMax(int parallelMax);
 
-	boolean isConfirmEOFs();
-	void setConfirmEOFs(boolean confirmEOFs);
+    boolean isConfirmEOFs();
+    void setConfirmEOFs(boolean confirmEOFs);
 
-	void disconnectFileSystem();
-	
-	int getBufferSize();
-	void setBufferSize(int bufferSize);
+    void disconnectFileSystem();
+    
+    int getBufferSize();
+    void setBufferSize(int bufferSize);
 
-	void setNetworkStack(int networkStack);
-	int getNetworkStack();
-	
-	void setDataChannelProvider(DataChannelProvider dataChannelProvider);
-	DataChannelProvider getDataChannelProvider();
-	
-	void closeDataChannels();
-	
-	int getDCAU();
-	void setDCAU(int dcauType);
-	
+    void setNetworkStack(int networkStack);
+    int getNetworkStack();
+    
+    void setDataChannelProvider(DataChannelProvider dataChannelProvider);
+    DataChannelProvider getDataChannelProvider();
+    
+    void closeDataChannels();
+    
+    int getDCAU();
+    void setDCAU(int dcauType);
+    
     TransferMonitor getTransferMonitor();
 }

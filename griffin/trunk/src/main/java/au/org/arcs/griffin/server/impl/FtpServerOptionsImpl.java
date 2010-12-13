@@ -29,15 +29,16 @@ import java.util.Properties;
 
 import javax.net.ssl.SSLContext;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.globus.gsi.GSIConstants;
 import org.globus.gsi.GlobusCredential;
 import org.globus.gsi.GlobusCredentialException;
 import org.globus.gsi.TrustedCertificates;
 import org.globus.gsi.gssapi.GSSConstants;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
+
 import org.gridforum.jgss.ExtendedGSSContext;
 import org.gridforum.jgss.ExtendedGSSManager;
 import org.ietf.jgss.GSSContext;
@@ -115,7 +116,7 @@ public class FtpServerOptionsImpl implements FtpServerOptions, FtpConstants {
      * {@inheritDoc}
      */
     public String getRootDir() {
-        File defaultDir = new File(System.getProperty("user.home"), "hermesftp");
+        File defaultDir = new File(System.getProperty("user.home"), "griffin");
         String dir = getString(OPT_REMOTE_DIR, defaultDir.getAbsolutePath());
         return dir;
     }

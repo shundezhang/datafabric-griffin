@@ -1,3 +1,18 @@
+/*
+ * LocalFileSystemConnectionImpl.java
+ * 
+ * Implementation of local file system storage interface.
+ * 
+ * Created: 2010-01-04 Shunde Zhang <shunde.zhang@arcs.org.au>
+ * Changed:
+ * 
+ * Copyright (C) 2010 Australian Research Collaboration Service
+ * 
+ * Some rights reserved
+ * 
+ * http://www.arcs.org.au/
+ */
+
 package au.org.arcs.griffin.filesystem.impl.localfs;
 
 import java.io.File;
@@ -9,7 +24,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.filesystem.FileObject;
 import au.org.arcs.griffin.filesystem.FileSystemConnection;
@@ -18,62 +32,122 @@ import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.utils.VarMerger;
 
 public class LocalFileSystemConnectionImpl implements FileSystemConnection {
-	private static Log log = LogFactory.getLog(LocalFileSystemConnectionImpl.class);
 
-	private UserData userData;
-	private GroupDataList groupDataList;
-	private String rootPath;
-	
-	private boolean isConnected;
-	private String homeDir;
-	
-	public UserData getUserData() {
-		return userData;
-	}
+    private static Log log = LogFactory.getLog(LocalFileSystemConnectionImpl.class);
 
-	public void setUserData(UserData userData) {
-		this.userData = userData;
-	}
+    /** User data configuration for this particular user. */
+    private UserData userData;
+    
+    /** Data of a configured user group. */
+    private GroupDataList groupDataList;
+    
+    /** Absolute path of root directory in local file system. */
+    private String rootPath;
 
-	public GroupDataList getGroupDataList() {
-		return groupDataList;
-	}
+    /** Indicates whether the file system is connected. */
+    private boolean isConnected;
+    
+    /** User's home directory (absolute?). TODO: Check this! */
+    private String homeDir;
 
-	public void setGroupDataList(GroupDataList groupDataList) {
-		this.groupDataList = groupDataList;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param myRootPath Root directory in local file system.
+     * @param myUserData Configuration for a particular user.
+     * @param myGroupDataList Configuration for list of groups.
+     * @throws IOException If configuration file reading fails.
+     */
+    public LocalFileSystemConnectionImpl(String myRootPath, UserData myUserData,
+            GroupDataList myGroupDataList) throws IOException {
 
-	public String getRootPath() {
-		return rootPath;
-	}
+        this.rootPath = myRootPath;
+        this.userData = myUserData;
+        this.groupDataList = myGroupDataList;
 
-	public void setRootPath(String rootPath) {
-		this.rootPath = rootPath;
-	}
+        homeDir = getStartDir();
+        log.debug("Default (home) dir for user \"" + userData.getUid() + "\": "
+                  + homeDir);
+        String fsHomeDir = FilenameUtils.concat(this.rootPath, homeDir);
+        log.debug("Default (home) file system path for user \"" + userData.getUid() + "\": "
+                  + fsHomeDir);
+        File dir = new File(fsHomeDir);
+        if (!dir.exists()) {
+            FileUtils.forceMkdir(dir);
+        }
+        isConnected = true;
+    }
 
-	public LocalFileSystemConnectionImpl(String rootPath, UserData userData,
-			GroupDataList groupDataList) throws IOException {
-		
-		this.rootPath=rootPath;
-		this.userData=userData;
-		this.groupDataList=groupDataList;
-		
-		homeDir=getStartDir();
-		log.debug("default dir:"+homeDir);
-	    File dir = new File(homeDir);
-	    if (!dir.exists()) {
-	        FileUtils.forceMkdir(dir);
-	    }
-	    isConnected=true;
-	}
-	
+    /**
+     * Gets user data as configured.
+     * 
+     * @return Configuration for a particular user.
+     */
+    public UserData getUserData() {
+        return userData;
+    }
+
+    /**
+     * Sets user data.
+     * 
+     * @param newUserData Configuration for a particular user.
+     */
+    public void setUserData(UserData newUserData) {
+        this.userData = newUserData;
+    }
+
+    /**
+     * Get data of a user group.
+     * 
+     * @return Configuration for list of groups.
+     */
+    public GroupDataList getGroupDataList() {
+        return groupDataList;
+    }
+
+    /**
+     * Sets group data.
+     * 
+     * @param aGroupDataList Configuration for list of groups.
+     */
+    public void setGroupDataList(GroupDataList aGroupDataList) {
+        this.groupDataList = aGroupDataList;
+    }
+
+    /**
+     * Gets root directory in local file system.  All FTP paths are relative 
+     * to it.
+     * 
+     * @return Root directory.
+     */
+    public String getRootPath() {
+        return rootPath;
+    }
+
+    /**
+     * Sets root directory in local file system.  All FTP paths are relative 
+     * to it.
+     * 
+     * @param aRootPath Root directory.
+     */
+    public void setRootPath(String aRootPath) {
+        this.rootPath = aRootPath;
+    }
+
+    /**
+     * Gets the path to user's home directory.
+     * 
+     * @return User's home directory.
+     * @throws FtpConfigException If place holders in the configuration file
+     *      cannot be resolved.
+     */
     private String getStartDir() throws FtpConfigException {
         if (userData == null) {
             throw new FtpConfigException("User data not available");
         }
         VarMerger varMerger = new VarMerger(userData.getDir());
         Properties props = new Properties();
-//        props.setProperty("ftproot", FilenameUtils.separatorsToUnix(rootPath));
+        props.setProperty("ftproot", FilenameUtils.separatorsToUnix(rootPath));
         props.setProperty("user", userData.getUid());
         varMerger.merge(props);
         if (!varMerger.isReplacementComplete()) {
@@ -82,33 +156,60 @@ public class LocalFileSystemConnectionImpl implements FileSystemConnection {
         return varMerger.getText();
     }
 
-	public void close() throws IOException {
-		// TODO Auto-generated method stub
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileSystemConnection#close()
+     */
+    public void close() throws IOException {
+        // Local file system does not need closing.  Empty on purpose.
+    }
 
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileSystemConnection#getFileObject(java.lang.String)
+     */
+    public FileObject getFileObject(String path) {
+        return new LocalFileObject(path, this);
+    }
 
-	public FileObject getFileObject(String path) {
-		return new LocalFileObject(path,this);
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileSystemConnection#getFreeSpace(java.lang.String)
+     */
+    public long getFreeSpace(String path) {
+        // We are assuming all files are located on the same physical file
+        // system, so we need to determine the free space from the absolute
+        // path of the root of our logical file system.
+        return new File(rootPath).getFreeSpace();
+    }
 
-	public long getFreeSpace(String path) {
-		// TODO Auto-generated method stub
-		return new File(rootPath).getFreeSpace();
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileSystemConnection#getHomeDir()
+     */
+    public String getHomeDir() {
+        return homeDir;
+    }
 
-	public String getHomeDir() {
-		// TODO Auto-generated method stub
-		return homeDir;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileSystemConnection#getUser()
+     */
+    public String getUser() {
+        return userData.getUid();
+    }
 
-	public String getUser() {
-		// TODO Auto-generated method stub
-		return userData.getUid();
-	}
-
-	public boolean isConnected() {
-		// TODO Auto-generated method stub
-		return isConnected;
-	}
-
+    /**
+     * {@inheritDoc}
+     *
+     * @see au.org.arcs.griffin.filesystem.FileSystemConnection#isConnected()
+     */
+    public boolean isConnected() {
+        return isConnected;
+    }
 }
