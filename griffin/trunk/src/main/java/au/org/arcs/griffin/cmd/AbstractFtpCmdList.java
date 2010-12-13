@@ -24,13 +24,9 @@
 
 package au.org.arcs.griffin.cmd;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +45,8 @@ import au.org.arcs.griffin.utils.IOUtils;
  */
 public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
 
-	private static Log          log                 = LogFactory.getLog(AbstractFtpCmdList.class);
+    private static Log log = LogFactory.getLog(AbstractFtpCmdList.class);
+
     /**
      * {@inheritDoc}
      */
@@ -63,47 +60,45 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
 
             String args = getArguments();
             String[] argParts = args.split(" ");
-            String dirName = getCtx().getRemoteDir();
-
-            /* Ignore server specific extension to RFC 959 such as LIST -la */
+            
+            // Get directory/path from arguments.
+            // (But ignore server specific extension to RFC 959 such as LIST -la)
+            String argRequestedDir = null;
             if (argParts[0].trim().startsWith("-")) {
-//            	dirName = getCtx().getFileSystemConnection().getFileObject(getCtx().getRemoteDir());
-            	if (!argParts[argParts.length-1].trim().startsWith("-")){
-            		dirName=argParts[argParts.length-1].trim();
-            	}
-            } else if (args.length()>0) {
-            	dirName = args;
+                if (!argParts[argParts.length - 1].trim().startsWith("-")) {
+                    argRequestedDir = argParts[argParts.length - 1].trim();
+                }
+            } else if (args.length() > 0) {
+                argRequestedDir = args;
+            } else {
+                argRequestedDir = ".";
             }
-            log.debug("path in cmd to list:"+dirName);
-            dirName=getAbsPath(dirName);
-            log.debug("virtual path to list:"+dirName);
-            FileObject dir=getCtx().getFileSystemConnection().getFileObject(dirName);
-            log.debug("listing dir "+dir.getCanonicalPath());
+            String absoluteVirtualDirName = getAbsPath(argRequestedDir);
+            log.debug("Virtual path to list: " + absoluteVirtualDirName);
+            FileObject virtualDir = getCtx().getFileSystemConnection()
+                                            .getFileObject(absoluteVirtualDirName);
 
             // TODO Allow filtering with wildcards *, ?
 
-            if (!dir.exists()) {
+            if (!virtualDir.exists()) {
                 msgOut(MSG550);
                 return;
             }
 
-            if (dir.isDirectory()) {
-                FileObject[] files = dir.listFiles();
+            if (virtualDir.isDirectory()) {
+                FileObject[] files = virtualDir.listFiles();
                 dataOut.println("total " + files.length);
 
                 for (int i = 0; i < files.length; i++) {
                     doPrintFileInfo(dataOut, files[i], getCtx());
                 }
             } else {
-                doPrintFileInfo(dataOut, dir, getCtx());
+                doPrintFileInfo(dataOut, virtualDir, getCtx());
             }
 
             msgOut(MSG226);
         } catch (IOException e) {
-        	e.printStackTrace();
-            msgOut(MSG550);
-        } catch (Exception e) {
-        	e.printStackTrace();
+            log.error(e.toString());
             msgOut(MSG550);
         } finally {
             IOUtils.closeGracefully(dataOut);

@@ -56,14 +56,14 @@ public interface FtpConstants {
     public static final String   OPT_REMOTE_DIR            = "ftp.root.dir";
 
     /** The key for the allowed passive ports. */
-    public static final String   OPT_ALLOWED_TCP_PORTS = "allowed.passive.tcp.ports";
-    public static final String   OPT_ALLOWED_UDP_PORTS = "allowed.passive.udp.ports";
+    public static final String   OPT_ALLOWED_TCP_PORTS     = "allowed.passive.tcp.ports";
+    public static final String   OPT_ALLOWED_UDP_PORTS     = "allowed.passive.udp.ports";
 
     /** The key for the black list of ip v4 addresses. */
-    public static final String   OPT_IPV4_BLACK_LIST         = "ipv4.black.list";
+    public static final String   OPT_IPV4_BLACK_LIST       = "ipv4.black.list";
 
     /** The key for the black list of ip v4 addresses. */
-    public static final String   OPT_IPV6_BLACK_LIST         = "ipv6.black.list";
+    public static final String   OPT_IPV6_BLACK_LIST       = "ipv6.black.list";
 
     /** The key for the global maximum upload rate in KB/s. */
     public static final String   OPT_MAX_UPLOAD_RATE       = "max.upload.rate";
@@ -95,9 +95,9 @@ public interface FtpConstants {
     /** The key for supported SSL cipher suites. "*" for all supported by system. */
     public static final String   OPT_SSL_CIPHER_SUITES     = "ssl.cipher.suites";
     
-    public static final String   SERVICE_KEY = "service.key";
-    public static final String   SERVICE_CERT = "service.cert";
-    public static final String   SERVICE_TRUSTED_CERTS = "service.trusted.certs";
+    public static final String   SERVICE_KEY               = "service.key";
+    public static final String   SERVICE_CERT              = "service.cert";
+    public static final String   SERVICE_TRUSTED_CERTS     = "service.trusted.certs";
 
     /** The EBCDIC character set to use. */
     public static final String   OPT_CHARSET_EBCDIC        = "charset.ebcdic";
@@ -143,7 +143,7 @@ public interface FtpConstants {
     public static final String   DEFAULT_BEAN_RES          = "griffin-ctx.xml";
 
     /** Environment property key that points to the application's home directory. * */
-    public static final String   GRIFFIN_HOME               = "GRIFFIN_HOME";
+    public static final String   GRIFFIN_HOME              = "GRIFFIN_HOME";
 
     /** Default key store password. */
     public static final String   DEFAULT_KEYSTORE_PASS     = "secret";
@@ -155,13 +155,13 @@ public interface FtpConstants {
     public static final String[] TYPE_NAMES                = new String[] {"ASCII", "EBCDIC", "BINARY"};
 
     /* network stacks */
-    public static final int		NETWORK_STACK_TCP	=	0;
-    public static final int		NETWORK_STACK_UDP	=	1;
+    public static final int      NETWORK_STACK_TCP         = 0;
+    public static final int      NETWORK_STACK_UDP         = 1;
     
     /* DCAU types */
-    public static final int		DCAU_NONE	=	0;
-    public static final int		DCAU_SELF	=	1;
-    public static final int		DCAU_SUBJECT	=	2;
+    public static final int      DCAU_NONE                 = 0;
+    public static final int      DCAU_SELF                 = 1;
+    public static final int      DCAU_SUBJECT              = 2;
     
     /* Data types */
 
@@ -189,10 +189,10 @@ public interface FtpConstants {
     public static final int      MODE_ZIP                  = 3;
 
     /** Zlib mode. */
-    public static final int      MODE_EBLOCK                  = 4;
+    public static final int      MODE_EBLOCK               = 4;
 
     /** Zlib mode. */
-    public static final int      MODE_XBLOCK                  = 5;
+    public static final int      MODE_XBLOCK               = 5;
 
     /* Data structure */
 
@@ -203,6 +203,9 @@ public interface FtpConstants {
     public static final int      STRUCT_RECORD             = 1;
 
     /* Various common constants */
+
+    /** Default path separator. */
+    public static final String   PATH_SEPARATOR            = "/";
 
     /** Default text separator. */
     public static final String   SEPARATOR                 = ",";
@@ -289,7 +292,7 @@ public interface FtpConstants {
 
     /** FTP response message 200. */
     public static final String   MSG200_TYPE               = "msg200_type";
-    public static final String   MSG200_GSI_USER               = "msg200_gsi_user";
+    public static final String   MSG200_GSI_USER           = "msg200_gsi_user";
 
     /** FTP response message 202. */
     public static final String   MSG202                    = "msg202";
@@ -335,10 +338,10 @@ public interface FtpConstants {
 
     /** FTP response message 234. */
     public static final String   MSG234                    = "msg234";
-    public static final String   MSG234_GSI                    = "msg234_gsi";
+    public static final String   MSG234_GSI                = "msg234_gsi";
 
     public static final String   MSG235                    = "msg235";
-    public static final String   MSG235_ADAT                    = "msg235_ADAT";
+    public static final String   MSG235_ADAT               = "msg235_ADAT";
 
     /** FTP response message 250. */
     public static final String   MSG250                    = "msg250";
@@ -382,11 +385,11 @@ public interface FtpConstants {
 
     /** FTP response message 500. */
     public static final String   MSG500_CMD                = "msg500_cmd";
-    public static final String   MSG500_ERROR                = "msg500_error";
-    public static final String   MSG500_ADAT                = "msg500_adat";
+    public static final String   MSG500_ERROR              = "msg500_error";
+    public static final String   MSG500_ADAT               = "msg500_adat";
     public static final String   MSG500_ENC                = "msg500_enc";
-    public static final String   MSG500_DECRYPT                = "msg500_decrypt";
-    public static final String   MSG500_ENCRYPT                = "msg500_encrypt";
+    public static final String   MSG500_DECRYPT            = "msg500_decrypt";
+    public static final String   MSG500_ENCRYPT            = "msg500_encrypt";
 
     /** FTP response message 501. */
     public static final String   MSG501                    = "msg501";
@@ -403,7 +406,7 @@ public interface FtpConstants {
 
     /** FTP response message 503. */
     public static final String   MSG503_USR                = "msg503_usr";
-    public static final String   MSG503_ADAT                = "msg503_adat";
+    public static final String   MSG503_ADAT               = "msg503_adat";
     public static final String   MSG503_ENC                = "msg503_enc";
 
     /** FTP response message 504. */

@@ -24,22 +24,20 @@
 
 package au.org.arcs.griffin.cmd;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
-
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.MessageProp;
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.parser.FtpCmdParser;
+
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 /**
  * Abstract ancestor of FTP command classes that provides some functionallity shared by different
@@ -104,16 +102,16 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
      */
     public void out(String text) {
         responded = !text.startsWith("150");
-        if (getCtx().getReplyType().equals("clear")){
+        if (getCtx().getReplyType().equals("clear")) {
             getCtx().getClientResponseWriter().println(text);
             getCtx().getClientResponseWriter().flush();
-        }else if (getCtx().getReplyType().equals("mic"))
+        } else if (getCtx().getReplyType().equals("mic")) {
             secure_reply(text, "631");
-        else if (getCtx().getReplyType().equals("enc"))
+        } else if (getCtx().getReplyType().equals("enc")) {
             secure_reply(text, "633");
-        else if (getCtx().getReplyType().equals("conf"))
+        } else if (getCtx().getReplyType().equals("conf")) {
             secure_reply(text, "632");
-
+        }
     }
 
     private void secure_reply(String answer, String code) {
@@ -173,29 +171,31 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
     }
 
     /**
-     * Returns the absolute path of the passed rel. path.
+     * Returns the absolute (virtual) path of the passed rel. path.
      * 
      * @param path The relative path;
      * @return The absolute path
      */
     protected String getAbsPath(String path) {
-        String result;
-        try {
-        	path=path.replace("~", getCtx().getFileSystemConnection().getHomeDir()); 
-            if (path.startsWith(getCtx().getFileSystem().getSeparator())) {
-                result = path; //new File(getCtx().getOptions().getRootDir(), path.substring(1)).getCanonicalPath();
-            } else {
-            	if (getCtx().getRemoteDir().equals("/"))
-            		result = getCtx().getFileSystem().getSeparator()+path;
-            	else
-            		result = getCtx().getRemoteDir()+getCtx().getFileSystem().getSeparator()+path; //new File(getCtx().getRemoteDir(), path).getCanonicalPath();
-            }
-            if (!path.equals("/")) path = FilenameUtils.normalizeNoEndSeparator(path);
-        } catch (Exception e) {
-            result = getCtx().getRemoteDir();
-            log.error(e);
+        String absolutePath;
+        String fileSeparator = getCtx().getFileSystem().getSeparator();
+        if (!path.equals(fileSeparator)) {
+            path = FilenameUtils.normalizeNoEndSeparator(path);
         }
-        return result;
+        String virtualPath = path.replace("~",
+                                          FilenameUtils.concat(fileSeparator,
+                                                               getCtx().getFileSystemConnection()
+                                                                       .getHomeDir()));
+        if (virtualPath.startsWith(fileSeparator)) {
+            absolutePath = virtualPath;
+        } else {
+            if (getCtx().getRemoteDir().equals(fileSeparator)) {
+                absolutePath = FilenameUtils.concat(fileSeparator, virtualPath);
+            } else {
+                absolutePath = FilenameUtils.concat(getCtx().getRemoteDir(), virtualPath);
+            }
+        }
+        return FilenameUtils.separatorsToUnix(absolutePath);
     }
 
     /**

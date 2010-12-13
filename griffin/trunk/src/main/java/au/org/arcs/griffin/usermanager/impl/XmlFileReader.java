@@ -56,7 +56,7 @@ public class XmlFileReader {
 
     private static Log          log                          = LogFactory.getLog(XmlFileReader.class);
 
-    private static final String DEFAULT_GRIFFIN_USERS_FILE = "griffin-users.xml";
+    private static final String DEFAULT_GRIFFIN_USERS_FILE   = "griffin-users.xml";
 
     private static final String ATTR_PATH                    = "path";
 
@@ -94,7 +94,7 @@ public class XmlFileReader {
 
     private static final String ELEM_MAPPING                 = "mapping";
 
-    private static final String ATTR_DN                     = "dn";
+    private static final String ATTR_DN                      = "dn";
 
     private String              filename;
 
@@ -152,6 +152,7 @@ public class XmlFileReader {
         } catch (IOException e) {
             throw new FtpConfigException("Reading " + getFilename() + " failed.");
         } catch (DocumentException e) {
+            log.error(e.toString());
             throw new FtpConfigException("Error while processing the configuration file " + file + ".");
         }
 
