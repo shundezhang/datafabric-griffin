@@ -76,16 +76,10 @@ def _find_test_files():
 def _test(test_runner):
     import doctest
     import unittest
-    test_suite = doctest.DocFileSuite(_find_test_files()[0])
-    test_runner.run(test_suite)
+    for test in _find_test_files():
+        test_suite = doctest.DocFileSuite(test)
+        test_runner.run(test_suite)
     
-    # doctest.NORMALIZE_WHITESPACE
-    # doctest.testmod()
-    # Or put tests into an external text file and use
-    # doctest.DocFileSuite()
-    # See: http://en.wikipedia.org/wiki/Doctest
-    # and: http://docs.python.org/library/doctest.html
-
     
 if __name__ == '__main__':
     import unittest
