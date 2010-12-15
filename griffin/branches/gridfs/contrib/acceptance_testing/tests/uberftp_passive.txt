@@ -1,0 +1,65 @@
+====================================
+Testing with UberFTP in passive mode
+====================================
+
+The tests in this file exercise the GridFTP server using the UberFTP client
+in passive mode.
+
+Make sure that the configuration in test_config.py is set appropriately!
+
+Testing using the UberFTP command line tools in passife FTP mode.
+
+The following line is some bootstrapping. It must be kept here.
+
+   >>> from acceptance_testing import execute
+
+
+Testing commands and simple operations
+--------------------------------------
+
+"ls -l":
+
+   >>> execute('ls -l')
+   ...     # doctest: +ELLIPSIS
+   ...     # doctest: +NORMALIZE_WHITESPACE
+   total ...
+   -rwxr-xr-x ... acceptance_testing.py
+   ...
+   -rw-r--r-- ... __init__.py
+   -rw-r--r-- ... test_config.py
+   ...
+   drwxr-xr-x ... tests
+
+"pwd":
+
+   >>> execute('pwd')
+   ...     # doctest: +ELLIPSIS
+   ...     # doctest: +NORMALIZE_WHITESPACE
+   /.../acceptance_testing
+
+"pwd":
+
+   >>> execute('uberftp -passive %(host)s "pwd"')
+   ...     # doctest: +ELLIPSIS
+   ...     # doctest: +NORMALIZE_WHITESPACE
+   220 ... GridFTP Server (Griffin, Java, ...) Ready.
+   200 User ... logged in...
+   /...
+
+"ls":
+
+   >>> execute('uberftp -passive %(host)s "ls"')
+   ...     # doctest: +ELLIPSIS
+   ...     # doctest: +NORMALIZE_WHITESPACE
+   220 ... GridFTP Server (Griffin, Java, ...) Ready.
+   200 User /C=.../CN=... logged in...
+   -r--r--r-- 1 ... /
+
+"ls /":
+
+"ls ~":
+
+"ls tests"
+
+"ls ~/tests"
+
