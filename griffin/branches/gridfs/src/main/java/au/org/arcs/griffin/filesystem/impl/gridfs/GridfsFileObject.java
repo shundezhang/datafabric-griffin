@@ -3,16 +3,16 @@
  * 
  * File object that links to the GridFS instance.
  * 
- * Created: 2010-09-18 Guy K. Kloss <g.kloss@massey.ac.nz>
+ * Created: 2010-09-18 Guy K. Kloss <guy.kloss@aut.ac.nz>
  * Changed:
  * 
- * Version: $Id$
+ * Copyright (C) 2010 Australian Research Collaboration Service
+ *                    and Auckland University of Technology, New Zealand
  * 
- * Copyright (C) 2010 Massey University, New Zealand
+ * Some rights reserved
  * 
- * All rights reserved
- * 
- * http://www.massey.ac.nz/~gkloss/
+ * http://www.arcs.org.au/
+ * http://www.aut.ac.nz/
  */
  
 package au.org.arcs.griffin.filesystem.impl.gridfs;
@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.bson.types.ObjectId;
 
@@ -46,6 +49,14 @@ import com.mongodb.gridfs.GridFSInputFile;
  * @author Guy K. Kloss
  */
 public class GridfsFileObject implements FileObject {
+    // Constants for content attributes in the DB.
+    private static final String ID = "_id";
+    private static final String UPLOAD_DATE = "uploadDate";
+    private static final String COLLECTION = "collection";
+    private static final String FILENAME = "filename";
+    
+    private static Log log = LogFactory.getLog(GridfsFileObject.class);
+    
     private String _path = null;
     private GridFSFile _fileHandle = null;
     
@@ -67,15 +78,15 @@ public class GridfsFileObject implements FileObject {
         this._path = path;
         this._connection = connection;
         
-        DBObject query = new BasicDBObject("filename", path);
+        DBObject query = new BasicDBObject(FILENAME, path);
         DBCursor results = this._connection.getFs().getFileList(query);
         if (results.count() == 0) {
             this._exists = false;
             return;
         }
 
-        DBObject newest = results.sort(new BasicDBObject("uploadDate", -1)).limit(1).next();
-        ObjectId newest_id = new ObjectId(newest.get("_id").toString());
+        DBObject newest = results.sort(new BasicDBObject(UPLOAD_DATE, -1)).limit(1).next();
+        ObjectId newest_id = new ObjectId(newest.get(ID).toString());
         this._fileHandle = this._connection.getFs().find(newest_id); 
         this._exists = true;
     }
@@ -87,7 +98,11 @@ public class GridfsFileObject implements FileObject {
      */
     public String getName() {
         String[] parts = this._path.split(GridfsConstants.FILE_SEP);
-        return parts[parts.length - 1];
+        if (parts.length > 1) {
+            return parts[parts.length - 1];
+        } else {
+            return this._path;
+        }
     }
 
     /**
@@ -114,7 +129,12 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#isFile()
      */
     public boolean isFile() {
-        return !this.isDirectory();
+        if (this._fileHandle != null
+                && !this._fileHandle.getContentType().equals(COLLECTION)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -123,11 +143,10 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#isDirectory()
      */
     public boolean isDirectory() {
-        if (this._exists
-                && this._fileHandle.getContentType().equals("collection")) {
-            return true;
+        if (this._fileHandle != null) {
+            return !this.isFile();
         } else {
-            return false;
+            return true;
         }
     }
 
@@ -161,14 +180,18 @@ public class GridfsFileObject implements FileObject {
     public FileObject[] listFiles() {
         if (this.isFile()) {
             // Bail out, a file does not have a file list.
+            log.debug("XXX1 bail out");
             return null;
         }
         
         String pathEscaped = this.getPath().replace(GridfsConstants.FILE_SEP,
                                                     "\\" + GridfsConstants.FILE_SEP);
+        log.debug("XXX1 pathEscaped: " + pathEscaped);
         Pattern searchPattern = Pattern.compile("/^" + pathEscaped);
-        DBObject query = new BasicDBObject("filename", searchPattern);
+        log.debug("XXX1 searchPattern: " + searchPattern);
+        DBObject query = new BasicDBObject(FILENAME, searchPattern);
         List<GridFSDBFile> foundEntries = this._connection.getFs().find(query);
+        log.debug("XXX1 found entries: " + foundEntries.size());
         
         if (foundEntries.isEmpty()) {
             return null;
@@ -202,7 +225,7 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#length()
      */
     public long length() {
-        if (this._exists) {
+        if (this._fileHandle != null) {
             return this._fileHandle.getLength();
         }
         return 0;
@@ -214,7 +237,7 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#lastModified()
      */
     public long lastModified() {
-        if (this._exists) {
+        if (this._fileHandle != null) {
             return this._fileHandle.getUploadDate().getTime();
         }
         return 0L;
@@ -236,7 +259,7 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#delete()
      */
     public boolean delete() {
-        if (this._exists) {
+        if (this._fileHandle != null) {
             this._connection.getFs().remove(this._path);
             return true;
         } else {
@@ -265,11 +288,13 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#mkdir()
      */
     public boolean mkdir() {
-        if (!this._exists) {
+        if (this._fileHandle == null) {
             GridFSInputFile newEntry = this._connection.getFs().createFile(new byte[0]);
-            newEntry.setContentType("collection");
+            newEntry.setContentType(COLLECTION);
             newEntry.setFilename(this._path);
             newEntry.save();
+            this._fileHandle = newEntry;
+            this._exists = true;
             return true;
         } else {
             return false;
@@ -282,8 +307,8 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#renameTo(au.org.arcs.griffin.filesystem.FileObject)
      */
     public boolean renameTo(FileObject file) {
-        if (this._exists) {
-            this._fileHandle.put("filename", file.getName());
+        if (this._fileHandle != null) {
+            this._fileHandle.put(FILENAME, file.getName());
             this._fileHandle.save();
             return true;
         } else {
@@ -297,8 +322,8 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#setLastModified(long)
      */
     public boolean setLastModified(long t) {
-        if (this._exists) {
-            this._fileHandle.put("uploadDate", new Date(t));
+        if (this._fileHandle != null) {
+            this._fileHandle.put(UPLOAD_DATE, new Date(t));
             this._fileHandle.save();
             return true;
         } else {
