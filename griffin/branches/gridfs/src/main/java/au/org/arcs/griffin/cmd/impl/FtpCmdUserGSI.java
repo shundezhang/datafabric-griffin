@@ -24,11 +24,16 @@
 
 package au.org.arcs.griffin.cmd.impl;
 
+import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.ietf.jgss.GSSException;
+
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
+import au.org.arcs.griffin.exception.FtpConfigException;
 
 
 /**
@@ -68,7 +73,11 @@ public class FtpCmdUserGSI extends AbstractFtpCmd {
                     return;
                 }
                 msgOut(MSG230_GSI_USER, new String[] {user});
-            } catch (Exception e) {
+            } catch (GSSException e) {
+                log.error("GSI authorisation failed: " + e.getMessage());
+                msgOut(MSG530_AUTH_GSI_USER, new String[] {e.getMessage()});
+                return;
+            } catch (IOException e) {
                 log.error("GSI authorisation failed: " + e.getMessage());
                 msgOut(MSG530_AUTH_GSI_USER, new String[] {e.getMessage()});
                 return;
