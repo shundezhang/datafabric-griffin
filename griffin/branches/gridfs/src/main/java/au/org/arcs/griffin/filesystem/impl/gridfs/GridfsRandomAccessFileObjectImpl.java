@@ -3,16 +3,16 @@
  * 
  * Implementation for doing a direct file access onto GridFS stored content. 
  * 
- * Created: 2010-09-23 Guy K. Kloss <g.kloss@massey.ac.nz>
+ * Created: 2010-09-23 Guy K. Kloss <guy.kloss@aut.ac.nz>
  * Changed:
  * 
- * Version: $Id$
+ * Copyright (C) 2010 Australian Research Collaboration Service
+ *                    and Auckland University of Technology, New Zealand
  * 
- * Copyright (C) 2010 Massey University, New Zealand
+ * Some rights reserved
  * 
- * All rights reserved
- * 
- * http://www.massey.ac.nz/~gkloss/
+ * http://www.arcs.org.au/
+ * http://www.aut.ac.nz/
  */
 
 package au.org.arcs.griffin.filesystem.impl.gridfs;
