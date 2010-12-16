@@ -292,7 +292,6 @@ public interface FtpConstants {
 
     /** FTP response message 200. */
     public static final String   MSG200_TYPE               = "msg200_type";
-    public static final String   MSG200_GSI_USER           = "msg200_gsi_user";
 
     /** FTP response message 202. */
     public static final String   MSG202                    = "msg202";
@@ -335,6 +334,7 @@ public interface FtpConstants {
 
     /** FTP response message 230. */
     public static final String   MSG230                    = "msg230";
+    public static final String   MSG230_GSI_USER           = "msg230_gsi_user";
 
     /** FTP response message 234. */
     public static final String   MSG234                    = "msg234";
@@ -420,6 +420,7 @@ public interface FtpConstants {
 
     /** FTP response message 530. */
     public static final String   MSG530_AUTH               = "msg530_auth";
+    public static final String   MSG530_AUTH_GSI_USER      = "msg530_auth_gsi_user";
 
     /** FTP response message 533. */
     public static final String   MSG533                    = "msg533";
