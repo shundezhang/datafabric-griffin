@@ -24,11 +24,16 @@
 
 package au.org.arcs.griffin.cmd.impl;
 
+import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.ietf.jgss.GSSException;
+
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
+import au.org.arcs.griffin.exception.FtpConfigException;
 
 
 /**
@@ -40,43 +45,50 @@ import au.org.arcs.griffin.exception.FtpCmdException;
  * @author Shunde Zhang
  */
 public class FtpCmdUserGSI extends AbstractFtpCmd {
-	private static Log log = LogFactory.getLog(FtpCmdUserGSI.class);
-    public static final String GLOBUS_URL_COPY_DEFAULT_USER =
-        ":globus-mapping:";
+
+    private static Log log = LogFactory.getLog(FtpCmdUserGSI.class);
+    public static final String GLOBUS_URL_COPY_DEFAULT_USER = ":globus-mapping:";
 
     /**
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
         String prot = getArguments().trim();
-        if ( prot == null || prot.length() <= 0 ) {
+        if (prot == null || prot.length() <= 0) {
             msgOut(MSG501);
             return;
         }
-        if ( getCtx().getServiceContext() == null || !getCtx().getServiceContext().isEstablished()) {
-        	msgOut(MSG503_ENC);
+        if (getCtx().getServiceContext() == null
+                || !getCtx().getServiceContext().isEstablished()) {
+            msgOut(MSG503_ENC);
             return;
         }
-        if (prot.equalsIgnoreCase(GLOBUS_URL_COPY_DEFAULT_USER)){
-        	
+        if (prot.equalsIgnoreCase(GLOBUS_URL_COPY_DEFAULT_USER)) {
+
             try {
-            	getCtx().authenticate();
-            	String user=getCtx().getUser();
-            	if (user==null||user.length()==0){
-            		out("530 User Authorization failed: Cannot map a user with the given DN.");
-            		return;
-            	}
-            	msgOut(MSG200_GSI_USER, new String[]{user});
-            }catch (Exception e){
-            	e.printStackTrace();
-            	out("530 User Authorization failed: " + e.getMessage());
-            	return;
+                getCtx().authenticate();
+                String user = getCtx().getUser();
+                if (user == null || user.length() == 0) {
+                    out("530 User Authorization failed: Cannot map a user with the given DN.");
+                    return;
+                }
+                msgOut(MSG230_GSI_USER, new String[] {user});
+            } catch (GSSException e) {
+                log.error("GSI authorisation failed: " + e.getMessage());
+                msgOut(MSG530_AUTH_GSI_USER, new String[] {e.getMessage()});
+                return;
+            } catch (IOException e) {
+                log.error("GSI authorisation failed: " + e.getMessage());
+                msgOut(MSG530_AUTH_GSI_USER, new String[] {e.getMessage()});
+                return;
             }
-            String clientHost = getCtx().getClientSocket().getInetAddress().getHostAddress();
-            getCtx().getEventListener().loginPerformed(clientHost, getCtx().isAuthenticated());
-        	
-        }else{
-        	out("530 Permission denied");
+            String clientHost = getCtx().getClientSocket().getInetAddress()
+                                        .getHostAddress();
+            getCtx().getEventListener()
+                    .loginPerformed(clientHost, getCtx().isAuthenticated());
+
+        } else {
+            out("530 Permission denied");
         }
     }
 
