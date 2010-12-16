@@ -15,9 +15,10 @@ The following line is some bootstrapping. It must be kept here.
 
 
 Testing commands and simple operations
---------------------------------------
+======================================
 
-"ls -l":
+"ls -l" file system
+-------------------
 
    >>> execute('ls -l')
    ...     # doctest: +ELLIPSIS
@@ -30,36 +31,43 @@ Testing commands and simple operations
    ...
    drwxr-xr-x ... tests
 
-"pwd":
+"pwd" file system
+-----------------
 
    >>> execute('pwd')
    ...     # doctest: +ELLIPSIS
    ...     # doctest: +NORMALIZE_WHITESPACE
    /.../acceptance_testing
 
-"pwd":
+"pwd"
+-----
 
    >>> execute('uberftp -passive %(host)s "pwd"')
    ...     # doctest: +ELLIPSIS
    ...     # doctest: +NORMALIZE_WHITESPACE
    220 ... GridFTP Server (Griffin, Java, ...) Ready.
-   200 User ... logged in...
+   230 User ... logged in...
    /...
 
-"ls":
+"ls"
+----
 
    >>> execute('uberftp -passive %(host)s "ls"')
    ...     # doctest: +ELLIPSIS
    ...     # doctest: +NORMALIZE_WHITESPACE
    220 ... GridFTP Server (Griffin, Java, ...) Ready.
-   200 User /C=.../CN=... logged in...
+   230 User /C=.../CN=... logged in...
    -r--r--r-- 1 ... /
 
-"ls /":
+"ls /"
+------
 
-"ls ~":
+"ls ~"
+------
 
 "ls tests"
+----------
 
 "ls ~/tests"
+------------
 

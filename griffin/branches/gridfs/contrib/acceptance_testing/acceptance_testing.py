@@ -21,6 +21,8 @@ The following requirements need to be met:
 ## http://www.aut.ac.nz/
 
 import os
+import doctest
+import unittest
 import test_config
 
 def execute(command):
@@ -74,14 +76,12 @@ def _find_test_files():
 
 
 def _test(test_runner):
-    import doctest
-    import unittest
-    for test in _find_test_files():
-        test_suite = doctest.DocFileSuite(test)
-        test_runner.run(test_suite)
+    doctest.testmod()
+    test_suite = doctest.DocFileSuite(*_find_test_files())
+    test_runner.run(test_suite)
     
-    
+
 if __name__ == '__main__':
     import unittest
-    test_runner = unittest.TextTestRunner()
+    test_runner = unittest.TextTestRunner(verbosity=2)
     _test(test_runner)
