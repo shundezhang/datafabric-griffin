@@ -103,9 +103,10 @@ public class FtpCmdList extends AbstractFtpCmdList {
         return true;
     }
 
-	public boolean isExtension() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isExtension() {
+        return false;
+    }
 }
