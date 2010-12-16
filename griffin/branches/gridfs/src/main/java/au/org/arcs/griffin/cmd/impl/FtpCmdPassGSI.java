@@ -1,25 +1,16 @@
 /*
- * ------------------------------------------------------------------------------
- * Hermes FTP Server
- * Copyright (c) 2005-2007 Lars Behnke
- * ------------------------------------------------------------------------------
+ * FtpCmdPassGSI.java
  * 
- * This file is part of Hermes FTP Server.
+ * Implementation of local file system storage interface.
  * 
- * Hermes FTP Server is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Created: 2010-01-04 Shunde Zhang <shunde.zhang@arcs.org.au>
+ * Changed:
  * 
- * Hermes FTP Server is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Copyright (C) 2010 Australian Research Collaboration Service
  * 
- * You should have received a copy of the GNU General Public License
- * along with Hermes FTP Server; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * ------------------------------------------------------------------------------
+ * Some rights reserved
+ * 
+ * http://www.arcs.org.au/
  */
 
 package au.org.arcs.griffin.cmd.impl;
@@ -42,31 +33,13 @@ public class FtpCmdPassGSI extends AbstractFtpCmd {
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-//        debug("GssFtpDoorV1::ac_pass: PASS is a no-op with " +
-//        	"GSSAPI authentication.");
-		if ( getCtx().getGSSIdentity() != null ) {
-		    msgOut(MSG200);
-		    return;
-		}
-		else {
-		    msgOut(MSG500_ERROR, new String[]{"Send USER first"});
-		    return;
-		}
-
-//        String response;
-//        if (getCtx().getUser() == null || getCtx().getUser().length() == 0) {
-//            response = msg(MSG503_USR);
-//        } else {
-//            getCtx().setPassword(getArguments());
-//            if (getCtx().authenticate()) {
-//                response = msg(MSG230);
-//            } else {
-//                response = msg(MSG530);
-//            }
-//        }
-//        out(response);
-//        String clientHost = getCtx().getClientSocket().getInetAddress().getHostAddress();
-//        getCtx().getEventListener().loginPerformed(clientHost, getCtx().isAuthenticated());
+        if (getCtx().getGSSIdentity() != null) {
+            msgOut(MSG230);
+            return;
+        } else {
+            msgOut(MSG530, new String[] {"Send USER first"});
+            return;
+        }
     }
 
     /**
@@ -83,9 +56,10 @@ public class FtpCmdPassGSI extends AbstractFtpCmd {
         return false;
     }
 
-	public boolean isExtension() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isExtension() {
+        return false;
+    }
 }
