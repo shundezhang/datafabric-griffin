@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.io.FilenameUtils;
 
 import org.bson.types.ObjectId;
 
@@ -55,12 +54,8 @@ public class GridfsFileObject implements FileObject {
     private static final String COLLECTION = "collection";
     private static final String FILENAME = "filename";
     
-    private static Log log = LogFactory.getLog(GridfsFileObject.class);
-    
     private String _path = null;
     private GridFSFile _fileHandle = null;
-    
-    private boolean _exists = false;
     private GridfsFileSystemConnectionImpl _connection = null;
     
     /**
@@ -81,14 +76,12 @@ public class GridfsFileObject implements FileObject {
         DBObject query = new BasicDBObject(FILENAME, path);
         DBCursor results = this._connection.getFs().getFileList(query);
         if (results.count() == 0) {
-            this._exists = false;
             return;
         }
 
         DBObject newest = results.sort(new BasicDBObject(UPLOAD_DATE, -1)).limit(1).next();
         ObjectId newest_id = new ObjectId(newest.get(ID).toString());
         this._fileHandle = this._connection.getFs().find(newest_id); 
-        this._exists = true;
     }
 
     /**
@@ -114,13 +107,59 @@ public class GridfsFileObject implements FileObject {
         return this._path;
     }
 
+
+    private Set<String> _entriesStartingWith(String aPath) {
+        Pattern searchPattern = Pattern.compile("^" + aPath);
+        DBObject query = new BasicDBObject(FILENAME, searchPattern);
+        List<GridFSDBFile> foundEntries = this._connection.getFs().find(query);
+        
+        if (foundEntries.isEmpty()) {
+            return null;
+        }
+
+        // "Uniquify" entries (only one entry per path), and no deeper than
+        // one level below current collection path.
+        Set<String> uniqueEntries = new HashSet<String>();
+        
+        for (GridFSFile item : foundEntries) {
+            uniqueEntries.add(item.getFilename());
+        }
+        
+        return uniqueEntries;
+    }
+    
+    
     /**
      * {@inheritDoc}
      *
      * @see au.org.arcs.griffin.filesystem.FileObject#exists()
      */
     public boolean exists() {
-        return this._exists;
+        if (this._fileHandle != null) {
+            return true;
+        }
+        
+        boolean exists = false;
+        Set<String> uniqueEntries = _entriesStartingWith(this._path);
+        
+        // If we didn't find any, it doesn't exist.
+        if (uniqueEntries == null || uniqueEntries.size() == 0) {
+            return false;
+        }
+        
+        // Search for occurrences that indicate a "real" path element.
+        String wildSearchPath = FilenameUtils.concat(this._path, "*");
+        for (String item : uniqueEntries) {
+            if (item.equals(this._path)) {
+                exists = true;
+                break;
+            } else if (FilenameUtils.wildcardMatch(item, wildSearchPath)) {
+                exists = true;
+                break;
+            }
+        }
+        
+        return exists;
     }
 
     /**
@@ -129,9 +168,13 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#isFile()
      */
     public boolean isFile() {
-        if (this._fileHandle != null
-                && !this._fileHandle.getContentType().equals(COLLECTION)) {
-            return true;
+        if (this._fileHandle != null) {
+            if (this._fileHandle.getContentType() != null
+                && this._fileHandle.getContentType().equals(COLLECTION)) {
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return false;
         }
@@ -143,11 +186,7 @@ public class GridfsFileObject implements FileObject {
      * @see au.org.arcs.griffin.filesystem.FileObject#isDirectory()
      */
     public boolean isDirectory() {
-        if (this._fileHandle != null) {
-            return !this.isFile();
-        } else {
-            return true;
-        }
+        return !this.isFile();
     }
 
     /**
@@ -180,38 +219,32 @@ public class GridfsFileObject implements FileObject {
     public FileObject[] listFiles() {
         if (this.isFile()) {
             // Bail out, a file does not have a file list.
-            log.debug("XXX1 bail out");
             return null;
         }
         
-        String pathEscaped = this.getPath().replace(GridfsConstants.FILE_SEP,
-                                                    "\\" + GridfsConstants.FILE_SEP);
-        log.debug("XXX1 pathEscaped: " + pathEscaped);
-        Pattern searchPattern = Pattern.compile("/^" + pathEscaped);
-        log.debug("XXX1 searchPattern: " + searchPattern);
-        DBObject query = new BasicDBObject(FILENAME, searchPattern);
-        List<GridFSDBFile> foundEntries = this._connection.getFs().find(query);
-        log.debug("XXX1 found entries: " + foundEntries.size());
+        Set<String> uniqueEntries = _entriesStartingWith(this._path);
+        Set<String> localEntries = new HashSet<String>();
         
-        if (foundEntries.isEmpty()) {
-            return null;
-        }
-
-        // "Uniquify" entries (only one entry per path), and no deeper than
-        // one level below current collection path.
-        Set<String> uniqueEntries = new HashSet<String>();
-        
-        for (GridFSFile item : foundEntries) {
-            String itemPath = item.getFilename();
-            int index = itemPath.indexOf(GridfsConstants.FILE_SEP,
-                                         this._path.length());
-            String subPath = itemPath.substring(0, index);
-            uniqueEntries.add(subPath);
-        }
-
-        FileObject[] results = new FileObject[uniqueEntries.size()];
-        int index = 0;
+        String wildSearchPath = FilenameUtils.concat(this._path, "*");
         for (String item : uniqueEntries) {
+            if (FilenameUtils.wildcardMatch(item, wildSearchPath)) {
+                // Do we have a further sub-directory?
+                int index = item.indexOf(GridfsConstants.FILE_SEP,
+                                         this._path.length() + 1);
+                if (index == -1) {
+                    // No, so add the item.
+                    localEntries.add(item);
+                } else {
+                    // Yes, so only add the portion up until the next file sep.
+                    String subPath = item.substring(0, index);
+                    localEntries.add(subPath);
+                }
+            }
+        }
+        
+        FileObject[] results = new FileObject[localEntries.size()];
+        int index = 0;
+        for (String item : localEntries) {
             results[index] = new GridfsFileObject(item, this._connection);
             index++;
         }
@@ -294,7 +327,6 @@ public class GridfsFileObject implements FileObject {
             newEntry.setFilename(this._path);
             newEntry.save();
             this._fileHandle = newEntry;
-            this._exists = true;
             return true;
         } else {
             return false;
