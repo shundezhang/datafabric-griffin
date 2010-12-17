@@ -107,7 +107,12 @@ public class GridfsFileObject implements FileObject {
         return this._path;
     }
 
-
+    /**
+     * Returns entries starting with a certain path root.
+     * 
+     * @param aPath The path all returned entries are expected to start with.
+     * @return The found paths.
+     */
     private Set<String> _entriesStartingWith(String aPath) {
         Pattern searchPattern = Pattern.compile("^" + aPath);
         DBObject query = new BasicDBObject(FILENAME, searchPattern);
@@ -127,7 +132,6 @@ public class GridfsFileObject implements FileObject {
         
         return uniqueEntries;
     }
-    
     
     /**
      * {@inheritDoc}
@@ -242,8 +246,13 @@ public class GridfsFileObject implements FileObject {
             }
         }
         
-        FileObject[] results = new FileObject[localEntries.size()];
-        int index = 0;
+        FileObject[] results = new FileObject[localEntries.size() + 2];
+        
+        // Add two entries for current and parent directory.
+        results[0] = new GridfsFileObject(".", this._connection);
+        results[1] = new GridfsFileObject("..", this._connection);
+        
+        int index = 2;
         for (String item : localEntries) {
             results[index] = new GridfsFileObject(item, this._connection);
             index++;
