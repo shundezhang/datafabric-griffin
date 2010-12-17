@@ -186,6 +186,10 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
                                           FilenameUtils.concat(fileSeparator,
                                                                getCtx().getFileSystemConnection()
                                                                        .getHomeDir()));
+        virtualPath = FilenameUtils.normalizeNoEndSeparator(virtualPath);
+        if (virtualPath == null || virtualPath.isEmpty()) {
+            virtualPath = fileSeparator;
+        }
         if (virtualPath.startsWith(fileSeparator)) {
             absolutePath = virtualPath;
         } else {
