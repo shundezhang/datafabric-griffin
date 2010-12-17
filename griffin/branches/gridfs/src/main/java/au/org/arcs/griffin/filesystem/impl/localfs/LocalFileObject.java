@@ -207,13 +207,18 @@ public class LocalFileObject implements FileObject {
      */
     public FileObject[] listFiles() {
         File[] fileList = localFile.listFiles();
-        FileObject[] list = new FileObject[fileList.length];
+        FileObject[] list = new FileObject[fileList.length + 2];
+        
+        // Add two entries for current and parent directory.
+        list[0] = new LocalFileObject(".", connection);
+        list[1] = new LocalFileObject("..", connection);
+        
         String myPath;
         for (int i = 0; i < list.length; i++) {
             try {
                 myPath = fileList[i].getCanonicalPath();
-                list[i] = new LocalFileObject(myPath.substring(connection.getRootPath().length() + 1),
-                                              connection);
+                list[i + 2] = new LocalFileObject(myPath.substring(connection.getRootPath().length() + 1),
+                                                  connection);
             } catch (IOException e) {
                 log.error(e.toString());
             }
