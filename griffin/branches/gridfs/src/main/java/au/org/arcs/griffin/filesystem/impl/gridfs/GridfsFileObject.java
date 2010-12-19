@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.bson.types.ObjectId;
 
@@ -54,6 +56,8 @@ public class GridfsFileObject implements FileObject {
     private static final String COLLECTION = "collection";
     private static final String FILENAME = "filename";
     
+    private static Log log = LogFactory.getLog(GridfsRandomAccessFileObjectImpl.class);
+    
     private String _path = null;
     private GridFSFile _fileHandle = null;
     private GridfsFileSystemConnectionImpl _connection = null;
@@ -72,6 +76,8 @@ public class GridfsFileObject implements FileObject {
         }
         this._path = path;
         this._connection = connection;
+        
+        log.debug("Making a GridFS file object for path " + this._path);
         
         DBObject query = new BasicDBObject(FILENAME, path);
         DBCursor results = this._connection.getFs().getFileList(query);
@@ -180,7 +186,11 @@ public class GridfsFileObject implements FileObject {
                 return true;
             }
         } else {
-            return false;
+            if (this.exists()) {
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 
@@ -200,8 +210,8 @@ public class GridfsFileObject implements FileObject {
      */
     public int getPermission() {
         // TODO Auto-generated method stub
-        // See JargonFileObject, for now just read privilege.
-        return FtpConstants.PRIV_READ;
+        // See JargonFileObject, for now just read/write privilege.
+        return FtpConstants.PRIV_READ_WRITE;
     }
 
     /**
@@ -290,9 +300,9 @@ public class GridfsFileObject implements FileObject {
      *
      * @see au.org.arcs.griffin.filesystem.FileObject#getRandomAccessFileObject(java.lang.String)
      */
-    public RandomAccessFileObject getRandomAccessFileObject(String type)
+    public RandomAccessFileObject getRandomAccessFileObject(String mode)
             throws IOException {
-        return new GridfsRandomAccessFileObjectImpl(this, type);
+        return new GridfsRandomAccessFileObjectImpl(this, mode);
     }
 
     /**

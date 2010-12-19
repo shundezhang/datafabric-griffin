@@ -7,8 +7,6 @@ in passive mode.
 
 Make sure that the configuration in test_config.py is set appropriately!
 
-Testing using the UberFTP command line tools in passife FTP mode.
-
 The following line is some bootstrapping. It must be kept here.
 
    >>> from acceptance_testing import execute
@@ -71,22 +69,4 @@ Testing commands and simple operations
 
 "ls ~/tests"
 ------------
-
-
-"get /tmp/foo.txt"
-------------------
-
-   >>> _, filename = tempfile.mkstemp()
-   >>> command = 'globus-url-copy gsiftp://%(host)s:foo.txt file://' + filename
-   >>> execute(command)
-   >>> print open(filename).read()
-   griffin-ctx.xml
-   griffin-ctx.xml~
-   griffin_full.jar
-   griffin-users.xml
-   griffin-users.xml~
-   log4j.properties
-   logs
-
-
 
