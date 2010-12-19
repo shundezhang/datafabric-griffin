@@ -38,6 +38,8 @@ import au.org.arcs.griffin.filesystem.FileSystemConnection;
  */
 public class GridfsFileSystemImpl implements FileSystem {
 
+    private static Log log = LogFactory.getLog(GridfsFileObject.class);
+
     private String _serverName = null;
     private int _serverPort = GridfsConstants.DEFAULT_MONGO_PORT;
     private String _serverType = GridfsConstants.SERVER_TYPE;
@@ -46,9 +48,6 @@ public class GridfsFileSystemImpl implements FileSystem {
     private String _user = null;
     private char[] _password = null;
     
-    private static Log log = LogFactory.getLog(GridfsFileObject.class);
-    
-
     /**
      * {@inheritDoc}
      *
@@ -110,8 +109,6 @@ public class GridfsFileSystemImpl implements FileSystem {
         // documentation. Easy as ... :-)
     }
 
-
-    
     /**
      * Gets server name for connect.
      * @return Returns the serverName.
