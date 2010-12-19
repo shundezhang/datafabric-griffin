@@ -58,8 +58,12 @@ public class FtpCmdParserImpl implements FtpCmdParser, BeanFactoryAware {
     public void setCommands(Map<String, String> map) {
         this.commands = map;
     }
-    public Map<String, String> getCommands(){
-    	return this.commands;
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, String> getCommands() {
+        return this.commands;
     }
 
     /**
@@ -117,5 +121,4 @@ public class FtpCmdParserImpl implements FtpCmdParser, BeanFactoryAware {
         this.factory = f;
 
     }
-
 }

@@ -24,10 +24,8 @@
 
 package au.org.arcs.griffin.streams;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 
 import au.org.arcs.griffin.filesystem.FileObject;
 import au.org.arcs.griffin.filesystem.RandomAccessFileObject;
