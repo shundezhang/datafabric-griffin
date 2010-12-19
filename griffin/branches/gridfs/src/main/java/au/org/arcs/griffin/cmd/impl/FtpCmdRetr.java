@@ -24,11 +24,8 @@
 
 package au.org.arcs.griffin.cmd.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,9 +35,7 @@ import au.org.arcs.griffin.cmd.DataChannel;
 import au.org.arcs.griffin.exception.FtpCmdException;
 import au.org.arcs.griffin.exception.FtpPermissionException;
 import au.org.arcs.griffin.filesystem.FileObject;
-import au.org.arcs.griffin.streams.EDataBlock;
 import au.org.arcs.griffin.streams.RafInputStream;
-import au.org.arcs.griffin.streams.RecordWriteSupport;
 import au.org.arcs.griffin.utils.IOUtils;
 
 /**
@@ -95,125 +90,16 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
         getCtx().updateIncrementalStat(STAT_BYTES_DOWNLOADED, file.length());
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    protected void doRetrieveRecordData(RecordWriteSupport rws, FileObject file, long fileOffset)
-//            throws IOException {
-//        RafInputStream ris = new RafInputStream(file, fileOffset);
-//        byte[] recordBuffer = null;
-//        byte[] lastRecordBuffer = null;
-//        try {
-//            while ((recordBuffer = ris.readRecord()) != null) {
-//                writeRecord(rws, lastRecordBuffer, false);
-//                lastRecordBuffer = recordBuffer;
-//                if (isAbortRequested()) {
-//                    msgOut(MSG426);
-//                    log.debug("Record transfer aborted");
-//                    return;
-//                }
-//                getCtx().getTransferMonitor().execute(recordBuffer.length);
-//            }
-//            writeRecord(rws, lastRecordBuffer, true);
-//            getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-//                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
-//            msgOut(MSG226);
-//
-//        } finally {
-//            IOUtils.closeGracefully(rws);
-//            IOUtils.closeGracefully(ris);
-//        }
-//    }
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isExtension() {
+        return false;
+    }
 
-//    private void writeRecord(RecordWriteSupport rws, byte[] lastRecordBuffer, boolean eof) throws IOException {
-//        if (lastRecordBuffer != null) {
-//            rws.writeRecord(lastRecordBuffer, eof);
-//            rws.flush();
-//            incCompleted(lastRecordBuffer.length);
-//        }
-//    }
-
-//    /**
-//     * {@inheritDoc}
-//     */
-//    protected void doRetrieveFileData(OutputStream os, FileObject file, long fileOffset) throws IOException {
-//        InputStream is = new RafInputStream(file, fileOffset);
-//        int bufferSize = getCtx().getBufferSize();
-//        byte[] buffer = new byte[bufferSize];
-//        int count;
-//        try {
-//            while ((count = is.read(buffer)) != -1) {
-//                os.write(buffer, 0, count);
-//                os.flush();
-//                log.debug("written "+count);
-//                incCompleted(count);
-//                if (isAbortRequested()) {
-//                    msgOut(MSG426);
-//                    log.debug("File transfer aborted");
-//                    return;
-//                }
-//                getCtx().getTransferMonitor().execute(count);
-//            }
-//            os.flush();
-//            getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-//                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
-//            msgOut(MSG226);
-//        } finally {
-//            IOUtils.closeGracefully(is);
-//            IOUtils.closeGracefully(os);
-//        }
-//    }
-
-	public boolean isExtension() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-//	@Override
-//	protected void doRetrieveFileDataInEBlockMode(OutputStream os,
-//			FileObject file, int maxThread) throws IOException {
-//		InputStream is = new RafInputStream(file, 0);
-//		int bufferSize=getCtx().getBufferSize(); //1048576;
-//		byte[] buffer = new byte[bufferSize];
-//		EDataBlock eDataBlock=new EDataBlock(getCtx().getUser());
-//		int count;
-//		long offset=0;
-//        try {
-//            while ((count = is.read(buffer)) != -1) {
-//            	eDataBlock.clearHeader();
-//            	eDataBlock.setSize(count);
-//            	eDataBlock.setOffset(offset);
-//            	log.debug(eDataBlock);
-//            	eDataBlock.writeHeader(os);
-//                os.write(buffer, 0, count);
-//                os.flush();
-//                offset+=count;
-//                incCompleted(count);
-//                if (isAbortRequested()) {
-//                    msgOut(MSG426);
-//                    log.debug("File transfer aborted");
-//                    return;
-//                }
-//                getCtx().getTransferMonitor().execute(count);
-//            }
-//        	eDataBlock.clearHeader();
-//        	eDataBlock.setDescriptor(64);
-//        	eDataBlock.setDescriptor(8);
-//        	eDataBlock.setSize(0);
-//        	eDataBlock.setOffset(1);
-//        	eDataBlock.writeHeader(os);
-//            getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-//                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
-//            msgOut(MSG226);
-//        } finally {
-//            IOUtils.closeGracefully(is);
-//            IOUtils.closeGracefully(os);
-//        }
-//	}
-	
-	@Override
-	protected void doRetrieveFileData(DataChannel dc, FileObject file,
-			long fileOffset) throws IOException {
+    @Override
+    protected void doRetrieveFileData(DataChannel dc, FileObject file,
+                                      long fileOffset) throws IOException {
         InputStream is = new RafInputStream(file, fileOffset);
         int bufferSize = getCtx().getBufferSize();
         byte[] buffer = new byte[bufferSize];
@@ -221,8 +107,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
         try {
             while ((count = is.read(buffer)) != -1) {
                 dc.write(buffer, 0, count);
-//                os.flush();
-                log.debug("written "+count);
+                log.debug("written " + count);
 //                incCompleted(count);
                 if (isAbortRequested()) {
                     msgOut(MSG426);
@@ -231,56 +116,12 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                 }
                 getCtx().getTransferMonitor().execute(count);
             }
-//            os.flush();
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
+                                       (int) getCtx().getTransferMonitor()
+                                                     .getCurrentTransferRate());
 //            msgOut(MSG226);
         } finally {
             IOUtils.closeGracefully(is);
-//            IOUtils.closeGracefully(os);
         }
-	}
-
-//	@Override
-//	protected void doRetrieveFileDataInEBlockMode(DataChannel dc,
-//			FileObject file, int maxThread) throws IOException {
-//		InputStream is = new RafInputStream(file, 0);
-//		int bufferSize=getCtx().getBufferSize(); //1048576;
-//		byte[] buffer = new byte[bufferSize];
-//		EDataBlock eDataBlock=new EDataBlock(getCtx().getUser());
-//		int count;
-//		long offset=0;
-//        try {
-//            while ((count = is.read(buffer)) != -1) {
-//            	eDataBlock.clearHeader();
-//            	eDataBlock.setSize(count);
-//            	eDataBlock.setOffset(offset);
-//            	log.debug(eDataBlock);
-//            	eDataBlock.writeHeader(dc);
-//                dc.write(buffer, 0, count);
-//                log.debug("written data:"+count);
-//                offset+=count;
-//                incCompleted(count);
-//                if (isAbortRequested()) {
-//                    msgOut(MSG426);
-//                    log.debug("File transfer aborted");
-//                    return;
-//                }
-//                getCtx().getTransferMonitor().execute(count);
-//            }
-//        	eDataBlock.clearHeader();
-//        	eDataBlock.setDescriptor(64);
-//        	eDataBlock.setDescriptor(8);
-//        	eDataBlock.setSize(0);
-//        	eDataBlock.setOffset(1);
-//        	eDataBlock.writeHeader(dc);
-//            getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
-//                (int) getCtx().getTransferMonitor().getCurrentTransferRate());
-//            msgOut(MSG226);
-//        } finally {
-//            IOUtils.closeGracefully(is);
-////            IOUtils.closeGracefully(os);
-//        }
-//	}
-
+    }
 }

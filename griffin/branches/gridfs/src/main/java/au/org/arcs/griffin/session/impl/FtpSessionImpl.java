@@ -127,6 +127,7 @@ public class FtpSessionImpl extends Thread implements FtpSession, FtpConstants {
                     } catch (FtpQuitException e) {
                         proceed = false;
                     } catch (FtpCmdResponseException e) {
+                        log.error("Problem executing command: " + e.getMessage());
                         out(e.getMessage());
                     } finally {
                         cmd.notifyAll();
