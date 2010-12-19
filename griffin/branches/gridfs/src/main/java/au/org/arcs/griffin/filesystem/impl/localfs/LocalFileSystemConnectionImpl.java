@@ -1,7 +1,7 @@
 /*
  * LocalFileSystemConnectionImpl.java
  * 
- * Implementation of local file system storage interface.
+ * Implementation of the local file system connection.
  * 
  * Created: 2010-01-04 Shunde Zhang <shunde.zhang@arcs.org.au>
  * Changed:
@@ -31,6 +31,11 @@ import au.org.arcs.griffin.usermanager.model.GroupDataList;
 import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.utils.VarMerger;
 
+/**
+ * Implementation of the local file system connection.
+ *
+ * @author Guy K. Kloss
+ */
 public class LocalFileSystemConnectionImpl implements FileSystemConnection {
 
     private static Log log = LogFactory.getLog(LocalFileSystemConnectionImpl.class);

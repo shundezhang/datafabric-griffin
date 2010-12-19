@@ -56,7 +56,11 @@ public class LocalFileObject implements FileObject {
     public LocalFileObject(String aPath,
             LocalFileSystemConnectionImpl aConnection) {
         this.path = aPath;
-        this.canonicalPath = FilenameUtils.normalizeNoEndSeparator(aPath);
+        if (aPath.equals(".") || aPath.equals("..")) {
+            this.canonicalPath = aPath;
+        } else {
+            this.canonicalPath = FilenameUtils.normalizeNoEndSeparator(aPath);
+        }
         this.connection = aConnection;
         this.localFile = new File(connection.getRootPath(), canonicalPath);
     }
@@ -214,7 +218,7 @@ public class LocalFileObject implements FileObject {
         list[1] = new LocalFileObject("..", connection);
         
         String myPath;
-        for (int i = 0; i < list.length; i++) {
+        for (int i = 0; i < fileList.length; i++) {
             try {
                 myPath = fileList[i].getCanonicalPath();
                 list[i + 2] = new LocalFileObject(myPath.substring(connection.getRootPath().length() + 1),
