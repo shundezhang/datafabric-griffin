@@ -45,12 +45,13 @@ import com.mongodb.gridfs.GridFS;
  * @author Guy K. Kloss
  */
 public class GridfsFileSystemConnectionImpl implements FileSystemConnection {
+
+    private static Log log = LogFactory.getLog(GridfsFileObject.class);
+
     private Mongo _mongoInstance = null;
     private DB _db = null;
     private GridFS _fs = null;
     private GSSCredential _credential = null;
-
-    private static Log log = LogFactory.getLog(GridfsFileObject.class);
 
     /**
      * Constructor.

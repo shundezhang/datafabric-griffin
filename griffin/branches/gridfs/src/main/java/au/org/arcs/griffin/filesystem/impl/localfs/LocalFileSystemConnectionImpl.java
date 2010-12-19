@@ -24,6 +24,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.filesystem.FileObject;
 import au.org.arcs.griffin.filesystem.FileSystemConnection;
@@ -70,10 +71,11 @@ public class LocalFileSystemConnectionImpl implements FileSystemConnection {
         this.userData = myUserData;
         this.groupDataList = myGroupDataList;
 
-        homeDir = getStartDir();
+        homeDir = FilenameUtils.normalizeNoEndSeparator(FilenameUtils.concat(FtpConstants.PATH_SEPARATOR,
+                                                                             getStartDir()));
         log.debug("Default (home) dir for user \"" + userData.getUid() + "\": "
                   + homeDir);
-        String fsHomeDir = FilenameUtils.concat(this.rootPath, homeDir);
+        String fsHomeDir = FilenameUtils.concat(this.rootPath, getStartDir());
         log.debug("Default (home) file system path for user \"" + userData.getUid() + "\": "
                   + fsHomeDir);
         File dir = new File(fsHomeDir);
@@ -140,7 +142,7 @@ public class LocalFileSystemConnectionImpl implements FileSystemConnection {
     }
 
     /**
-     * Gets the path to user's home directory.
+     * Gets the path to user's virtual, absolute home directory.
      * 
      * @return User's home directory.
      * @throws FtpConfigException If place holders in the configuration file
