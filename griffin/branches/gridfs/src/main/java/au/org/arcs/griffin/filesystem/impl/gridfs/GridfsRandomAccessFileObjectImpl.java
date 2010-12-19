@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.org.arcs.griffin.filesystem.RandomAccessFileObject;
 
 import com.mongodb.gridfs.GridFSDBFile;
@@ -40,10 +43,15 @@ import com.mongodb.gridfs.GridFSInputFile;
  */
 public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject {
 
+    private static final String PRIVILETE_WRITE = "w";
+    private static final String PRIVILEGE_READ = "r";
+    private static Log log = LogFactory.getLog(GridfsRandomAccessFileObjectImpl.class);
+    
     private GridfsFileObject _fileHandle = null;
     private String _accessMode = null;
     private OutputStream _newFileOutStream = null;
     private GridFSInputFile _newOutputFile = null;
+    private InputStream _inputStream = null;
 
     /**
      * Constructor.
@@ -92,9 +100,8 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      * @see au.org.arcs.griffin.filesystem.RandomAccessFileObject#read()
      */
     public int read() throws IOException {
-        this._checkPermissions("r");
-        return ((GridFSDBFile) this._fileHandle.getFileHandle()).getInputStream()
-                                                                .read();
+        this._checkPermissions(PRIVILEGE_READ);
+        return this._getNewFileInputStream().read();
     }
 
     /**
@@ -103,9 +110,8 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      * @see au.org.arcs.griffin.filesystem.RandomAccessFileObject#read(byte[])
      */
     public int read(byte[] b) throws IOException {
-        this._checkPermissions("r");
-        return ((GridFSDBFile) this._fileHandle.getFileHandle()).getInputStream()
-                                                                .read(b);
+        this._checkPermissions(PRIVILEGE_READ);
+        return this._getNewFileInputStream().read(b);
     }
 
     /**
@@ -114,10 +120,8 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      * @see au.org.arcs.griffin.filesystem.RandomAccessFileObject#read(byte[], int, int)
      */
     public int read(byte[] b, int off, int len) throws IOException {
-        this._checkPermissions("r");
-        return ((GridFSDBFile) this._fileHandle.getFileHandle()).getInputStream()
-                                                                .read(b, off,
-                                                                      len);
+        this._checkPermissions(PRIVILEGE_READ);
+        return this._getNewFileInputStream().read(b, off, len);
     }
 
     /**
@@ -126,11 +130,16 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      * @see au.org.arcs.griffin.filesystem.RandomAccessFileObject#close()
      */
     public void close() throws IOException {
-        InputStream my_is = ((GridFSDBFile) this._fileHandle.getFileHandle()).getInputStream();
+        log.debug("Closing written file.");
         if (this._newOutputFile != null) {
             this._newFileOutStream.flush();
-            this._newOutputFile.save();
+            this._newFileOutStream.close();
         }
+        if (this._inputStream != null) {
+            this._inputStream.close();
+            this._inputStream = null;
+        }
+        InputStream my_is = ((GridFSDBFile) this._fileHandle.getFileHandle()).getInputStream();
         my_is.close();
     }
 
@@ -151,7 +160,7 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      * @see au.org.arcs.griffin.filesystem.RandomAccessFileObject#write(int)
      */
     public void write(int b) throws IOException {
-        this._checkPermissions("w");
+        this._checkPermissions(PRIVILETE_WRITE);
         this._getNewFileOutputStream().write(b);
     }
 
@@ -161,7 +170,7 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      * @see au.org.arcs.griffin.filesystem.RandomAccessFileObject#write(byte[])
      */
     public void write(byte[] b) throws IOException {
-        this._checkPermissions("w");
+        this._checkPermissions(PRIVILETE_WRITE);
         this._getNewFileOutputStream().write(b);
     }
 
@@ -172,7 +181,7 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      *      int, int)
      */
     public void write(byte[] b, int off, int len) throws IOException {
-        this._checkPermissions("w");
+        this._checkPermissions(PRIVILETE_WRITE);
         this._getNewFileOutputStream().write(b, off, len);
     }
 
@@ -200,8 +209,8 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
      *             if access permission is not given.
      */
     private void _checkPermissions(String action) throws IOException {
-        String userName = this._fileHandle.getConnection().getUser();
-        if (this._accessMode.contains(action)) {
+//        String userName = this._fileHandle.getConnection().getUser();
+        if (!this._accessMode.contains(action)) {
             throw new IOException("File access \"" + action
                                   + "\" not permitted.");
         }
@@ -216,9 +225,21 @@ public class GridfsRandomAccessFileObjectImpl implements RandomAccessFileObject 
         if (this._newFileOutStream == null) {
             this._newOutputFile = this._fileHandle.getConnection()
                                                   .getFs()
-                                                  .createFile(this._fileHandle.getName());
+                                                  .createFile(this._fileHandle.getPath());
             this._newFileOutStream = this._newOutputFile.getOutputStream();
         }
         return this._newFileOutStream;
+    }
+
+    /**
+     * Returns an input stream for reading from a file.
+     * 
+     * @return a handle to the stream.
+     */
+    private InputStream _getNewFileInputStream() {
+        if (this._inputStream == null) {
+            this._inputStream = ((GridFSDBFile) this._fileHandle.getFileHandle()).getInputStream();
+        }
+        return this._inputStream;
     }
 }

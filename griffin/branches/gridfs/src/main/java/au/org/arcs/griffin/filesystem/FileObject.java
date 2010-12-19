@@ -46,7 +46,15 @@ public interface FileObject {
 
     public long lastModified();
 
-    public RandomAccessFileObject getRandomAccessFileObject(String type)
+    /**
+     * Returns an object that can be used for reading/writing data.
+     * 
+     * @param mode File access mode, @see java.io.RandomAccessFile. Mostly 
+     *          "r" and "rw" should be suppported.
+     * @return The random access file object.
+     * @throws IOException If file access fails or privileges are insufficient.
+     */
+    public RandomAccessFileObject getRandomAccessFileObject(String mode)
             throws IOException;
 
     public boolean delete();
