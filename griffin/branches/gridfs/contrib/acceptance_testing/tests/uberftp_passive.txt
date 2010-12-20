@@ -9,64 +9,59 @@ Make sure that the configuration in test_config.py is set appropriately!
 
 The following line is some bootstrapping. It must be kept here.
 
-   >>> from acceptance_testing import execute
-   >>> import tempfile
+    >>> from acceptance_testing import execute
+    >>> import tempfile
 
 
 Testing commands and simple operations
 ======================================
 
-"ls -l" file system
--------------------
+local file system "ls -l"
+-------------------------
 
-   >>> execute('ls -l')
-   ...     # doctest: +ELLIPSIS
-   ...     # doctest: +NORMALIZE_WHITESPACE
-   total ...
-   -rwxr-xr-x ... acceptance_testing.py
-   ...
-   -rw-r--r-- ... __init__.py
-   -rw-r--r-- ... test_config.py
-   ...
-   drwxr-xr-x ... tests
+    >>> results = execute('ls -l')
+    >>> print results
+    ...     # doctest: +ELLIPSIS
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    total ...
+    -rwxr-xr-x ... acceptance_testing.py
+    ...
+    -rw-r--r-- ... __init__.py
+    -rw-r--r-- ... test_config.py
+    ...
+    drwxr-xr-x ... tests
+    >>> 'test_config.py' in results
+    True
+    >>> 'foo_bar_baz.txt' not in results
+    True
+    
 
-"pwd" file system
------------------
+local file system "pwd"
+-----------------------
 
-   >>> execute('pwd')
-   ...     # doctest: +ELLIPSIS
-   ...     # doctest: +NORMALIZE_WHITESPACE
-   /.../acceptance_testing
+    >>> print execute('pwd')
+    ...     # doctest: +ELLIPSIS
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    /.../acceptance_testing
 
-"pwd"
------
 
-   >>> execute('uberftp -passive %(host)s "pwd"')
-   ...     # doctest: +ELLIPSIS
-   ...     # doctest: +NORMALIZE_WHITESPACE
-   220 ... GridFTP Server (Griffin, Java, ...) Ready.
-   230 User ... logged in.
-   /...
+uberftp "pwd"
+-------------
 
-"ls"
-----
+    >>> print execute('uberftp -passive %(host)s "pwd"')
+    ...     # doctest: +ELLIPSIS
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    220 ... GridFTP Server (Griffin, Java, ...) Ready.
+    230 User ... logged in.
+    /...
 
-   >>> execute('uberftp -passive %(host)s "ls"')
-   ...     # doctest: +ELLIPSIS
-   ...     # doctest: +NORMALIZE_WHITESPACE
-   220 ... GridFTP Server (Griffin, Java, ...) Ready.
-   230 User /C=.../CN=... logged in.
-   -r--r--r-- 1 ... /
 
-"ls /"
-------
-
-"ls ~"
-------
-
-"ls tests"
-----------
-
-"ls ~/tests"
+uberftp "ls"
 ------------
 
+    >>> print execute('uberftp -passive %(host)s "ls"')
+    ...     # doctest: +ELLIPSIS
+    ...     # doctest: +NORMALIZE_WHITESPACE
+    220 ... GridFTP Server (Griffin, Java, ...) Ready.
+    230 User /C=.../CN=... logged in.
+    total ...

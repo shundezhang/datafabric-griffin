@@ -36,9 +36,9 @@ def execute(command):
     prepared_command = command % test_config.REPLACEMENTS
     try:
         import subprocess
-        _execute_subprocess(prepared_command)
+        return _execute_subprocess(prepared_command)
     except ImportError:
-        _execute_popen(prepared_command)
+        return _execute_popen(prepared_command)
 
 
 def _execute_subprocess(command):    
@@ -51,7 +51,7 @@ def _execute_subprocess(command):
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT,
                                    close_fds=True)
-    print ''.join(the_process.stdout.readlines())
+    return ''.join(the_process.stdout.readlines())
 
 
 def _execute_popen(command):
@@ -59,7 +59,7 @@ def _execute_popen(command):
     Executes using the (older) now deprecated os.popen style.
     """
     (_, child_stdout_and_stderr) = os.popen4(command)
-    print ''.join(child_stdout_and_stderr.readlines())
+    return ''.join(child_stdout_and_stderr.readlines())
 
 
 def _find_test_files():
