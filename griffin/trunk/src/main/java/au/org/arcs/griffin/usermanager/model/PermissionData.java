@@ -25,8 +25,8 @@ package au.org.arcs.griffin.usermanager.model;
 
 import java.util.Properties;
 
-
 import org.apache.commons.io.FilenameUtils;
+
 import org.springframework.util.AntPathMatcher;
 
 import au.org.arcs.griffin.exception.FtpConfigException;
@@ -37,7 +37,6 @@ import au.org.arcs.griffin.utils.VarMerger;
  * naming conventions.
  *
  * @author Lars Behnke
- *
  */
 public class PermissionData {
 
@@ -92,7 +91,7 @@ public class PermissionData {
      * @throws FtpConfigException Error on reading or processing a configuration file.
      */
     public boolean matches(String checkPath, String ftproot, String username)
-                                                                             throws FtpConfigException {
+            throws FtpConfigException {
         if (checkPath == null) {
             return false;
         }
@@ -103,7 +102,6 @@ public class PermissionData {
         checkPath = FilenameUtils.normalizeNoEndSeparator(checkPath);
         checkPath = FilenameUtils.separatorsToUnix(checkPath);
         return pathMatcher.match(antPath, checkPath);
-
     }
 
     private String replacePlaceholders(String ftproot, String username) throws FtpConfigException {
