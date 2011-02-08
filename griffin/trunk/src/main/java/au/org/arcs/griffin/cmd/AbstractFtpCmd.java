@@ -26,6 +26,7 @@ package au.org.arcs.griffin.cmd;
 
 import java.text.MessageFormat;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,8 +37,6 @@ import org.ietf.jgss.MessageProp;
 import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.parser.FtpCmdParser;
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 /**
  * Abstract ancestor of FTP command classes that provides some functionallity shared by different
@@ -126,7 +125,8 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
             return;
         }
         log.info("Printing encrypted msg: "+answer);
-        getCtx().getClientResponseWriter().println(code + " " + new String(Base64.encode(data)));
+        Base64 base64=new Base64();
+        getCtx().getClientResponseWriter().println(code + " " + new String(base64.encode(data)));
         getCtx().getClientResponseWriter().flush();
 	}
 
@@ -187,7 +187,7 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
                                                                getCtx().getFileSystemConnection()
                                                                        .getHomeDir()));
         virtualPath = FilenameUtils.normalizeNoEndSeparator(virtualPath);
-        if (virtualPath == null || virtualPath.isEmpty()) {
+        if (virtualPath == null || virtualPath.length()==0) {
             virtualPath = fileSeparator;
         }
         if (virtualPath.startsWith(fileSeparator)) {
