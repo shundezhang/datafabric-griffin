@@ -15,6 +15,11 @@ public interface FileObject {
 
     public String getPath();
 
+    /**
+     * Check for the existence of a resource in the storage system.
+     * 
+     * @return True if it exists.
+     */
     public boolean exists();
 
     /**
