@@ -78,9 +78,10 @@ public class FtpCmdUser extends AbstractFtpCmd {
         return false;
     }
 
-	public boolean isExtension() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isExtension() {
+        return false;
+    }
 }

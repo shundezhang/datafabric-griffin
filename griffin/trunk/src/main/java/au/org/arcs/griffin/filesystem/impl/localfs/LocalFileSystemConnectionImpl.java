@@ -1,7 +1,7 @@
 /*
  * LocalFileSystemConnectionImpl.java
  * 
- * Implementation of local file system storage interface.
+ * Implementation of the local file system connection.
  * 
  * Created: 2010-01-04 Shunde Zhang <shunde.zhang@arcs.org.au>
  * Changed:
@@ -24,6 +24,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.org.arcs.griffin.common.FtpConstants;
 import au.org.arcs.griffin.exception.FtpConfigException;
 import au.org.arcs.griffin.filesystem.FileObject;
 import au.org.arcs.griffin.filesystem.FileSystemConnection;
@@ -31,6 +32,11 @@ import au.org.arcs.griffin.usermanager.model.GroupDataList;
 import au.org.arcs.griffin.usermanager.model.UserData;
 import au.org.arcs.griffin.utils.VarMerger;
 
+/**
+ * Implementation of the local file system connection.
+ *
+ * @author Guy K. Kloss
+ */
 public class LocalFileSystemConnectionImpl implements FileSystemConnection {
 
     private static Log log = LogFactory.getLog(LocalFileSystemConnectionImpl.class);
@@ -65,10 +71,11 @@ public class LocalFileSystemConnectionImpl implements FileSystemConnection {
         this.userData = myUserData;
         this.groupDataList = myGroupDataList;
 
-        homeDir = getStartDir();
+        homeDir = FilenameUtils.normalizeNoEndSeparator(FilenameUtils.concat(FtpConstants.PATH_SEPARATOR,
+                                                                             getStartDir()));
         log.debug("Default (home) dir for user \"" + userData.getUid() + "\": "
                   + homeDir);
-        String fsHomeDir = FilenameUtils.concat(this.rootPath, homeDir);
+        String fsHomeDir = FilenameUtils.concat(this.rootPath, getStartDir());
         log.debug("Default (home) file system path for user \"" + userData.getUid() + "\": "
                   + fsHomeDir);
         File dir = new File(fsHomeDir);
@@ -135,7 +142,7 @@ public class LocalFileSystemConnectionImpl implements FileSystemConnection {
     }
 
     /**
-     * Gets the path to user's home directory.
+     * Gets the path to user's virtual, absolute home directory.
      * 
      * @return User's home directory.
      * @throws FtpConfigException If place holders in the configuration file

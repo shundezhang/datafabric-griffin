@@ -71,7 +71,7 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
             } else if (args.length() > 0) {
                 argRequestedDir = args;
             } else {
-                argRequestedDir = ".";
+                argRequestedDir = getCtx().getRemoteRelDir();
             }
             String absoluteVirtualDirName = getAbsPath(argRequestedDir);
             log.debug("Virtual path to list: " + absoluteVirtualDirName);

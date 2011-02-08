@@ -48,8 +48,6 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
 
     private long                fileSize;
 
-//    private long                completed;
-
     private boolean             abortRequested;
 
     /**
@@ -62,21 +60,6 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
      *             access rights have been violated or (3) resource limits have been reached.
      */
     protected abstract void doPerformAccessChecks(FileObject file) throws IOException;
-
-//    /**
-//     * Retrieves record based data. Since native files generally do not support records, the
-//     * assumption is made that each line of a text file corresponds to a record. The method acts as
-//     * a primitive operation that is called by the template method <code>execute()</code>;
-//     * Furthermore, text record data must be encoded by an 1-byte character set (ACII, ANSI or
-//     * EBCDIC).
-//     * 
-//     * @param out The output stream.
-//     * @param file The source file.
-//     * @param fileOffset The file offset.
-//     * @throws IOException Thrown if IO fails or if a resource limit has been reached.
-//     */
-//    protected abstract void doRetrieveRecordData(RecordWriteSupport out, FileObject file, long fileOffset)
-//            throws IOException;
 
     /**
      * Retrieves file based data. The method acts as a primitive operation that is called by the
@@ -115,13 +98,16 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-
         /* Get relevant information from context */
         FileObject file = getCtx().getFileSystemConnection().getFileObject(getPathArg());
         int mode = getCtx().getTransmissionMode();
 //        int struct = getCtx().getStorageStructure();
         int type = getCtx().getDataType();
-        String charset = type == DT_ASCII || type == DT_EBCDIC ? getCtx().getCharset() : null;
+        String charset = null;
+        if (type == DT_ASCII || type == DT_EBCDIC) {
+            charset = getCtx().getCharset();
+        }
+
         long fileOffset = getAndResetFileOffset();
         int maxThread = getCtx().getParallelMax();
         if (maxThread < 1) {
@@ -182,36 +168,6 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
                                        (int) getCtx().getTransferMonitor()
                                                      .getCurrentTransferRate());
             msgOut(MSG226);
-
-//            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
-//                DataChannel dc=getCtx().getDataChannel();
-//                dc.start();
-//                if (mode==MODE_EBLOCK){
-//                    doRetrieveFileDataInEBlockMode(dc, file, maxThread);
-//                }else{
-//                    doRetrieveFileData(dc, file, fileOffset);
-//                }
-//            }else{
-//                /* Wrap outbound data stream and call handler method */
-//                Socket dataSocket = getCtx().getDataSocketProvider().provideSocket();
-//                OutputStream dataOut = dataSocket.getOutputStream();
-//                if (struct == STRUCT_RECORD) {
-//                    RecordWriteSupport recordOut = createRecOutputStream(dataOut, mode, charset);
-//                    doRetrieveRecordData(recordOut, file, fileOffset);
-//                } else if (struct == STRUCT_FILE) {
-//                    if (mode==MODE_EBLOCK){
-//                        doRetrieveFileDataInEBlockMode(dataOut, file, maxThread);
-//                    }else{
-//                        OutputStream fileOut = createOutputStream(dataOut, mode, charset);
-//                        doRetrieveFileData(fileOut, file, fileOffset);
-//                    }
-//                } else {
-//                    log.error("Unknown data type");
-//                    msgOut(MSG550, "Unsupported data type");
-//                    return;
-//                }
-//                // TODO delegate event to FtpEventListener
-//            }
         } catch (FtpQuotaException e) {
             log.error(e.toString());
             msgOut(MSG550, e.getMessage());
@@ -236,53 +192,8 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
             if (mode == MODE_STREAM) {
                 getCtx().closeDataChannels();
             }
-//            if (getCtx().getNetworkStack()==NETWORK_STACK_UDP){
-//                getCtx().closeDataChannels();
-//            }else{
-//                if (mode==MODE_STREAM) getCtx().closeSockets();
-//            }
         }
     }
-
-//    abstract protected void doRetrieveFileDataInEBlockMode(DataChannel dc, FileObject file, int maxThread) throws IOException;
-//
-//    abstract protected void doRetrieveFileDataInEBlockMode(OutputStream dataOut, FileObject file, int maxThread) throws IOException;
-
-//    private OutputStream createOutputStream(OutputStream dataOut, int mode, String charset)
-//            throws UnsupportedEncodingException {
-//        OutputStream result = null;
-//        if (mode == MODE_BLOCK) {
-//            result = new BlockModeOutputStream(dataOut);
-//        } else if (mode == MODE_STREAM) {
-//            result = dataOut;
-//        } else if (mode == MODE_ZIP) {
-//            result = new DeflaterOutputStream(dataOut);
-//        } else {
-//            log.error("Unsupported file mode: " + mode);
-//        }
-//        if (charset != null) {
-//            result = new TextOutputStream(result, charset);
-//        }
-//        return result;
-//    }
-
-//    private RecordWriteSupport createRecOutputStream(OutputStream dataOut, int mode, String charset)
-//            throws UnsupportedEncodingException {
-//        RecordWriteSupport result = null;
-//        if (mode == MODE_BLOCK) {
-//            result = new BlockModeOutputStream(dataOut);
-//        } else if (mode == MODE_STREAM) {
-//            result = new RecordOutputStream(dataOut);
-//        } else if (mode == MODE_ZIP) {
-//            result = new RecordOutputStream(new DeflaterOutputStream(dataOut));
-//        } else {
-//            log.error("Unsupported record mode: " + mode);
-//        }
-//        if (charset != null) {
-//            result = new TextOutputStream((OutputStream) result, charset);
-//        }
-//        return result;
-//    }
 
     /**
      * @return True, if transfer has been aborted.
@@ -299,15 +210,6 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
     public long getCompleted() {
         return getCtx().getTransferMonitor().getTransferredBytes(); //completed;
     }
-
-//    /**
-//     * Setter method for the java bean <code>completed</code>.
-//     * 
-//     * @param completed The value of completed to set.
-//     */
-//    public synchronized void incCompleted(long completed) {
-//        this.completed += completed;
-//    }
 
     /**
      * Getter method for the java bean <code>fileSize</code>.
