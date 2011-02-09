@@ -1,5 +1,17 @@
 #!/bin/bash  
-#
+
+### BEGIN INIT INFO
+# Provides:          griffin
+# Required-Start:    $network $local_fs $remote_fs $mongodb
+# Required-Stop:     $network $local_fs $remote_fs $mongodb
+# Should-Start:      $named $time mongodb
+# Should-Stop:       
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Griffin GridFTP server
+# Description:       Griffin is a GridFTP interface for arbitrary data sources.
+### END INIT INFO
+
 # Startup script for app under *nix systems (it works under NT/cygwin too).
 #
 # Configuration files
