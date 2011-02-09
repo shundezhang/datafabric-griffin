@@ -7,10 +7,10 @@
 -->
     <!-- Give user a chance to override without editing this file 
       (and without typing -D each time it compiles it) -->
-    <property file="build.properties" />
+	
+    <property file="src/main/resources/app.properties" />
 
 	<property name="application" value="griffin"/>
-	<property name="app.version" value="0.7.3"/>
 	<property name="lib" value="lib"/>
     <property name="src" value="src/main/java"/>
     <property name="resources" value="src/main/resources"/>
@@ -23,36 +23,95 @@
 	<property name="package" value="package"/>
 	<property name="bin" value="bin"/>
 	
-    <fileset id="lib.files" dir="${lib}">
+    <fileset id="lib.files" dir="${lib}/main">
         <include name="*.jar"/>
     </fileset>
+    <fileset id="dist.files" dir="${dist}">
+        <include name="*.jar"/>
+    </fileset>
+	
+	<path id="main.classpath">
+	  <fileset dir="${lib}/main">
+	     <include name="*.jar"/>
+	  </fileset>
+	</path>
+
+	<pathconvert property="manifest.classpath" pathsep=" ">
+	  <path refid="main.classpath"/>
+	  <mapper>
+	    <chainedmapper>
+	       <flattenmapper/>
+	       <globmapper from="*.jar" to="lib/*.jar"/>
+	    </chainedmapper>
+	  </mapper>
+	</pathconvert>
 
     <!-- build the ant tasks that we need and install them into the correct directory -->
     <target name="prepare">
         <tstamp/>
         <mkdir dir="${classes}"/>
+    	<mkdir dir="${classes}/main"/>
         <mkdir dir="${dist}"/>
     </target>
+	
 
     <target name="compile" depends="prepare">
-        <javac destdir="${classes}" srcdir="${src}" debug="${debug}" includeAntRuntime="false" source="1.5" target="1.5">
+        <javac destdir="${classes}/main" srcdir="${src}" debug="${debug}" includeAntRuntime="false" source="1.5" target="1.5">
             <classpath>
                 <fileset refid="lib.files"/>
           </classpath>
         </javac>
-    	<copy todir="${classes}">
+    	<copy todir="${classes}/main">
     	    <fileset dir="${resources}">
     	      <include name="**/*.config"/>
-      	      <include name="**/*.properties"/>
+      	      <include name="app.properties"/>
+        	  <include name="griffin-resources.properties"/>
     	    </fileset>
     	  </copy>
     </target>
 
     <target name="jar" depends="clean, compile">
         <jar jarfile="${dist}/${application}.jar">
-            <fileset dir="${classes}"/>
+            <fileset dir="${classes}/main"/>
+			<manifest>
+			  <attribute name="Main-Class" value="${mainclass}"/>
+			  <attribute name="Class-Path" value="${manifest.classpath}"/>
+			</manifest>
         </jar>
     </target>
+        	
+	<target name="compile-plugin">
+        <echo message="Packaging plugin ${plugin-name}..."/>
+        <fileset id="plugin.lib.files" dir="lib/${plugin-name}">
+            <include name="*.jar"/>
+        </fileset>
+        <javac destdir="${classes}/${plugin-name}" srcdir="src/plugins/${plugin-name}/java" debug="${debug}" includeAntRuntime="false" source="1.5" target="1.5">
+            <classpath>
+                <fileset refid="plugin.lib.files"/>
+            	<fileset refid="dist.files"/>
+            	<fileset refid="lib.files"/>
+          </classpath>
+        </javac>
+    	<copy todir="${classes}/${plugin-name}">
+    	    <fileset dir="src/plugins/${plugin-name}/resources">
+    	      <include name="**/*.config"/>
+      	      <include name="**/*.properties"/>
+    	    </fileset>
+    	  </copy>
+    </target>
+
+    <target name="package-plugin">
+    	<echo message="Packaging plugin ${plugin-name}..."/>
+        <jar jarfile="${dist}/${plugin-name}-plugin.jar">
+            <fileset dir="${classes}/${plugin-name}"/>
+        </jar>
+    </target>
+
+    <target name="plugin-prepare">
+        <tstamp/>
+    	<mkdir dir="${classes}/${plugin-name}"/>
+    </target>
+            	
 	
 	<target name="merge-for-jargon" depends="jar">
 		<jar jarfile="${dist}/${application}_full.jar">  
@@ -84,31 +143,37 @@
 		</jar> 
 	</target>
 	
-	<target name="package-jargon" depends="merge-for-jargon">
-		<!--		<mkdir dir="${package}/${application}-${app.version}-jargon"/>
-		<copy file="${bin}/install.sh" todir="${package}/${application}-${app.version}-jargon"/>
-		<copy file="${bin}/${application}" todir="${package}/${application}-${app.version}-jargon"/>
-		<copy file="${dist}/${application}_jargon.jar" todir="${package}/${application}-${app.version}-jargon"/>
-		<copy file="${resources}/log4j.properties" todir="${package}/${application}-${app.version}-jargon"/>
-		<copy file="${resources}/griffin-ctx.xml" todir="${package}/${application}-${app.version}-jargon"/>
-		<chmod file="${bin}/install.sh" perm="+x"/>
-		<chmod file="${bin}/${application}" perm="+x"/> -->
-		<tar destfile="${dist}/${application}-${app.version}-jargon.tar.gz" compression="gzip">
-			<tarfileset dir="${dist}" prefix="${application}-${app.version}-jargon/">
-			    <include name="${application}_full.jar"/>
+	<target name="tar-plugin">
+		<tar destfile="${dist}/${application}-${version}-${plugin-name}.tar.gz" compression="gzip">
+			<tarfileset dir="." prefix="${application}-${version}-${plugin-name}/">
+			    <include name="logs"/>
 			</tarfileset>
-			<tarfileset dir="${resources}" prefix="${application}-${app.version}-jargon/">
+			<tarfileset dir="${dist}" prefix="${application}-${version}-${plugin-name}/">
+			    <include name="${application}.jar"/>
+			</tarfileset>
+			<tarfileset dir="${lib}/main" prefix="${application}-${version}-${plugin-name}/lib">
+			    <include name="*.jar"/>
+			</tarfileset>
+			<tarfileset dir="${lib}/${plugin-name}" prefix="${application}-${version}-${plugin-name}/plugins">
+			    <include name="*.jar"/>
+			</tarfileset>
+			<tarfileset dir="${dist}" prefix="${application}-${version}-${plugin-name}/plugins">
+			    <include name="${plugin-name}-plugin.jar"/>
+			</tarfileset>
+			<tarfileset dir="${resources}" prefix="${application}-${version}-${plugin-name}/">
 			    <include name="log4j.properties"/>
-			    <include name="griffin-ctx.xml"/>
 			</tarfileset>
-			<tarfileset dir="${bin}" filemode="755" prefix="${application}-${app.version}-jargon/">
+			<tarfileset dir="src/plugins/${plugin-name}/resources" prefix="${application}-${version}-${plugin-name}/">
+			    <include name="*.xml"/>
+			</tarfileset>
+			<tarfileset dir="${bin}" filemode="755" prefix="${application}-${version}-${plugin-name}/">
 			    <include name="${application}"/>
 			    <include name="install.sh"/>
 			</tarfileset>
+			<tarfileset dir="${bin}" prefix="${application}-${version}-${plugin-name}/">
+			    <include name="etc-default-griffin"/>
+			</tarfileset>
 		</tar>
-<!--		<gzip zipfile="${dist}/${application}-${app.version}.tar.gz" src="${dist}/${application}-${app.version}.tar"/>
-		<delete file="${dist}/${application}-${app.version}.tar"/>
-		<delete dir="${package}"/> -->
 	</target>
 	
     <target name="sign-merge" depends="merge-for-jargon">
@@ -148,5 +213,27 @@
   <target name="all" depends="clean, sign-merge" description="Clean build of core targets" />
 
   <target name="dist" depends="clean, merge-for-jargon" description="Clean build of all dist targets"/>
-    
+
+  <!-- plugin section -->
+  <target name="jargon">
+    <antcall target="jar"/>
+    <antcall target="plugin-prepare">
+      <param name="plugin-name" value="jargon"/>
+    </antcall>
+    <antcall target="compile-plugin">
+      <param name="plugin-name" value="jargon"/>
+    </antcall>
+    <antcall target="package-plugin">
+      <param name="plugin-name" value="jargon"/>
+    </antcall>
+  </target>
+  <target name="tar-jargon">
+    <antcall target="jargon">
+      <param name="plugin-name" value="jargon"/>
+    </antcall>
+    <antcall target="tar-plugin">
+      <param name="plugin-name" value="jargon"/>
+    </antcall>
+  </target>
+
 </project>
