@@ -37,6 +37,7 @@ public class JargonFileObject implements FileObject {
 
     private RemoteFile remoteFile = null;
     private JargonFileSystemConnectionImpl connection = null;
+    private String originalName;
 
     /**
      * Constructor using an iRODS remote file system connection and path.
@@ -50,6 +51,7 @@ public class JargonFileObject implements FileObject {
         this.connection = aConnection;
         if (rfs instanceof IRODSFileSystem) {
             remoteFile = new IRODSFile((IRODSFileSystem) rfs, path);
+            this.originalName = path;
         }
     }
 
@@ -76,6 +78,7 @@ public class JargonFileObject implements FileObject {
      * {@inheritDoc}
      */
     public String getName() {
+    	if (originalName!=null&&(originalName.equals(".")||originalName.equals(".."))) return originalName;
         return remoteFile.getName();
     }
 
@@ -133,7 +136,7 @@ public class JargonFileObject implements FileObject {
         list[0] = this.connection.getFileObject(".");
         list[1] = this.connection.getFileObject("..");
         
-        for (int i = 0; i < list.length; i++) {
+        for (int i = 0; i < flist.length; i++) {
             list[i + 2] = new JargonFileObject(this.connection,
                                                (RemoteFile) flist[i]);
         }
