@@ -465,7 +465,7 @@ esac
 # This is how the App server will be started
 #####################################################
 
-APP_START=$APP_HOME/griffin_full.jar
+APP_START=$APP_HOME/griffin.jar
 APP_ARGS=$APP_HOME/griffin-ctx.xml
 
 RUN_ARGS="$JAVA_OPTIONS -jar $APP_START $APP_ARGS $CONFIGS"
