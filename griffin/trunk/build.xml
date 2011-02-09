@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<project name="griffin" basedir="." default="dist" >
+<project name="griffin" basedir="." default="build-plugin" >
 <!--
 	<taskdef name="jarbundler" 
 	         classname="net.sourceforge.jarbundler.JarBundler" />
@@ -81,7 +81,7 @@
     </target>
         	
 	<target name="compile-plugin">
-        <echo message="Packaging plugin ${plugin-name}..."/>
+        <echo message="Compiling plugin ${plugin-name}..."/>
         <fileset id="plugin.lib.files" dir="lib/${plugin-name}">
             <include name="*.jar"/>
         </fileset>
@@ -101,7 +101,7 @@
     </target>
 
     <target name="package-plugin">
-    	<echo message="Packaging plugin ${plugin-name}..."/>
+    	<echo message="Packaging plugin ${plugin-name} into a jar file..."/>
         <jar jarfile="${dist}/${plugin-name}-plugin.jar">
             <fileset dir="${classes}/${plugin-name}"/>
         </jar>
@@ -213,6 +213,46 @@
   <target name="all" depends="clean, sign-merge" description="Clean build of core targets" />
 
   <target name="dist" depends="clean, merge-for-jargon" description="Clean build of all dist targets"/>
+
+  <target name="check-argument">
+        <condition property="hasPlugin">
+             <isset property="plugin"/>
+        </condition>
+  </target>
+  <target name="build-main" depends="check-argument" unless="hasPlugin">
+	<echo message="No plugin name is specified, build core only"/>
+	<antcall target="jar"/>
+  </target>
+  <target name="build-plugin" depends="check-argument, build-main" if="hasPlugin">
+	<echo message="build core and plugin ${plugin}"/>
+    <antcall target="jar"/>
+    <antcall target="plugin-prepare">
+      <param name="plugin-name" value="${plugin}"/>
+    </antcall>
+    <antcall target="compile-plugin">
+      <param name="plugin-name" value="${plugin}"/>
+    </antcall>
+    <antcall target="package-plugin">
+      <param name="plugin-name" value="${plugin}"/>
+    </antcall>
+  </target>
+
+  <target name="tar">
+    <antcall target="jar"/>
+    <antcall target="plugin-prepare">
+      <param name="plugin-name" value="${plugin}"/>
+    </antcall>
+    <antcall target="compile-plugin">
+      <param name="plugin-name" value="${plugin}"/>
+    </antcall>
+    <antcall target="package-plugin">
+      <param name="plugin-name" value="${plugin}"/>
+    </antcall>
+    <antcall target="tar-plugin">
+      <param name="plugin-name" value="${plugin}"/>
+    </antcall>
+  </target>
+
 
   <!-- plugin section -->
   <target name="jargon">
