@@ -51,7 +51,7 @@ public class FtpCmdPasvConductor extends AbstractFtpCmd {
     public void execute() throws FtpCmdException {
         try {
 
-        	String remoteIp=getCtx().getClientSocket().getInetAddress().getHostName();
+        	String remoteIp=getCtx().getClientSocket().getInetAddress().getHostAddress();
             log.debug("remote socket:"+remoteIp);
             
             int mode = getCtx().getTransmissionMode();
