@@ -145,12 +145,14 @@ public class NearestLocationFinder {
 	}
 	public List<String> findLocation(String remoteIp) {
 		Location loc = lookupService.getLocation(remoteIp);
-		String country=loc.countryCode;
-		String region=loc.region;
-		log.debug("remoteIp "+remoteIp+" is from "+country+":"+region);
-		for (IfCondition ifCondition:ifConditions){
-			if (ifCondition.getCountry().equals(country)&&ifCondition.getRegion().equals(region)){
-				return ifCondition.getSelects();
+		if (loc!=null) {
+			String country=loc.countryCode;
+			String region=loc.region;
+			log.debug("remoteIp "+remoteIp+" is from "+country+":"+region);
+			for (IfCondition ifCondition:ifConditions){
+				if (ifCondition.getCountry().equals(country)&&ifCondition.getRegion().equals(region)){
+					return ifCondition.getSelects();
+				}
 			}
 		}
 		if (elseCondition!=null) {
