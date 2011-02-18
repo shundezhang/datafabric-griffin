@@ -101,7 +101,7 @@ public class RemoteGridFTPControlChannelProvider implements DataChannelProvider 
         	        client.authenticate(gssCredential);
                     log.debug("connected to remote gridftp:"+location);
         	        break;
-        		} catch (ServerException e) {
+        		} catch (Exception e) {
         			// TODO Auto-generated catch block
         			e.printStackTrace();
         			client=null;
@@ -245,7 +245,7 @@ public class RemoteGridFTPControlChannelProvider implements DataChannelProvider 
 				// 125 Data connection already open; transfer starting
 				if (Reply.isPositivePreliminary(firstReply)) {
 //					transferState.transferStarted();
-					cmd.out(firstReply.getCode()+" "+firstReply.getMessage());
+					cmd.out(firstReply.getCode()+" "+firstReply.getMessage()+" Writing to "+controlChannel.getHost());
 					log.debug("first reply OK: " + firstReply.toString());
 					
 					for(;;) {
