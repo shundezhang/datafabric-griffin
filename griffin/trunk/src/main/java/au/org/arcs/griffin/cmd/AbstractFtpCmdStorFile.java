@@ -97,6 +97,7 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
         int bufferSize = getCtx().getBufferSize();
         byte[] buffer = new byte[bufferSize];
         int count;
+        long start=0;
         try {
             while ((count = dc.read(buffer)) != -1) {
                 os.write(buffer, 0, count);
@@ -108,7 +109,8 @@ public abstract class AbstractFtpCmdStorFile extends AbstractFtpCmdStor {
                     msgOut(MSG426);
                     return;
                 }
-                getCtx().getTransferMonitor().execute(count);
+                getCtx().getTransferMonitor().execute(start, count);
+                start+=count;
 
             }
 //            getCtx().updateAverageStat(STAT_UPLOAD_RATE,

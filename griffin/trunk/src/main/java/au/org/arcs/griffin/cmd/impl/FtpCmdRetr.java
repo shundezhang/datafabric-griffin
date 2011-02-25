@@ -104,6 +104,7 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
         int bufferSize = getCtx().getBufferSize();
         byte[] buffer = new byte[bufferSize];
         int count;
+        long start=0;
         try {
             while ((count = is.read(buffer)) != -1) {
                 dc.write(buffer, 0, count);
@@ -114,7 +115,8 @@ public class FtpCmdRetr extends AbstractFtpCmdRetr {
                     log.debug("File transfer aborted");
                     return;
                 }
-                getCtx().getTransferMonitor().execute(count);
+                getCtx().getTransferMonitor().execute(start,count);
+                start+=count;
             }
             getCtx().updateAverageStat(STAT_DOWNLOAD_RATE,
                                        (int) getCtx().getTransferMonitor()
