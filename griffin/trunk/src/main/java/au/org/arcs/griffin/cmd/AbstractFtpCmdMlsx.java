@@ -52,7 +52,7 @@ abstract public class AbstractFtpCmdMlsx extends AbstractFtpCmd {
         	buffer.append("Type=file;");
         }
         buffer.append("Modify=").append(formatTime(file.lastModified())).append(";");
-        buffer.append("Size=").append(file.length()).append(";");
+        buffer.append("Size=").append(file.isDirectory()?"0":file.length()).append(";");
         buffer.append("Perm=");
         int perm=file.getPermission();
         log.debug("File permissions for \"" + file.getPath() + "\": "
