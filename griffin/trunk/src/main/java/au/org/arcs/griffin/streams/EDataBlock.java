@@ -85,7 +85,7 @@ public class    EDataBlock implements BlockModeConstants{
 
     public long getDataChannelCount() {
         //XXX probably throwing an exception would be a better plan here...
-        if( isDescriptorSet( DESC_CODE_EOF) )
+        if( isDescriptorSet( DESC_CODE_EODC) )
         {
             return getOffset();
         }

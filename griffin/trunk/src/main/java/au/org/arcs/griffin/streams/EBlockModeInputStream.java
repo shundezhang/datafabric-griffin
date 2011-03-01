@@ -169,7 +169,7 @@ public class EBlockModeInputStream extends InputStream implements RecordReadSupp
             if( n < getSize() )
             	throw new IOException(UNEXPECTED_END_OF_STREAM);
 
-            eof = (header[0] & BlockModeConstants.DESC_CODE_EOF) > 0;
+            eof = (header[0] & BlockModeConstants.DESC_CODE_EODC) > 0;
             eor = (header[0] & BlockModeConstants.DESC_CODE_EOR) > 0;
             boolean mark = (header[0] & BlockModeConstants.DESC_CODE_REST) > 0;
             if (mark) {

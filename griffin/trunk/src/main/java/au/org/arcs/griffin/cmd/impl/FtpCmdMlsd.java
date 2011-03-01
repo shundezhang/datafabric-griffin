@@ -1,6 +1,7 @@
 package au.org.arcs.griffin.cmd.impl;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
@@ -14,6 +15,7 @@ import au.org.arcs.griffin.cmd.DataChannel;
 import au.org.arcs.griffin.common.FtpSessionContext;
 import au.org.arcs.griffin.exception.FtpCmdException;
 import au.org.arcs.griffin.filesystem.FileObject;
+import au.org.arcs.griffin.streams.EBlockModeOutputStream;
 import au.org.arcs.griffin.utils.IOUtils;
 
 /**
@@ -40,10 +42,17 @@ public class FtpCmdMlsd extends AbstractFtpCmdMlsx {
 	
     public void execute() throws FtpCmdException {
         String charset = getCtx().getCharset();
-        PrintWriter dataOut = null;
+//        PrintWriter dataOut = null;
+        int mode = getCtx().getTransmissionMode();
+        OutputStream os=null; 
         try {
             DataChannel dataChannel = getCtx().getDataChannelProvider().provideDataChannel();
-            dataOut = new PrintWriter(new OutputStreamWriter(dataChannel.getOutputStream(), charset));
+            log.debug("MLSD in mode "+mode+" buffersize:"+getCtx().getBufferSize());
+            if (mode == MODE_EBLOCK) 
+            	os=new EBlockModeOutputStream(dataChannel.getOutputStream(), getCtx().getBufferSize());
+            else
+            	os=dataChannel.getOutputStream();
+//            dataOut = new PrintWriter(new OutputStreamWriter(os, charset));
 
             String arg = getArguments();
             String path = getCtx().getRemoteDir();
@@ -58,30 +67,34 @@ public class FtpCmdMlsd extends AbstractFtpCmdMlsx {
                 msgOut(MSG550);
                 return;
             }
-
+            
             out("150 BINARY connection open for MLSD "+arg);
             if (dir.isDirectory()) {
-            	StringBuffer cur=new StringBuffer("Type=cdir;Modify=");
-            	cur.append(formatTime(dir.lastModified())).append(";Perm=el; ");
-            	cur.append(arg).append("\r\r\n");
-            	log.debug("printing to data channel: "+cur);
-            	dataOut.print(cur.toString());
             	
-            	cur=new StringBuffer("Type=cdir;Modify=");
-            	cur.append(formatTime(dir.lastModified())).append(";Perm=el; ");
-            	cur.append(dir.getCanonicalPath()).append("\r\r\n");
-            	log.debug("printing to data channel: "+cur);
-            	dataOut.print(cur.toString());
+//            	StringBuffer cur=new StringBuffer("Type=pdir;Modify=");
+//            	cur.append(formatTime(dir.getParent().lastModified())).append(";Size=4096").append(";Perm=el; ");
+//            	cur.append("..").append("\r\r\n");
+//            	log.debug("printing to data channel: "+cur);
+//            	dataOut.print(cur.toString());
             	
                 FileObject[] files = dir.listFiles();
 
                 for (int i = 0; i < files.length; i++) {
-                    doPrintFileInfo(dataOut, files[i], getCtx());
+                    doPrintFileInfo(os, files[i], getCtx());
+                    if (mode != MODE_EBLOCK) os.flush();
                 }
-            } else {
-                doPrintFileInfo(dataOut, dir, getCtx());
-            }
+                
+//            	cur=new StringBuffer("Type=cdir;Modify=");
+//            	cur.append(formatTime(dir.lastModified())).append(";Size=4096").append(";Perm=cfmpel; ");
+//            	cur.append(".").append("\r\r\n");
+//            	log.debug("printing to data channel: "+cur);
+//            	dataOut.print(cur.toString());
 
+            } else {
+                doPrintFileInfo(os, dir, getCtx());
+                if (mode != MODE_EBLOCK) os.flush();
+            }
+            if (mode==MODE_EBLOCK) ((EBlockModeOutputStream)os).finalizeRecord(true);
             out("226 MLSD completed");
         } catch (IOException e) {
         	e.printStackTrace();
@@ -90,15 +103,17 @@ public class FtpCmdMlsd extends AbstractFtpCmdMlsx {
         	e.printStackTrace();
             msgOut(MSG550);
         } finally {
-            IOUtils.closeGracefully(dataOut);
-            getCtx().closeDataChannels();
+//            IOUtils.closeGracefully(os);
+            if (mode == MODE_STREAM) getCtx().closeDataChannels();
         }
     }
 
-    protected void doPrintFileInfo(PrintWriter out, FileObject file, FtpSessionContext ctx) throws IOException {
+    protected void doPrintFileInfo(OutputStream out, FileObject file, FtpSessionContext ctx) throws IOException {
+    	int mode = getCtx().getTransmissionMode();
+    	log.debug("out:"+out);
     	String str=printFact(file,file.getName());
     	log.debug("printing to data channel: "+str);
-        out.print(str+"\r\r\n");
+        out.write((str+(mode==MODE_EBLOCK?"":"\r")+"\r\n").getBytes(getCtx().getCharset()));
     }
 
 	public String getHelp() {

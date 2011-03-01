@@ -34,8 +34,9 @@ public interface BlockModeConstants {
     /** End of data block is EOR. */
     static final int DESC_CODE_EOR  = 128;
 
-    /** End of data block is EOF. */
+    /** End of data block is EOF. (EODC in mode E) */
     static final int DESC_CODE_EOF  = 64;
+    static final int DESC_CODE_EODC  = 64;
 
     /** Suspected errors in data block. */
     static final int DESC_CODE_ERR  = 32;
