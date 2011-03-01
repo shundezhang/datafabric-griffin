@@ -135,12 +135,14 @@ public class TCPDataChannel implements DataChannel {
 
 	public void write(byte[] b) throws IOException {
 		// TODO Auto-generated method stub
+		log.debug("os:"+os);
 		os.write(b);
 		os.flush();
 	}
 
 	public void write(byte[] b, int start, int len) throws IOException {
 		// TODO Auto-generated method stub
+		log.debug("os:"+os);
 		os.write(b, start, len);
 		os.flush();
 	}
@@ -170,7 +172,7 @@ public class TCPDataChannel implements DataChannel {
 	            	log.debug("thread "+threadNum+" got "+eDataBlock+" count="+count+" offset="+eDataBlock.getOffset());
 	                //If we're running a modeE demux then check for end of channel
 	                //allow the block to be forwarded as it may have data
-	                if (eDataBlock.isDescriptorSet(EDataBlock.DESC_CODE_EOF)) {
+	                if (eDataBlock.isDescriptorSet(EDataBlock.DESC_CODE_EODC)) {
 	                    int dataChannelCount = (int) eDataBlock.getDataChannelCount();
 	                    log.debug("thread "+ threadNum +" got eof. all done. dataChannelCount:"+dataChannelCount);
 	                    provider.setDataChannelCount(dataChannelCount);

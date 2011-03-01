@@ -46,13 +46,32 @@ abstract public class AbstractFtpCmdMlsx extends AbstractFtpCmd {
 
     protected String printFact(FileObject file, String fileName) {
 		StringBuffer buffer=new StringBuffer();
+//    	if (fileName.equals(".")){
+//        	buffer.append("Type=cdir;Modify=");
+//        	buffer.append(formatTime(file.lastModified())).append(";Size=4096").append(";Perm=cfmpel; ");
+//        	buffer.append("."); //.append("\r\r\n");
+//        	return buffer.toString();
+//    	}else if (fileName.equals("..")){
+//    		buffer.append("Type=pdir;Modify=");
+//    		buffer.append(formatTime(file.lastModified())).append(";Size=4096").append(";Perm=el; ");
+//    		buffer.append(".."); //.append("\r\r\n");
+//        	return buffer.toString();
+//    	}
         if (file.isDirectory()){
+        	if (fileName.equals("."))
+            	buffer.append("Type=cdir;");
+        	else if (fileName.equals(".."))
+        		buffer.append("Type=pdir;");
+        	else
         	buffer.append("Type=dir;");
         }else{
         	buffer.append("Type=file;");
         }
         buffer.append("Modify=").append(formatTime(file.lastModified())).append(";");
-        buffer.append("Size=").append(file.isDirectory()?"0":file.length()).append(";");
+        if (file.isDirectory())
+            buffer.append("Size=").append("4096").append(";");
+        else
+        	buffer.append("Size=").append(file.length()).append(";");
         buffer.append("Perm=");
         int perm=file.getPermission();
         log.debug("File permissions for \"" + file.getPath() + "\": "

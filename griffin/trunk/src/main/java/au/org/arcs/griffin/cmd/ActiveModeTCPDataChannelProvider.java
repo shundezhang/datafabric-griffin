@@ -88,6 +88,8 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
         if (channels == null) {
         	channels=new ArrayList<DataChannel>();
         }
+        if (channels.size()>0) return channels.get(0);
+        
         Socket socket = createClientSocket();
         DataChannel dc;
 		try {
