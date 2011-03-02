@@ -59,7 +59,7 @@ public class TransferMonitor {
     
     private long lastPerfMarkerTime;
     
-    private DecimalFormat decFormatter = new DecimalFormat("###.#");
+    private DecimalFormat decFormatter = new DecimalFormat("###.0");
 
 	private boolean showPerfMarker;
 	
@@ -112,12 +112,12 @@ public class TransferMonitor {
     
     public String printRangeMarker(){
 		StringBuffer range=new StringBuffer("111 Range Marker ");
-		log.debug("b4 rangeMarkers:"+rangeMarkers);
+//		log.debug("b4 rangeMarkers:"+rangeMarkers);
 //		copy=Collections.synchronizedMap(new HashMap<Long, Long>(rangeMarkers));
 //		this.rangeMarkers.clear();
 		Map<Long, Long> copy=makeCopy();
-		log.debug("after rangeMarkers:"+rangeMarkers);
-		log.debug("copy:"+copy);
+//		log.debug("after rangeMarkers:"+rangeMarkers);
+//		log.debug("copy:"+copy);
 		Set<Long> keys=copy.keySet();
 		List<Long> starts=new ArrayList<Long>(keys);
 		Collections.sort(starts);
