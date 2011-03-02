@@ -19,6 +19,10 @@ public class SynchronizedInputStream {
 		this.in=in;
 		this.idx=0;
 	}
+	public SynchronizedInputStream(InputStream in, long offset){
+		this.in=in;
+		this.idx=offset;
+	}
 	
 //	@Override
 //	public int read() throws IOException {

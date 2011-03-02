@@ -116,7 +116,7 @@ public abstract class AbstractFtpCmdRetr extends AbstractFtpCmd implements FtpCo
         fileSize = file.length();
         try {
             log.debug("retriving file:" + file.getCanonicalPath()
-                      + " in mode=" + mode + "; max thread=" + maxThread);
+                      + " in mode=" + mode + "; max thread=" + maxThread+"; offset="+fileOffset);
         } catch (IOException e1) {
             log.error(e1.toString());
         }
