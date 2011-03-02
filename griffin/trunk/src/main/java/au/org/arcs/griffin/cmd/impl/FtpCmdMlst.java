@@ -34,7 +34,7 @@ public class FtpCmdMlst extends AbstractFtpCmdMlsx {
         FileObject file=getCtx().getFileSystemConnection().getFileObject(path);
 
         if (!file.exists()) {
-            msgOut(MSG550);
+            msgOut(MSG500_ERROR, new Object[]{"No such file or directory"});
             return;
         }
         StringBuffer sb=new StringBuffer("250- Listing " + arg + "\r\n");
