@@ -25,6 +25,7 @@
 package au.org.arcs.griffin.cmd.impl;
 
 import java.io.File;
+import java.io.IOException;
 
 
 import org.apache.commons.io.FileUtils;
@@ -51,7 +52,14 @@ public class FtpCmdSize extends AbstractFtpCmd {
         } else if ((path.getPermission() & PRIV_READ) == 0) {
             msgOut(MSG550_PERM);
         } else if (path.isDirectory()) {
-            msgOut(MSG213_SIZE, new Object[] {new Long(sizeOfDirectory(path))});
+            try {
+				msgOut(MSG213_SIZE, new Object[] {new Long(sizeOfDirectory(path))});
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				msgOut(MSG500_ERROR, new String[]{e.getMessage()});
+                return;
+			}
         } else {
 
             /* This is the binary length. In ASCII mode the size may differ, see RFC 3659, chap. 4 */
@@ -77,7 +85,7 @@ public class FtpCmdSize extends AbstractFtpCmd {
 		// TODO Auto-generated method stub
 		return true;
 	}
-	private long sizeOfDirectory(FileObject file){
+	private long sizeOfDirectory(FileObject file) throws IOException{
 		long len=0;
 		FileObject[] children=file.listFiles();
 		for (int i=0;i<children.length;i++){

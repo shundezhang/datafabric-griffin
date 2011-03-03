@@ -25,6 +25,7 @@
 package au.org.arcs.griffin.cmd.impl;
 
 import java.io.File;
+import java.io.IOException;
 
 
 import org.apache.commons.logging.Log;
@@ -55,22 +56,38 @@ public class FtpCmdRmd extends AbstractFtpCmd {
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-        String response;
+        String response=null;
         FileObject dir = getCtx().getFileSystemConnection().getFileObject(getPathArg());
         if (!dir.exists() || !dir.isDirectory()) {
             log.debug(dir + " not found");
             response = msg(MSG550);
-        } else if (!isEmpty(dir)) {
-            response = msg(MSG550_NOTEMPTY);
-        } else {
-            boolean deleted = delete(dir);
-            response = deleted ? msg(MSG250) : msg(MSG450);
+        } else
+			try {
+				if (!isEmpty(dir)) {
+				    response = msg(MSG550_NOTEMPTY);
+				} else {
+				    boolean deleted;
+					try {
+						deleted = delete(dir);
+				        response = deleted ? msg(MSG250) : msg(MSG450);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						msgOut(MSG500_ERROR, new String[]{e.getMessage()});
+				        return;
+					}
 
-        }
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				msgOut(MSG500_ERROR, new String[]{e.getMessage()});
+		        return;
+			}
         out(response);
     }
 
-    private boolean delete(FileObject dir) {
+    private boolean delete(FileObject dir) throws IOException {
         boolean deleted = true;
         if ((dir.getPermission() & PRIV_WRITE) > 0) {
         	FileObject[] list = dir.listFiles();
@@ -89,8 +106,9 @@ public class FtpCmdRmd extends AbstractFtpCmd {
      * 
      * @param dir The directory.
      * @return True, if the directory is empty.
+     * @throws IOException 
      */
-    private boolean isEmpty(FileObject dir) {
+    private boolean isEmpty(FileObject dir) throws IOException {
     	FileObject[] list = dir.listFiles();
         for (int i = 0; i < list.length; i++) {
             if (list[i].isFile()) {
