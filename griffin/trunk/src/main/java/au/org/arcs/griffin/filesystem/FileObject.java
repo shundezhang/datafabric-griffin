@@ -45,7 +45,7 @@ public interface FileObject {
 
     public String getCanonicalPath() throws IOException;
 
-    public FileObject[] listFiles();
+    public FileObject[] listFiles() throws IOException;
 
     public long length();
 

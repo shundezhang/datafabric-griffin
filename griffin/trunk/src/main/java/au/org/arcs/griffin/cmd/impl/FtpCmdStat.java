@@ -25,6 +25,7 @@
 package au.org.arcs.griffin.cmd.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -74,10 +75,18 @@ public class FtpCmdStat extends AbstractFtpCmd {
                 return;
             }
             if (dir.isDirectory()) {
-                FileObject[] files = dir.listFiles();
-                for (int i = 0; i < files.length; i++) {
-                    doPrintFileInfo(files[i]);
-                }
+                FileObject[] files;
+				try {
+					files = dir.listFiles();
+	                for (int i = 0; i < files.length; i++) {
+	                    doPrintFileInfo(files[i]);
+	                }
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					msgOut(MSG500_ERROR, new String[]{e.getMessage()});
+	                return;
+				}
             } else {
                 doPrintFileInfo(dir);
             }
