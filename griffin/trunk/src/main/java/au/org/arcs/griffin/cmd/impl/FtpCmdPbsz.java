@@ -63,12 +63,35 @@ public class FtpCmdPbsz extends AbstractFtpCmd {
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
-    	msgOut(MSG200);
+    	
+		String arg=getArguments();
+        if (arg.equals("")) {
+            out("500 must supply a buffer size");
+            return;
+        }
+
+        int bufsize;
+        try {
+            bufsize = Integer.parseInt(arg);
+        } catch(NumberFormatException ex) {
+            out("500 bufsize argument must be integer");
+            return;
+        }
+
+        if (bufsize < 1) {
+            out("500 bufsize must be positive.  Probably large, but at least positive");
+            return;
+        }
+
+        getCtx().setBufferSize(bufsize);
+
+    	
+//    	msgOut(MSG200);
 //        Boolean ssl = (Boolean) getCtx().getAttribute(ATTR_SSL);
 //        if (ssl == null || !ssl.booleanValue()) {
 //            msgOut(MSG503);
 //        } else {
-//            msgOut(MSG200_PBSZ, new Object[] {new Integer(0)});
+            msgOut(MSG200_PBSZ, new Object[] {bufsize});
 //        }
     }
 
