@@ -81,7 +81,7 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
         }
         try {
             log.debug("storing file: " + file.getCanonicalPath()
-                      + " in mode=" + mode + "; max thread=" + maxThread);
+                      + " in mode=" + mode + "; max thread=" + maxThread+"; bufferSize="+getCtx().getBufferSize());
         } catch (IOException e1) {
             log.error("Problem accessing file attributes: " + e1.getMessage());
             e1.printStackTrace();
@@ -92,8 +92,8 @@ public abstract class AbstractFtpCmdStor extends AbstractFtpCmd {
             doPerformAccessChecks(unique, file, fileOffset);
 
             /* Initialize restart markers (block transfer mode) */
-            Map<Long, Long> restartMarkers = new HashMap<Long, Long>();
-            getCtx().setAttribute(ATTR_RESTART_MARKERS, restartMarkers);
+//            Map<Long, Long> restartMarkers = new HashMap<Long, Long>();
+//            getCtx().setAttribute(ATTR_RESTART_MARKERS, restartMarkers);
 
             /* Wrap inbound data stream and call handler method */
             if (mode == MODE_EBLOCK) {
