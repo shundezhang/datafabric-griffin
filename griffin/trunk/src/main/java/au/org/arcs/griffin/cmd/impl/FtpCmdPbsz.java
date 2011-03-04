@@ -91,7 +91,7 @@ public class FtpCmdPbsz extends AbstractFtpCmd {
 //        if (ssl == null || !ssl.booleanValue()) {
 //            msgOut(MSG503);
 //        } else {
-            msgOut(MSG200_PBSZ, new Object[] {bufsize});
+            msgOut(MSG200_PBSZ, new Object[] {String.valueOf(bufsize)});
 //        }
     }
 
