@@ -88,7 +88,7 @@ public class FtpSessionContextImpl implements FtpConstants, FtpSessionContext {
 
     private boolean             authenticated;
 
-    private int                 dataType          = DT_BINARY;
+    private int                 dataType          = DT_ASCII;
 
     private int                 transmissionMode  = MODE_STREAM;
 
