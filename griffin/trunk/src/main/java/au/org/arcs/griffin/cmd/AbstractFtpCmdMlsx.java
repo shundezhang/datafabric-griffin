@@ -58,11 +58,11 @@ abstract public class AbstractFtpCmdMlsx extends AbstractFtpCmd {
 //        	return buffer.toString();
 //    	}
         if (file.isDirectory()){
-        	if (fileName.equals("."))
-            	buffer.append("Type=cdir;");
-        	else if (fileName.equals(".."))
-        		buffer.append("Type=pdir;");
-        	else
+//        	if (fileName.equals("."))
+//            	buffer.append("Type=cdir;");
+//        	else if (fileName.equals(".."))
+//        		buffer.append("Type=pdir;");
+//        	else
         	buffer.append("Type=dir;");
         }else{
         	buffer.append("Type=file;");
