@@ -88,12 +88,13 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
             if (virtualDir.isDirectory()) {
                 FileObject[] files = virtualDir.listFiles();
                 dataOut.println("total " + files.length);
-
+                doPrintFileInfo(dataOut, virtualDir, getCtx(), ".");
+                if (!absoluteVirtualDirName.equals("/")) doPrintFileInfo(dataOut, virtualDir.getParent(), getCtx(), "..");
                 for (int i = 0; i < files.length; i++) {
-                    doPrintFileInfo(dataOut, files[i], getCtx());
+                    doPrintFileInfo(dataOut, files[i], getCtx(), null);
                 }
             } else {
-                doPrintFileInfo(dataOut, virtualDir, getCtx());
+                doPrintFileInfo(dataOut, virtualDir, getCtx(), null);
             }
 
             msgOut(MSG226);
@@ -114,6 +115,6 @@ public abstract class AbstractFtpCmdList extends AbstractFtpCmd {
      * @param ctx The FTP context.
      * @throws IOException Error on data transfer.
      */
-    protected abstract void doPrintFileInfo(PrintWriter out, FileObject file, FtpSessionContext ctx)
+    protected abstract void doPrintFileInfo(PrintWriter out, FileObject file, FtpSessionContext ctx, String filename)
             throws IOException;
 }
