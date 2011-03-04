@@ -44,10 +44,11 @@ public class FtpCmdMlsd extends AbstractFtpCmdMlsx {
         String charset = getCtx().getCharset();
 //        PrintWriter dataOut = null;
         int mode = getCtx().getTransmissionMode();
+        int dataType=getCtx().getDataType();
         OutputStream os=null; 
         try {
             DataChannel dataChannel = getCtx().getDataChannelProvider().provideDataChannel();
-            log.debug("MLSD in mode "+mode+" buffersize:"+getCtx().getBufferSize());
+            log.debug("MLSD in mode "+mode+" buffersize:"+getCtx().getBufferSize()+" dataType:"+dataType);
             if (mode == MODE_EBLOCK) 
             	os=new EBlockModeOutputStream(dataChannel.getOutputStream(), getCtx().getBufferSize());
             else
@@ -71,12 +72,14 @@ public class FtpCmdMlsd extends AbstractFtpCmdMlsx {
             out("150 BINARY connection open for MLSD "+arg);
             if (dir.isDirectory()) {
             	
-//            	StringBuffer cur=new StringBuffer("Type=pdir;Modify=");
-//            	cur.append(formatTime(dir.getParent().lastModified())).append(";Size=4096").append(";Perm=el; ");
-//            	cur.append("..").append("\r\r\n");
-//            	log.debug("printing to data channel: "+cur);
-//            	dataOut.print(cur.toString());
-            	
+            	StringBuffer cur;
+            	if (!path.equals("/")){
+	            	cur=new StringBuffer("Type=pdir;Modify=");
+	            	cur.append(formatTime(dir.getParent().lastModified())).append(";Size=4096").append(";Perm=el; ");
+	            	cur.append("..").append(dataType==DT_ASCII?"\r":"").append("\r\n");
+	            	log.debug("printing to data channel: "+cur);
+	            	os.write(cur.toString().getBytes(getCtx().getCharset()));
+            	}
                 FileObject[] files = dir.listFiles();
 
                 for (int i = 0; i < files.length; i++) {
@@ -84,11 +87,11 @@ public class FtpCmdMlsd extends AbstractFtpCmdMlsx {
                     if (mode != MODE_EBLOCK) os.flush();
                 }
                 
-//            	cur=new StringBuffer("Type=cdir;Modify=");
-//            	cur.append(formatTime(dir.lastModified())).append(";Size=4096").append(";Perm=cfmpel; ");
-//            	cur.append(".").append("\r\r\n");
-//            	log.debug("printing to data channel: "+cur);
-//            	dataOut.print(cur.toString());
+            	cur=new StringBuffer("Type=cdir;Modify=");
+            	cur.append(formatTime(dir.lastModified())).append(";Size=4096").append(";Perm=cfmpel; ");
+            	cur.append(".").append(dataType==DT_ASCII?"\r":"").append("\r\n");
+            	log.debug("printing to data channel: "+cur);
+            	os.write(cur.toString().getBytes(getCtx().getCharset()));
 
             } else {
                 doPrintFileInfo(os, dir, getCtx());
@@ -110,10 +113,11 @@ public class FtpCmdMlsd extends AbstractFtpCmdMlsx {
 
     protected void doPrintFileInfo(OutputStream out, FileObject file, FtpSessionContext ctx) throws IOException {
     	int mode = getCtx().getTransmissionMode();
-    	log.debug("out:"+out);
+        int dataType=getCtx().getDataType();
+//    	log.debug("out:"+out);
     	String str=printFact(file,file.getName());
     	log.debug("printing to data channel: "+str);
-        out.write((str+(mode==MODE_EBLOCK?"":"\r")+"\r\n").getBytes(getCtx().getCharset()));
+        out.write((str+(dataType==DT_ASCII?"\r":"")+"\r\n").getBytes(getCtx().getCharset()));
     }
 
 	public String getHelp() {
