@@ -167,7 +167,7 @@ public class TransferMonitor {
     public void execute(long start, long byteCount) {
         transferredBytes += byteCount;
         log.debug("adding item:"+start+" "+(start+byteCount));
-        addItem(start, start+byteCount);
+        if (showPerfMarker) addItem(start, start+byteCount);
         log.debug("added item:"+start+" "+(start+byteCount));
 //		rangeMarkers.put(start, start+byteCount);
         if (System.currentTimeMillis()-lastPerfMarkerTime>PERF_MARKER_INTERVAL) sendPerfMarker();
