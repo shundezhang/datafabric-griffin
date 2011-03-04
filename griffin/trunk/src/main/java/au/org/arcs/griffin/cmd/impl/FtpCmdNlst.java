@@ -68,7 +68,7 @@ public class FtpCmdNlst extends AbstractFtpCmdList {
      * @param ctx The FTP context.
      * @throws IOException Error on data transfer.
      */
-    protected void doPrintFileInfo(PrintWriter out, FileObject file, FtpSessionContext ctx) throws IOException {
+    protected void doPrintFileInfo(PrintWriter out, FileObject file, FtpSessionContext ctx, String filename) throws IOException {
         out.println(file.getName());
     }
 
