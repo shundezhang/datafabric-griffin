@@ -259,16 +259,16 @@ public class JargonFileObject implements FileObject {
 //	    		System.arraycopy(dirs, 0, detailList, 0, dirs.length);
 //	    		System.arraycopy(files, 0, detailList, dirs.length, files.length);
 
-	            FileObject[] list = new FileObject[files.length+dirs.length + 2];
-	            list[0] = this.connection.getFileObject(".");
-	            list[1] = this.connection.getFileObject("..");
+	            FileObject[] list = new FileObject[files.length+dirs.length];
+//	            list[0] = this.connection.getFileObject(".");
+//	            list[1] = this.connection.getFileObject("..");
 	            
 	            for (int j = 0; j < files.length; j++) {
-	                list[j + 2] = new JargonFileObject(this.connection,
+	                list[j] = new JargonFileObject(this.connection,
 	                                                   (RemoteFile) files[j]);
 	            }
 	            for (int j = 0; j < dirs.length; j++) {
-	                list[j + 2 + files.length] = new JargonFileObject(this.connection,
+	                list[j + files.length] = new JargonFileObject(this.connection,
 	                                                   (RemoteFile) dirs[j]);
 	            }
 
