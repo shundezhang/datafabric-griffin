@@ -179,24 +179,27 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
     protected String getAbsPath(String path) {
         String absolutePath;
         String fileSeparator = getCtx().getFileSystem().getSeparator();
-        if (!path.equals(fileSeparator)) {
-            path = FilenameUtils.normalizeNoEndSeparator(path);
-        }
         String virtualPath = path.replace("~",
-                                          FilenameUtils.concat(fileSeparator,
-                                                               getCtx().getFileSystemConnection()
-                                                                       .getHomeDir()));
-        virtualPath = FilenameUtils.normalizeNoEndSeparator(virtualPath);
+                FilenameUtils.concat(fileSeparator,
+                                     getCtx().getFileSystemConnection()
+                                             .getHomeDir()));
+        
+        if (virtualPath.startsWith(fileSeparator)) {
+        	virtualPath = FilenameUtils.normalizeNoEndSeparator(virtualPath);
+        }else
+           	virtualPath = FilenameUtils.concat(getCtx().getRemoteDir(), virtualPath);
+        log.debug("path:"+virtualPath);
+//        virtualPath = FilenameUtils.normalizeNoEndSeparator(virtualPath);
         if (virtualPath == null || virtualPath.length()==0) {
             virtualPath = fileSeparator;
         }
-        if (virtualPath.startsWith(fileSeparator)) {
-            absolutePath = virtualPath;
-        } else {
-            absolutePath = FilenameUtils.concat(getCtx().getRemoteDir(), virtualPath);
-            absolutePath = FilenameUtils.concat(fileSeparator, absolutePath);
-        }
-        return FilenameUtils.separatorsToUnix(absolutePath);
+//        if (virtualPath.startsWith(fileSeparator)) {
+//            absolutePath = virtualPath;
+//        } else {
+//            absolutePath = FilenameUtils.concat(getCtx().getRemoteDir(), virtualPath);
+//            absolutePath = FilenameUtils.concat(fileSeparator, absolutePath);
+//        }
+        return FilenameUtils.separatorsToUnix(virtualPath);
     }
 
     /**
