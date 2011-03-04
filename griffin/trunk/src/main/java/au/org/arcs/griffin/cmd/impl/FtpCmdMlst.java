@@ -29,7 +29,7 @@ public class FtpCmdMlst extends AbstractFtpCmdMlsx {
 	private static Log log = LogFactory.getLog(FtpCmdMlst.class);
 	public void execute() throws FtpCmdException {
 		String arg=getArguments();
-        String path = getCtx().getRemoteDir();
+        String path = getCtx().getRemoteRelDir();
         if (arg!=null&&arg.length()>0) path = getAbsPath(arg);
         FileObject file=getCtx().getFileSystemConnection().getFileObject(path);
 
@@ -39,7 +39,7 @@ public class FtpCmdMlst extends AbstractFtpCmdMlsx {
         }
         StringBuffer sb=new StringBuffer("250- Listing " + arg + "\r\n");
         sb.append(" ");
-        sb.append(printFact(file, arg)).append("\r\r\n");
+        sb.append(printFact(file, arg)).append("\n");
         sb.append("250 End");
         out(sb.toString());
 
