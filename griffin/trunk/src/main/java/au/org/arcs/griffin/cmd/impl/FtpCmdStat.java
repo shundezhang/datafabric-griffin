@@ -69,7 +69,8 @@ public class FtpCmdStat extends AbstractFtpCmd {
         if (arg.length() == 0) {
             printUserStatistics(map);
         } else {
-            FileObject dir = getCtx().getFileSystemConnection().getFileObject(getPathArg());
+        	String path=getPathArg();
+            FileObject dir = getCtx().getFileSystemConnection().getFileObject(path);
             if (!dir.exists()) {
                 msgOut(MSG550);
                 return;
@@ -78,8 +79,10 @@ public class FtpCmdStat extends AbstractFtpCmd {
                 FileObject[] files;
 				try {
 					files = dir.listFiles();
+					doPrintFileInfo(dir, ".");
+					if (!path.equals("/")) doPrintFileInfo(dir.getParent(), "..");
 	                for (int i = 0; i < files.length; i++) {
-	                    doPrintFileInfo(files[i]);
+	                    doPrintFileInfo(files[i], null);
 	                }
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -88,17 +91,17 @@ public class FtpCmdStat extends AbstractFtpCmd {
 	                return;
 				}
             } else {
-                doPrintFileInfo(dir);
+                doPrintFileInfo(dir, null);
             }
         }
         out("211 ");
     }
 
-    private void doPrintFileInfo(FileObject file) {
+    private void doPrintFileInfo(FileObject file, String filename) {
         int permission = file.getPermission();
         boolean read = (permission & PRIV_READ) > 0;
         boolean write = (permission & PRIV_WRITE) > 0;
-        out("211-" + IOUtils.formatUnixFtpFileInfo(getCtx().getUser(), file, read, write));
+        out("211-" + IOUtils.formatUnixFtpFileInfo(getCtx().getUser(), file, read, write, null));
 
     }
 
