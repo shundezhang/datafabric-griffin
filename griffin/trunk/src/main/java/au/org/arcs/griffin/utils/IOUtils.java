@@ -105,7 +105,7 @@ public final class IOUtils {
      * @param write True if writable.
      * @return The formatted line.
      */
-    public static String formatUnixFtpFileInfo(String user, FileObject file, boolean read, boolean write) {
+    public static String formatUnixFtpFileInfo(String user, FileObject file, boolean read, boolean write, String filename) {
         long size;
         StringBuffer sb = new StringBuffer();
         String wFlag = write ? "w" : "-";
@@ -125,7 +125,7 @@ public final class IOUtils {
         sb.append(" ");
         sb.append(DATE_FORMAT_UNIX.format(date));
         sb.append(" ");
-        sb.append(file.getName());
+        sb.append(filename==null?file.getName():filename);
         return sb.toString();
     }
 
