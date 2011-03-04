@@ -48,7 +48,7 @@ abstract public class TCPDataChannelProvider implements DataChannelProvider {
 		int protLevel="P".equalsIgnoreCase((String) ctx.getAttribute(FtpConstants.ATTR_DATA_PROT))?GridFTPSession.PROTECTION_PRIVATE:GridFTPSession.PROTECTION_CLEAR;
 		if (ctx.getDCAU()==FtpConstants.DCAU_SELF) {
 //			DataChannelAuthentication dcau=DataChannelAuthentication.SELF;
-			log.debug("creating secure socket for DCAU self. isClientSocket:"+isClientSocket);
+			log.debug("creating secure socket for DCAU self. isClientSocket:"+isClientSocket+" protLevel:"+protLevel);
 			return GridFTPServerFacade.authenticate(socket, isClientSocket, ctx.getServiceContext().getDelegCred(), protLevel, DataChannelAuthentication.SELF);
 		}else
 			return socket;
