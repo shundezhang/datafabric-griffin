@@ -87,11 +87,11 @@ public class FtpCmdList extends AbstractFtpCmdList {
      * @param ctx The FTP context.
      * @throws IOException Error on data transfer.
      */
-    protected void doPrintFileInfo(PrintWriter out, FileObject file, FtpSessionContext ctx) throws IOException {
+    protected void doPrintFileInfo(PrintWriter out, FileObject file, FtpSessionContext ctx, String filename) throws IOException {
         int permission = file.getPermission();
         boolean read = (permission & PRIV_READ) > 0;
         boolean write = (permission & PRIV_WRITE) > 0;
-        String s = IOUtils.formatUnixFtpFileInfo(getCtx().getUser(), file, read, write);
+        String s = IOUtils.formatUnixFtpFileInfo(getCtx().getUser(), file, read, write, filename);
         out.println(s);
     }
 
