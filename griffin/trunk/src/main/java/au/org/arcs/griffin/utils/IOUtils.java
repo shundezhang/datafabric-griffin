@@ -120,7 +120,11 @@ public final class IOUtils {
         }
         Date date = new Date(file.lastModified());
         sb.append(permflags);
-        sb.append(" 1 ").append(user).append(" nobody ");
+        if (file.isDirectory()) 
+        	sb.append(" 2 ");
+        else
+        	sb.append(" 1 ");
+        sb.append(user).append(" nobody ");
         sb.append(StringUtils.leftPad("" + size, FILE_SIZE_LENGTH_UNIX));
         sb.append(" ");
         sb.append(DATE_FORMAT_UNIX.format(date));
