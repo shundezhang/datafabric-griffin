@@ -338,5 +338,9 @@ public class TCPDataChannel implements DataChannel {
 		// TODO Auto-generated method stub
 		return new DataChannelOutputStream(this);
 	}
+	
+	public String toString(){
+		return "Channel"+threadNum+"[clientSocket:"+clientSocket+"]";
+	}
 
 }
