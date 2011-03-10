@@ -130,7 +130,7 @@ public class TransferMonitor {
 			end=copy.get(start);
 		}
 		range.append(end);
-		range.append("\r\n");
+//		range.append("\r\n");
 		return range.toString();
     }
     
