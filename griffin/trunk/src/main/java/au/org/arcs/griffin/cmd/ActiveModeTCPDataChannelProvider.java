@@ -183,10 +183,12 @@ public class ActiveModeTCPDataChannelProvider extends TCPDataChannelProvider {
 
 	public void prepare() throws IOException {
 		if (direction==DataChannel.DIRECTION_GET) sis=new SynchronizedInputStream(new RafInputStream(fileObject, offset), offset);
-		if (channels==null){
+		if (channels==null||channels.size()<maxThread){
 //			log.debug("new provider, init'ing...");
-			channels=new ArrayList<DataChannel>();
-			for (int i=0;i<maxThread;i++){
+			if (channels==null) channels=new ArrayList<DataChannel>();
+			int currentNumber=channels.size();
+			log.debug("opened channel number:"+currentNumber+" required channel number:"+maxThread);
+			for (int i=currentNumber;i<maxThread;i++){
 				Socket s=createClientSocket();
 				TCPDataChannel dc;
 				try {
