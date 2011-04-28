@@ -56,18 +56,39 @@ public class FtpCmdHelp extends AbstractFtpCmd implements CmdListAware {
      */
     public void execute() throws FtpCmdException {
 
-        StringBuffer sb = new StringBuffer();
-        sb.append(msg(MSG214) + "\n");
-        sb.append("214-");
-        for (FtpCmd cmd : getCmdList()) {
-            sb.append(cmd.getToken());
-            if (cmd instanceof FtpCmdNotImpl) {
-                sb.append("*");
+    	String token=getArguments().trim();
+    	if (token==null||token.length()==0){
+            StringBuffer sb = new StringBuffer();
+            sb.append(msg(MSG214) + "\n");
+            sb.append("214-");
+            for (FtpCmd cmd : getCmdList()) {
+                sb.append(cmd.getToken());
+                if (cmd instanceof FtpCmdNotImpl) {
+                    sb.append("*");
+                }
+                sb.append(" ");
             }
-            sb.append(" ");
-        }
-        sb.append("\n214 ");
-        out(sb.toString());
+            sb.append("\n214 ");
+            out(sb.toString());
+    	}else{
+//        	FtpCmd cmd = getParser().createCommandByToken(token);
+    		boolean found=false;
+        	for (FtpCmd cmd : getCmdList()){
+        		if (cmd.getToken().equalsIgnoreCase(token)) {
+        			found=true;
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(msg(MSG214) + "\n");
+                    sb.append("214-");
+                    sb.append(cmd.getHelp());
+                    sb.append("\n214 ");
+                    out(sb.toString());
+        		}
+        	}
+        	if (!found){
+        		out("502 "+token+" is not implemented.");
+        	}
+    	}
+    	
     }
 
     private List<FtpCmd> getCmdList() {
