@@ -106,11 +106,11 @@ public class TransferMonitor {
     	cmd.out(perf.toString());
     	log.debug("transferredBytes:"+transferredBytes);
     	if (transferredBytes>0) {
-    		cmd.out(printRangeMarker());
+    		printRangeMarker(cmd);
     	}
     }
     
-    public String printRangeMarker(){
+    public void printRangeMarker(AbstractFtpCmd cmd){
 		StringBuffer range=new StringBuffer("111 Range Marker ");
 //		log.debug("b4 rangeMarkers:"+rangeMarkers);
 //		copy=Collections.synchronizedMap(new HashMap<Long, Long>(rangeMarkers));
@@ -120,6 +120,7 @@ public class TransferMonitor {
 //		log.debug("copy:"+copy);
 		Set<Long> keys=copy.keySet();
 		List<Long> starts=new ArrayList<Long>(keys);
+		if (starts.size()==0) return;
 		Collections.sort(starts);
 		long end=-2;
 		for (long start:starts){
@@ -131,7 +132,7 @@ public class TransferMonitor {
 		}
 		range.append(end);
 //		range.append("\r\n");
-		return range.toString();
+		cmd.out(range.toString());
     }
     
     synchronized Map<Long, Long> makeCopy(){
