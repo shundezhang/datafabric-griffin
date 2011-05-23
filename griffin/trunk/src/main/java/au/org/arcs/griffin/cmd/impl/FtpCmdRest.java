@@ -24,6 +24,9 @@
 
 package au.org.arcs.griffin.cmd.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import au.org.arcs.griffin.cmd.AbstractFtpCmd;
 import au.org.arcs.griffin.exception.FtpCmdException;
 
@@ -42,12 +45,19 @@ import au.org.arcs.griffin.exception.FtpCmdException;
  */
 public class FtpCmdRest extends AbstractFtpCmd {
 
+    private static Log log = LogFactory.getLog(FtpCmdRest.class);
     /**
      * {@inheritDoc}
      */
     public void execute() throws FtpCmdException {
         try {
-            Long pointer = new Long(getArguments());
+        	String marker=getArguments();
+            Long pointer = (long)0;
+            if (marker.indexOf("-")>-1){
+            	pointer = new Long(marker.substring(marker.indexOf("-")+1));
+            }else
+            	pointer = new Long(getArguments());
+            log.debug("REST:"+pointer);
             getCtx().setAttribute(ATTR_FILE_OFFSET, pointer);
             msgOut(MSG350_REST, pointer.toString());
         } catch (NumberFormatException e) {
