@@ -107,7 +107,7 @@ public abstract class AbstractFtpCmd implements FtpCmd, FtpConstants {
         } else if (getCtx().getReplyType().equals("mic")) {
             secure_reply(text, "631");
         } else if (getCtx().getReplyType().equals("enc")) {
-            secure_reply(text, "633");
+            secure_reply(text, "632"); // used to be 633
         } else if (getCtx().getReplyType().equals("conf")) {
             secure_reply(text, "632");
         }
