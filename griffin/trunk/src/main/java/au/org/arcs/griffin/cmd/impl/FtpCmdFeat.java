@@ -143,6 +143,21 @@ public class FtpCmdFeat extends AbstractFtpCmd {
     public void execute() throws FtpCmdException {
 
     	StringBuffer msg=new StringBuffer(msg(MSG211_FEAT_HEADER));
+//    	msg.append("\n");
+////    	msg.append(msg(MSG211_FEAT_ENTRY, "UTF8")).append("\r\n");
+////    	msg.append(msg(MSG211_FEAT_ENTRY, "LANG EN")).append("\r\n");
+//    	msg.append(msg(MSG211_FEAT_ENTRY, " DCAU")).append("\n");
+//    	msg.append(msg(MSG211_FEAT_ENTRY, " PARALLEL")).append("\n");
+//    	msg.append(msg(MSG211_FEAT_ENTRY, " SIZE")).append("\n");
+//    	msg.append(msg(MSG211_FEAT_ENTRY, " MLST Type*;Modify*;Size*;Perm*;UNIX.mode*;UNIX.owner*;UNIX.group*;Unique*;")).append("\n");
+//    	msg.append(msg(MSG211_FEAT_ENTRY, " ERET")).append("\n");
+//    	msg.append(msg(MSG211_FEAT_ENTRY, " ESTO")).append("\n");
+////    	msg.append(msg(MSG211_FEAT_ENTRY, "SPAS")).append("\r\n");
+////    	msg.append(msg(MSG211_FEAT_ENTRY, "SPOR")).append("\r\n");
+////    	msg.append(msg(MSG211_FEAT_ENTRY, "REST STREAM")).append("\r\n");
+//    	msg.append(msg(MSG211_FEAT_ENTRY, " MDTM")).append("\n");
+//    	msg.append(msg(MSG211_FEAT_FOOTER)).append("\n");
+//    	out(msg.toString());
     	msg.append("\r\n");
 //    	msg.append(msg(MSG211_FEAT_ENTRY, "UTF8")).append("\r\n");
 //    	msg.append(msg(MSG211_FEAT_ENTRY, "LANG EN")).append("\r\n");
