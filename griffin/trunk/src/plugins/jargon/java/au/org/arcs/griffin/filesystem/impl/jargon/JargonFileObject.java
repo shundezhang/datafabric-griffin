@@ -166,6 +166,7 @@ public class JargonFileObject implements FileObject {
 				});
 			MetaDataCondition conditionsDir[] = {
 				MetaDataSet.newCondition(IRODSMetaDataSet.PARENT_DIRECTORY_NAME, MetaDataCondition.EQUAL, remoteFile.getAbsolutePath()),
+				MetaDataSet.newCondition(IRODSMetaDataSet.DIRECTORY_NAME, MetaDataCondition.NOT_EQUAL, remoteFile.getAbsolutePath()),
 	//##			MetaDataSet.newCondition(IRODSMetaDataSet.FILE_REPLICA_STATUS, MetaDataCondition.EQUAL, "1"),
 //				MetaDataSet.newCondition(IRODSMetaDataSet.DIRECTORY_USER_NAME, MetaDataCondition.EQUAL, ((IRODSFileSystem)file.getFileSystem()).getUserName()),
 			};
