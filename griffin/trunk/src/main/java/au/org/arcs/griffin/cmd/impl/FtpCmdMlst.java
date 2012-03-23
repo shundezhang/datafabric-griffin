@@ -39,7 +39,7 @@ public class FtpCmdMlst extends AbstractFtpCmdMlsx {
         }
         StringBuffer sb=new StringBuffer("250- Listing " + arg + "\r\n");
         sb.append(" ");
-        sb.append(printFact(file, arg)).append("\n");
+        sb.append(printFact(file, arg)).append("\r\n");
         sb.append("250 End");
         out(sb.toString());
 
